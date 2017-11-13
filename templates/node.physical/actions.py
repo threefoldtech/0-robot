@@ -1,14 +1,28 @@
-def input(job):
-    # support for using node in blueprint to specify the parent.
-    # we change it to point to os so it match the requirment of the schema
-    args = job.model.args
-    if 'node' in args:
-        args['os'] = args['node']
-        del args['node']
-    return args
+class Service():
+
+    def init(self,job):
+        pass
+
+    def start(self,job):
+        pass
+
+    def stop(self,job):
+        pass
+
+    def restart(self,job):
+        self.stop()
+        self.start()
 
 
-def init(job):
-    service = job.service
-    os_actor = service.aysrepo.actorGet('os.ssh.ubuntu')
-    os_actor.serviceCreate(service.name, args={'node': service.name, 'sshkey': service.model.data.sshkey})
+    def monitor(self):
+        """
+
+        config='''
+        recurring=60
+        log=False
+        job=False
+        timeout_policy="mypolicy1"
+        '''
+
+        """
+        pass
