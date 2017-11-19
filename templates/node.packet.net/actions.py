@@ -1,30 +1,21 @@
-class Service():
+from js9 import j
+from JumpScale9.tools.zerorobot.ZeroTemplates import *
+class Template(ZeroTemplate):
 
-    def init(self,job):
-        """
+    def init(self):    
+        self.version=1.0
 
-        thisis some desc
 
-        config='''
-        recurring : 60
-        log : False
-        job : False        
-        timeout_policy : "mypolicy1"
-        
-        '''
+    @retry
+    @our_decorator
+    def start(self):
+        time.sleep(1)
+        raise RuntimeError("D")
 
-        y
-
-        """        
+    def stop(self):
         pass
 
-    def start(self,job):
-        pass
-
-    def stop(self,job):
-        pass
-
-    def restart(self,job):
+    def restart(self):
         self.stop()
         self.start()
 
