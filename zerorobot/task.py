@@ -33,7 +33,10 @@ class Task:
         # TODO: handle retries, exception, logging,...
         result = None
         try:
-            result = self._action(*self._args)
+            if self._args is not None:
+                result = self._action(*self._args)
+            else:
+                result = self._action()
             self._state = TASK_STATE_OK
         except Exception as err:
             self._state = TASK_STATE_ERROR

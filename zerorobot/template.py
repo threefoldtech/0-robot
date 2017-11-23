@@ -2,9 +2,10 @@ import os
 from uuid import uuid4
 
 import gevent
-from gevent.greenlet import GreenletExit
+from gevent.greenlet import Greenlet, GreenletExit
 
-from .task import TaskList
+from .task import TaskList, Task
+from zerorobot import service_collection as scol
 
 
 class TemplateBase:
@@ -28,7 +29,8 @@ class TemplateBase:
         self._task_list = TaskList()
 
         # start the greenlet of this service
-        self._gl = gevent.spawn(self._run)
+        self._gl = Greenlet(self._run)
+        self._gl.start()
 
     def _load(self, base_path):
         """
@@ -60,11 +62,11 @@ class TemplateBase:
         while True:
             try:
                 # TODO: walk over the task list and execute actions
-                raise NotImplementedError()
+                task = self._task_list.get()
+                task.execute()
             except GreenletExit:
                 # TODO: gracefull shutdown
                 print("stop service %s" % str(self))
-                raise NotImplementedError()
 
     def ask_action(self, service_guid, action, args):
         """
@@ -76,9 +78,11 @@ class TemplateBase:
         @param action: action is the name of the action to add to the task list
         @param args: dictionnary of the argument to pass to the action
         """
-        raise NotImplementedError()
 
-    def schedule_action(self, action, args, respo_q=None):
+        service = scol.get_by_guid(service_guid)
+        service.schedule_action(action, args)
+
+    def schedule_action(self, action, args=None, resp_q=None):
         """
         Add an action to the task list of this service.
         This method should never be called directly by the user.
@@ -89,7 +93,14 @@ class TemplateBase:
         @param args: dictionnary of the argument to pass to the action
         @param resp_q: is the response queue on which the result of the action need to be put
         """
-        raise NotImplementedError()
+        if not hasattr(self, action):
+            raise RuntimeError("sel %s doesn't have action %s" % (self.name, action))
+        action = getattr(self, action)
+        if not callable(action):
+            raise RuntimeError("%s is not a function" % action)
+
+        task = Task(action, args, resp_q)
+        self._task_list.put(task)
 
 
 class ServiceData(dict):

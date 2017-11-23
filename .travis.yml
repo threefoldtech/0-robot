@@ -1,7 +1,10 @@
 language: python
 python:
   - "3.5"
+sudo: required
 install:
-  - pip3 install pycodestyle
+  - pip3 install pycodestyle nose2
+  - curl http://jumpscale.maxux.net | sudo bash
 script:
   - pycodestyle --show-source --show-pep8 --ignore=E501 zerorobot
+  - nose2
