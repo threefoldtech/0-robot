@@ -1,7 +1,10 @@
 import gevent
 from gevent.queue import Queue
+import time
 
+from js9 import j
 
+# Task state constant
 TASK_STATE_NEW = "new"
 TASK_STATE_RUNNING = "running"
 TASK_STATE_OK = "ok"
@@ -16,6 +19,7 @@ class Task:
         @param args: argument to pass to the action when executing
         @param resp_q: is the response queue on which the result of the action need to be put
         """
+        self.guid = j.data.idgenerator.generateGUID()
         self._action = action
         self._resp_q = resp_q
         self._args = args
