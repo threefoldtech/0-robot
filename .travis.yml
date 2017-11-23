@@ -1,0 +1,7 @@
+language: python
+python:
+  - "3.5"
+install:
+  - pip3 install pycodestyle
+script:
+  - pycodestyle --show-source --show-pep8 --ignore=E501 zerorobot

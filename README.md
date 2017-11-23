@@ -1,4 +1,5 @@
 # ZeroRobot
+[![Build Status](https://travis-ci.org/Jumpscale/zerorobot.svg?branch=master)](https://travis-ci.org/Jumpscale/zerorobot)
 
 The goal of this project is to create a distributed live cycle management system.
 By combining multiple ZeroRobot, each of them focusing on a specific purpose, we can create a distributed network or robot that managed nodes and applications.
