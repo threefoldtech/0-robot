@@ -1,0 +1,217 @@
+#%RAML 1.0
+title: "ZeroRobot"
+description: API of the ZeroRobot, used for management and communication between ZeroRobots
+version: 0.0.1
+mediaType: application/json
+documentation: https://github.com/Jumpscale/zerorobot/tree/first_draft/docs
+
+types:
+  Blueprint:
+    description: |
+      A blueprint is a description of which service you want to create
+      and what action you want to add to a task list.
+    properties:
+      content: object
+    example:
+      node__node1:
+        ip: '192.168.1.10'
+        hostname: 'node1'
+      actions:
+        template: node
+        service: node1
+        action: start
+
+  TemplateRepository:
+    properties:
+      url:
+        type: string
+        description: |
+          URL of the git repository to clone.
+          Need to be under one of these format
+          - git@github.com:account/repository.git
+          - https://github.com/account/repository.git
+      branch:
+        type: string
+        description: branch of the repository to clone. If not specified, default to master
+        default: master
+        required: false
+
+  Template:
+    properties:
+      version:
+        type: string
+      name:
+        type: string
+
+  ServiceState:
+    properties:
+      category:
+        type: string
+      tag:
+        type: string
+      state:
+        enum: [ ok, error ]
+
+  ServiceCreate:
+    properties:
+      template:
+        type: string
+      version:
+        type: string
+      name:
+        type: string
+
+  Service:
+    type: ServiceCreate
+    properties:
+      state:
+        type: ServiceState[]
+
+  Action:
+    properties:
+      name:
+        type: string
+      arguments:
+        type: string[]
+
+  Task:
+    properties:
+      template_name:
+        type: string
+      service_name:
+        type: string
+      action_name:
+        type: string
+      state:
+        enum: [ new, error ]
+        description: |
+          a task that is waiting to be executed is in state ok.
+          a task that failed to execute and is being retried is in state error.
+
+  TaskAdded:
+    type: Task
+    description: Type return after a task is added to a task list
+    properties:
+      position:
+        type: integer
+        description: Position of the task in the list
+      guid:
+        type: string
+        description: unique ID of the task
+
+  Error:
+    properties:
+      code:
+        type: integer
+        description: error code
+      message:
+        type: string
+        description: Human friendly error message
+      stack_trace:
+        type: string
+        description: optional stack_trace attached with the error.
+        required: false
+
+/blueprints:
+  description: |
+    A blueprint is a description of which service you want to create
+    and what action you want to add to a task list.
+  post:
+    displayName: ExecuteBlueprint
+    description: Execute a blueprint on the ZeroRobot
+    body:
+      type: Blueprint
+    responses:
+      204:
+        description: |
+          Blueprint executed successfully
+          Which mean all the service have been created and all actions added to the task list
+
+/templates:
+  description: |
+    Templates are the source of the services. A service is just an instance of a template.
+    To be able to create services, you need to first make some template available to the ZeroRobot by cloning
+    a git repository that contains template.
+    Once the templates are available, you can send blueprint with the description of which service to create.
+  get:
+    displayName: ListTemplates
+    description: List all the templates available to the ZeroRobot
+    responses:
+      200:
+        body:
+          type: Template[]
+  post:
+    displayName: AddTemplateRepo
+    description: Clone a template repository and make the templates available to the ZeroRobot
+    body:
+      type: TemplateRepository
+    responses:
+      201:
+        description: Template successfully added
+        body:
+          description: List of all new templates
+          type: Template[]
+/services:
+  description: |
+    Services are the core of the ZeroRobot. It is the services that hold state, data and execute actions.
+  get:
+    displayName: listServices
+    description: List all the services known by the ZeroRobot.
+    body:
+      type: Service[]
+  post:
+    displayName: createService
+    description: create a new service
+    body:
+      type: Service
+    responses:
+      201:
+        description: Service created successfully
+        body:
+          type: Service
+        headers:
+          Location:
+            description: URL to the created service resource
+      409:
+        description: Conflict, a service with this name already exists in this ZeroRobot.
+  /{service_guid}:
+    /actions:
+      get:
+        displayName: ListActions
+        description: List all the possible action a service can do.
+        responses:
+          200:
+            body:
+              type: Action[]
+    /task_list:
+      description: A task list is all the actions that are scheduled for a service
+      get:
+        displayName: getTaskList
+        description: Return all the action in the task list
+        body:
+          type: Task[]
+      post:
+        displayName: AddTaskToList
+        description: Add a task to the task list
+        body:
+          type: Task
+        responses:
+          201:
+            description: Task added to the task list successfully
+            body:
+              type: TaskAdded
+            headers:
+              Location:
+                description: description URL to the created task resource
+      /{task_guid}:
+        get:
+          displayName: GetTask
+          description: Retrieve the detail of a task
+          responses:
+            200:
+              body:
+                type: TaskAdded
+            404:
+              description: Not task found in the task list with this guid
+              body:
+                type: Error
