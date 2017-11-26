@@ -3,7 +3,9 @@ title: "ZeroRobot"
 description: API of the ZeroRobot, used for management and communication between ZeroRobots
 version: 0.0.1
 mediaType: application/json
-documentation: https://github.com/Jumpscale/zerorobot/tree/first_draft/docs
+documentation:
+  - title: Extended documentation
+    content: https://github.com/Jumpscale/zerorobot/tree/first_draft/docs
 
 types:
   Blueprint:
@@ -13,13 +15,14 @@ types:
     properties:
       content: object
     example:
-      node__node1:
-        ip: '192.168.1.10'
-        hostname: 'node1'
-      actions:
-        template: node
-        service: node1
-        action: start
+      content:
+        node__node1:
+          ip: '192.168.1.10'
+          hostname: 'node1'
+        actions:
+          template: node
+          service: node1
+          action: start
 
   TemplateRepository:
     properties:
@@ -35,6 +38,9 @@ types:
         description: branch of the repository to clone. If not specified, default to master
         default: master
         required: false
+    example:
+      url: https://github.com/account/repository.git
+      branch: master
 
   Template:
     properties:
@@ -42,6 +48,10 @@ types:
         type: string
       name:
         type: string
+    example:
+      version: 1.0.1
+      name: node.zero-os
+
 
   ServiceState:
     properties:
@@ -51,21 +61,62 @@ types:
         type: string
       state:
         enum: [ ok, error ]
+    example:
+      category: network
+      tag: local-tcp-443
+      state: ok
 
   ServiceCreate:
     properties:
       template:
         type: string
+        description: This is the full qualified name of a template using the URL from it's repository
       version:
         type: string
       name:
         type: string
+      data:
+        type: object
+        description: Instance data used to create the service
+    example:
+      template: github.com/account/repository/master/node.zero-os
+      version: 1.0.1
+      name: node1
+      data:
+        ip_addr: 192.168.1.10
+        port: 6379
 
   Service:
-    type: ServiceCreate
     properties:
+      template:
+        type: string
+        description: This is the full qualified name of a template using the URL from it's repository
+      version:
+        type: string
+      name:
+        type: string
       state:
         type: ServiceState[]
+      actions:
+        type: Action[]
+    example:
+      template: github.com/account/repository/master/node.zero-os
+      version: 1.0.1
+      name: node1
+      actions:
+        - name: start
+        - name: stop
+      state:
+      - category: network
+        tag: local-tcp-6379
+        state: ok
+      - category: network
+        tag: local-http-80
+        state: ok
+      - category: data
+        tag: db
+        state: ok
+
 
   Action:
     properties:
@@ -73,23 +124,34 @@ types:
         type: string
       arguments:
         type: string[]
+        required: false
+    example:
+      name: start
 
-  Task:
+  TaskCreate:
     properties:
       template_name:
         type: string
       service_name:
+        type: string
+      service_guid:
         type: string
       action_name:
         type: string
       state:
         enum: [ new, error ]
         description: |
-          a task that is waiting to be executed is in state ok.
+          a task that is waiting to be executed is in state new.
           a task that failed to execute and is being retried is in state error.
+    example:
+      template_name: github.com/account/repository/master/node.zero-os
+      service_name: node1
+      service_guid: 10b0c69f-0f72-4e41-b146-4e10997024f8
+      action_name: start
+      state: new
 
-  TaskAdded:
-    type: Task
+  Task:
+    type: TaskCreate
     description: Type return after a task is added to a task list
     properties:
       position:
@@ -98,6 +160,14 @@ types:
       guid:
         type: string
         description: unique ID of the task
+    example:
+      template_name: github.com/account/repository/master/node.zero-os
+      service_name: node1
+      service_guid: 10b0c69f-0f72-4e41-b146-4e10997024f8
+      action_name: start
+      state: new
+      position: 2
+      guid: 07f38c46-056b-420d-8964-6efd3f493fe5
 
   Error:
     properties:
@@ -163,7 +233,7 @@ types:
     displayName: createService
     description: create a new service
     body:
-      type: Service
+      type: ServiceCreate
     responses:
       201:
         description: Service created successfully
@@ -175,6 +245,17 @@ types:
       409:
         description: Conflict, a service with this name already exists in this ZeroRobot.
   /{service_guid}:
+    get:
+      displayName: GetService
+      description: Get the detail of a service
+      responses:
+        200:
+          body:
+            type: Service
+        204:
+          description: Service with this guid not found
+          body:
+            type: Error
     /actions:
       get:
         displayName: ListActions
@@ -194,12 +275,12 @@ types:
         displayName: AddTaskToList
         description: Add a task to the task list
         body:
-          type: Task
+          type: TaskCreate
         responses:
           201:
             description: Task added to the task list successfully
             body:
-              type: TaskAdded
+              type: Task
             headers:
               Location:
                 description: description URL to the created task resource
@@ -210,7 +291,7 @@ types:
           responses:
             200:
               body:
-                type: TaskAdded
+                type: Task
             404:
               description: Not task found in the task list with this guid
               body:
