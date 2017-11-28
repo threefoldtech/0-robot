@@ -35,3 +35,13 @@ class TestTemplateCollection(unittest.TestCase):
             self.fail("should raise KeyError")
         except KeyError:
             pass
+
+    def test_list_template(self):
+        # valid template
+        file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
+        tcol._load_template(file_path)
+
+        templates = tcol.list_templates()
+        self.assertEqual(len(templates), 1, "size of templates list should 1")
+        tmpl = templates[0]
+        self.assertEqual(tmpl.template_name, "node")
