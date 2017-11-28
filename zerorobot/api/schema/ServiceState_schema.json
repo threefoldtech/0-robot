@@ -1,0 +1,24 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"category": {
+			"type": "string"
+		},
+		"state": {
+			"type": "string",
+			"enum": [
+				"ok",
+				"error"
+			]
+		},
+		"tag": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"category",
+		"state",
+		"tag"
+	]
+}

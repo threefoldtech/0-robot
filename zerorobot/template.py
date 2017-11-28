@@ -32,7 +32,7 @@ class TemplateBase:
         self._gl = Greenlet(self._run)
         self._gl.start()
 
-    def _load(self, base_path):
+    def load(self, base_path):
         """
         load the service from it's file system serialized format
 
@@ -67,20 +67,6 @@ class TemplateBase:
             except GreenletExit:
                 # TODO: gracefull shutdown
                 print("stop service %s" % str(self))
-
-    def ask_action(self, service_guid, action, args):
-        """
-        Add an action on the task list of another service.
-
-        @param service_guid: guid of service on which to add the action.
-                             the service can be local to the ZeroRobot or part of another
-                             ZeroRobot in which case an RPC call will be done
-        @param action: action is the name of the action to add to the task list
-        @param args: dictionnary of the argument to pass to the action
-        """
-
-        service = scol.get_by_guid(service_guid)
-        service.schedule_action(action, args)
 
     def schedule_action(self, action, args=None, resp_q=None):
         """

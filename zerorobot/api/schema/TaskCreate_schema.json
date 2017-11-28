@@ -1,0 +1,32 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"action_name": {
+			"type": "string"
+		},
+		"service_guid": {
+			"type": "string"
+		},
+		"service_name": {
+			"type": "string"
+		},
+		"state": {
+			"type": "string",
+			"enum": [
+				"new",
+				"error"
+			]
+		},
+		"template_name": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"action_name",
+		"service_guid",
+		"service_name",
+		"state",
+		"template_name"
+	]
+}

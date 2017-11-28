@@ -24,7 +24,7 @@ class TestServiceCollection(unittest.TestCase):
         try:
             scol.get_by_name("nan")
         except KeyError as err:
-            self.assertEqual(err.args[0], "service nan not found")
+            self.assertEqual(err.args[0], "service with name=nan not found")
 
     def test_service_overwrite(self):
         s1 = FakeService('1111', 's1')

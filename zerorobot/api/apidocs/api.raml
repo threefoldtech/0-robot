@@ -93,8 +93,6 @@ types:
         description: This is the full qualified name of a template using the URL from it's repository
       version:
         type: string
-      guid:
-        type: string
       name:
         type: string
       state:
@@ -244,13 +242,6 @@ types:
         headers:
           Location:
             description: URL to the created service resource
-      400:
-        description: |
-          Bad request.
-          Could be because the template asked doesn't exist
-          or the request is not properly formatted
-          body:
-            type: Error
       409:
         description: Conflict, a service with this name already exists in this ZeroRobot.
   /{service_guid}:

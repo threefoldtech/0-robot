@@ -1,10 +1,11 @@
 import gevent
+from gevent.pywsgi import WSGIServer
+from gevent.pool import Pool
 import signal
 
 from js9 import j
 
-from zerorobot import service_collection as scol
-from zerorobot import template_collection as tcol
+from zerorobot.api.app import app
 
 
 class Robot:
@@ -20,16 +21,8 @@ class Robot:
         self._started = False
         self.data_repo_url = None
         self._data_dir = None
-        self._started = False
+        self._http = None  # server handler
         self._sig_handler = []
-        # self.templates_collection = TemplateCollection()
-
-    def add_template_repo(self, url):
-        """
-        add the template git repository to the robot
-        It will clone the repository locally and load all the template from it
-        """
-        tcol.add_repo(url)
 
     def set_data_repo(self, url):
         """
@@ -40,39 +33,19 @@ class Robot:
         location = j.clients.git.pullGitRepo(url=url)
         self._data_dir = j.sal.fs.joinPaths(location, 'zero_robot_data')
 
-    def create_service(self, template_name, service_name, data):
-        """
-        Instantiate a service from a template
-
-        @param template_name: name of the template to use a base class for the service
-        @param service_name: name of the service, needs to be unique within the robot instance
-        @param data: a dictionnary with the data of the service to create
-        """
-        TemplateClass = tcol.get_template(template_name)
-        service = TemplateClass(service_name)
-        # TODO: set data to the service
-        # service.data = data
-        scol.add_service(service)
-        return service
-
-    def start(self):
+    def start(self, host='0.0.0.0', port=6600):
         """
         start the rest web server
         load the services from the local git repository
         """
-        self._started = True
-
         self._sig_handler.append(gevent.signal(signal.SIGQUIT, self.stop))
         self._sig_handler.append(gevent.signal(signal.SIGINT, self.stop))
 
-        # For now there is no web server, we just
-        # block on start
-        def forever():
-            while self._started:
-                gevent.sleep(1)
-
-        g = gevent.spawn(forever)
-        g.join()
+        # using a pool allow to kill the request when stopping the server
+        pool = Pool(None)
+        self._http = WSGIServer((host, port), app, spawn=pool)
+        print("robot running at %s:%s" % (host, port))
+        self._http.serve_forever()
 
     def stop(self):
         """
@@ -85,5 +58,5 @@ class Robot:
         for h in self._sig_handler:
             h.cancel()
 
-        self._started = False
         print('stopping robot')
+        self._http.stop()

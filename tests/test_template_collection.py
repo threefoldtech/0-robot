@@ -11,7 +11,7 @@ class TestTemplateCollection(unittest.TestCase):
 
     def test_load_template(self):
         # valid template
-        file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node.py')
+        file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
         tcol._load_template(file_path)
         self.assertEqual(len(tcol._templates), 1, 'should have loaded a template')
 
@@ -23,7 +23,7 @@ class TestTemplateCollection(unittest.TestCase):
             pass
 
     def test_get_template(self):
-        file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node.py')
+        file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
         tcol._load_template(file_path)
         self.assertEqual(len(tcol._templates), 1, 'should have loaded a template')
 

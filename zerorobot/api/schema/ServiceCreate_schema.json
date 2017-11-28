@@ -1,0 +1,24 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"data": {
+			"type": "object"
+		},
+		"name": {
+			"type": "string"
+		},
+		"template": {
+			"type": "string"
+		},
+		"version": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"data",
+		"name",
+		"template",
+		"version"
+	]
+}

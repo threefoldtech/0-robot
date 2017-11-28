@@ -12,10 +12,14 @@ from js9 import j
 _templates = {}
 
 
-def add_repo(url):
+def add_repo(url, branch='master'):
+    new_templates = []
     dir_path = j.clients.git.getContentPathFromURLorPath(url)
-    for path in j.sal.fs.listFilesInDir(j.sal.fs.joinPaths(dir_path, 'templates')):
-        _load_template(path)
+    for path in j.sal.fs.listDirsInDir(j.sal.fs.joinPaths(dir_path, 'templates')):
+        if j.sal.fs.getBaseName(path) == '__pycache__':
+            continue
+        new_templates.append(_load_template(path))
+    return new_templates
 
 
 def get_template(name):
@@ -24,7 +28,11 @@ def get_template(name):
     return _templates[name]
 
 
-def _load_template(file_path):
+def list_templates():
+    return list(_templates.values())
+
+
+def _load_template(template_dir):
     """
     load a template in memory from a file
     The file must contain a class that inherits from template.TemplateBase
@@ -35,17 +43,19 @@ def _load_template(file_path):
         vm_manager.py -> VmManager
         a_long_name.py -> ALongName
     """
-    name = os.path.basename(file_path).split(os.path.extsep)[0]
-    class_name = name.replace('_', ' ').title().replace(' ', '')
+    template_name = os.path.basename(template_dir).split('.')[0]
+    class_name = template_name.replace('_', ' ').title().replace(' ', '')
+    class_path = j.sal.fs.joinPaths(template_dir, template_name + '.py')
 
-    spec = importlib.util.spec_from_file_location(name, file_path)
+    spec = importlib.util.spec_from_file_location(template_name, class_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
 
     if class_name not in module.__dict__:
-        raise TemplateNameError("template %s should contain a class called %s" % (name, class_name))
+        raise TemplateNameError("template %s should contain a class called %s" % (template_name, class_name))
 
-    _templates[name] = eval('module.%s' % class_name)
+    _templates[template_name] = eval('module.%s' % class_name)
+    return _templates[template_name]
 
 
 class TemplateNameError(Exception):

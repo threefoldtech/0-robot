@@ -21,14 +21,18 @@ def add_service(service):
 
 def get_by_name(name):
     if name not in _name_index:
-        return KeyError("service with name=%s not found" % name)
+        raise KeyError("service with name=%s not found" % name)
     return _name_index[name]
 
 
 def get_by_guid(guid):
     if guid not in _guid_index:
-        return KeyError("service with guid=%s not found" % guid)
+        raise KeyError("service with guid=%s not found" % guid)
     return _guid_index[guid]
+
+
+def list_services():
+    return list(_guid_index.values())
 
 
 class ServiceConflictError(Exception):
