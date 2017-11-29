@@ -1,5 +1,6 @@
 import gevent
 from gevent.queue import Queue
+from gevent.lock import Semaphore
 import time
 
 from js9 import j
@@ -13,33 +14,38 @@ TASK_STATE_ERROR = "error"
 
 class Task:
 
-    def __init__(self, action, args, resp_q=None):
+    def __init__(self, service, action_name, args, resp_q=None):
         """
-        @param action: is the method that this task need to execute
+        @param service: is the service object that own the action to be executed
+        @param action_name: is the method name of the action that this task need to execute
         @param args: argument to pass to the action when executing
         @param resp_q: is the response queue on which the result of the action need to be put
         """
         self.guid = j.data.idgenerator.generateGUID()
-        self._action = action
+        self.service = service
+        self.action_name = action_name
         self._resp_q = resp_q
         self._args = args
+
         self._state = TASK_STATE_NEW
+        self._state_lock = Semaphore()
 
     def execute(self):
-        if self._action is None:
-            return
+        # if self._action is None:
+        #     return
 
-        self._state = TASK_STATE_RUNNING
+        self.state = TASK_STATE_RUNNING
         # TODO: handle retries, exception, logging,...
         result = None
+
         try:
             if self._args is not None:
-                result = self._action(*self._args)
+                result = eval('self.service.%s(**self._args)' % self.action_name)
             else:
-                result = self._action()
-            self._state = TASK_STATE_OK
+                result = eval('self.service.%s()' % self.action_name)
+            self.state = TASK_STATE_OK
         except Exception as err:
-            self._state = TASK_STATE_ERROR
+            self.state = TASK_STATE_ERROR
             raise err
         finally:
             if result and self._resp_q:
@@ -48,6 +54,14 @@ class Task:
     @property
     def state(self):
         return self._state
+
+    @state.setter
+    def state(self, value):
+        try:
+            self._state_lock.acquire()
+            self._state = value
+        finally:
+            self._state_lock.release()
 
 
 class TaskList:
@@ -78,3 +92,20 @@ class TaskList:
         return True is the task list is empty, False otherwise
         """
         return self._queue.empty()
+
+    def list_tasks(self):
+        """
+        returns all the task that are currently in the task list
+        """
+        if self.empty():
+            return []
+        return list(self._queue.queue)
+
+    def get_task_by_guid(self, guid):
+        """
+        return a task from the list by it's guid
+        """
+        for task in self._queue.queue:
+            if task.guid == guid:
+                return task
+        raise KeyError("no task with guid %s found" % guid)

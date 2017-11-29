@@ -78,6 +78,7 @@ types:
       data:
         type: object
         description: Instance data used to create the service
+        required: false
     example:
       template: github.com/account/repository/master/node.zero-os
       version: 1.0.1
@@ -93,19 +94,16 @@ types:
         description: This is the full qualified name of a template using the URL from it's repository
       version:
         type: string
+      guid:
+        type: string
       name:
         type: string
       state:
         type: ServiceState[]
-      actions:
-        type: Action[]
     example:
       template: github.com/account/repository/master/node.zero-os
       version: 1.0.1
       name: node1
-      actions:
-        - name: start
-        - name: stop
       state:
       - category: network
         tag: local-tcp-6379
@@ -130,14 +128,29 @@ types:
 
   TaskCreate:
     properties:
+      action_name:
+        type: string
+      args:
+        type: object
+        required: false
+    example:
+      action_name: start
+      args:
+        foo: bar
+
+  Task:
+    type: TaskCreate
+    description: Type return after a task is added to a task list
+    properties:
       template_name:
         type: string
       service_name:
         type: string
       service_guid:
         type: string
-      action_name:
+      guid:
         type: string
+        description: unique ID of the task
       state:
         enum: [ new, error ]
         description: |
@@ -148,26 +161,10 @@ types:
       service_name: node1
       service_guid: 10b0c69f-0f72-4e41-b146-4e10997024f8
       action_name: start
-      state: new
-
-  Task:
-    type: TaskCreate
-    description: Type return after a task is added to a task list
-    properties:
-      position:
-        type: integer
-        description: Position of the task in the list
-      guid:
-        type: string
-        description: unique ID of the task
-    example:
-      template_name: github.com/account/repository/master/node.zero-os
-      service_name: node1
-      service_guid: 10b0c69f-0f72-4e41-b146-4e10997024f8
-      action_name: start
-      state: new
-      position: 2
       guid: 07f38c46-056b-420d-8964-6efd3f493fe5
+      state: new
+      args:
+        foo: bar
 
   Error:
     properties:
@@ -242,6 +239,13 @@ types:
         headers:
           Location:
             description: URL to the created service resource
+      400:
+        description: |
+          Bad request.
+          Could be because the template asked doesn't exist
+          or the request is not properly formatted
+          body:
+            type: Error
       409:
         description: Conflict, a service with this name already exists in this ZeroRobot.
   /{service_guid}:
@@ -252,7 +256,17 @@ types:
         200:
           body:
             type: Service
+        404:
+          description: Service with this guid not found
+          body:
+            type: Error
+    delete:
+      displayName: DeleteService
+      description: Delete a service
+      responses:
         204:
+          description: Service deleted successfully
+        404:
           description: Service with this guid not found
           body:
             type: Error

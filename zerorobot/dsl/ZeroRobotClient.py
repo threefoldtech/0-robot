@@ -1,17 +1,25 @@
-from zerorobot.template_collection import template_collection as tcol
-from zerorobot.service_collection import service_collection as scol
+from zerorobot.client import Client
+from zerorobot.service_proxy import ServiceProxy
+from zerorobot import service_collection as scol
+from zerorobot import template_collection as tcol
 
 
 class ZeroRobotClient:
 
     def __init__(self, base_url):
-        self.base_url = base_url
+        self._client = Client(base_url)
+        self._client.api.services.AddTaskToList
         self._is_local = False
-        # TODO: parse url and determine if local or not
-        if self.base_url.find("localhost") != -1 or self.base_url.find("127.0.0.1") != -1:
+        # TODO:  parse url and determine if local or not
+        if base_url.find("localhost") != -1 or base_url.find("127.0.0.1") != -1:
             self._is_local = True
+        else:
+            self._client = Client(base_url)
 
-    def create_service(self, template_name, service_name, data):
+    # def add_tempate_repo(self, url):
+    #     if self._is_local()
+
+    def create_service(self, template_name, service_name, data=None):
         """
         Instantiate a service from a template
 
@@ -19,41 +27,29 @@ class ZeroRobotClient:
         @param service_name: name of the service, needs to be unique within the robot instance
         @param data: a dictionnary with the data of the service to create
         """
-        service = None
-        if self._is_local:
-            service = self._local_create_service(template_name, service_name, data)
-        else:
-            service = self._remote_create_service(template_name, service_name, data)
+        # if self._is_local:
+        #     service = self._local_create_service(template_name, service_name, data)
+        # else:
+        service = self._remote_create_service(template_name, service_name, data)
 
-        # keep service/proxy in memory
-        scol.add_service(service)
-
+        # scol.add(service)
         return service
 
-    def _local_create_service(self, template_name, service_name, data):
-        TemplateClass = tcol.get_template(template_name)
+    def _local_create_service(self, template_name, service_name, data=None):
+        TemplateClass = tcol.get(template_name)
         service = TemplateClass(service_name)
-        # TODO: set data to the service
-        # service.data = data
+        # todo: service.data = data
         return service
 
-    def _remote_create_service(self, template_name, service_name, data):
-        """
-        create a service on a remote ZeroRobot and a proxy locally then return the proxy
-        """
-        # Do a REST call on remote ZeroRobot
-        # create the proxy service locally
-        # return the proxy
-        raise NotImplementedError()
+    def _remote_create_service(self, template_name, service_name, data=None):
+        req = {
+            "template": template_name,
+            "version": "0.0.1",
+            "name": service_name,
+        }
+        if data:
+            req["data"] = data
 
-    def ask_action(self, service, action, args):
-        """
-        Add an action on the task list of another service.
-
-        @param service object: Service object. can be a local service or a proxy to a remote service
-        @param action: action is the name of the action to add to the task list
-        @param args: dictionnary of the argument to pass to the action
-        """
-        # if the service is a proxy, the schedule_action do a REST call on the remote ZeroRobot.
-        # if it's local, we just add the task to the task list of the service directly
-        service.schedule_action(action, args)
+        resp = self._client.api.services.createService(req)
+        service = ServiceProxy(service_name, resp.data.guid, self._client)
+        return service

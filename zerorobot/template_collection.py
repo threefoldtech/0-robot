@@ -14,7 +14,7 @@ _templates = {}
 
 def add_repo(url, branch='master'):
     new_templates = []
-    dir_path = j.clients.git.getContentPathFromURLorPath(url)
+    dir_path = j.clients.git.pullGitRepo(url)
     for path in j.sal.fs.listDirsInDir(j.sal.fs.joinPaths(dir_path, 'templates')):
         if j.sal.fs.getBaseName(path) == '__pycache__':
             continue
@@ -22,7 +22,7 @@ def add_repo(url, branch='master'):
     return new_templates
 
 
-def get_template(name):
+def get(name):
     if name not in _templates:
         raise KeyError("template with name %s not found" % name)
     return _templates[name]

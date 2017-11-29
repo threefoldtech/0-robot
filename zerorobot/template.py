@@ -1,11 +1,24 @@
 import os
 from uuid import uuid4
+from inspect import signature
 
-import gevent
 from gevent.greenlet import Greenlet, GreenletExit
 
 from .task import TaskList, Task
 from zerorobot import service_collection as scol
+
+# Error return when the argument pass when trying to schedule an action
+# doesn't match with the method signature
+
+
+class BadActionArgumentError(Exception):
+    pass
+
+# Error raised when trying to schedule an action that doesn't exist
+
+
+class ActionNotFoundError(Exception):
+    pass
 
 
 class TemplateBase:
@@ -26,7 +39,7 @@ class TemplateBase:
 
         self.data = ServiceData()
         self.state = ServiceState()
-        self._task_list = TaskList()
+        self.task_list = TaskList()
 
         # start the greenlet of this service
         self._gl = Greenlet(self._run)
@@ -62,7 +75,7 @@ class TemplateBase:
         while True:
             try:
                 # TODO: walk over the task list and execute actions
-                task = self._task_list.get()
+                task = self.task_list.get()
                 task.execute()
             except GreenletExit:
                 # TODO: gracefull shutdown
@@ -80,13 +93,28 @@ class TemplateBase:
         @param resp_q: is the response queue on which the result of the action need to be put
         """
         if not hasattr(self, action):
-            raise RuntimeError("sel %s doesn't have action %s" % (self.name, action))
-        action = getattr(self, action)
-        if not callable(action):
-            raise RuntimeError("%s is not a function" % action)
+            raise ActionNotFoundError("sel %s doesn't have action %s" % (self.name, action))
 
-        task = Task(action, args, resp_q)
-        self._task_list.put(task)
+        method = getattr(self, action)
+        if not callable(method):
+            raise ActionNotFoundError("%s is not a function" % action)
+
+        # make sure the argument we pass are correct
+        s = signature(method)
+        if args is not None:
+            if len(args) != len(s.parameters):
+                raise BadActionArgumentError()
+
+            for param in s.parameters.values():
+                if param.name not in args:
+                    raise BadActionArgumentError()
+
+        task = Task(self, action, args, resp_q)
+        self.task_list.put(task)
+        return task
+
+    def delete(self):
+        scol.delete(self)
 
 
 class ServiceData(dict):

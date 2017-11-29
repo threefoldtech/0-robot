@@ -1,7 +1,8 @@
-from .template import TemplateBase
+
+from zerorobot.template import ServiceState
 
 
-class ServiceProxy(TemplateBase):
+class ServiceProxy():
     """
     This class is used to provide a local proxy to a remote service for a ZeroRobot.
     When a service or robot ask the creation of a service to another robot, a proxy class is created locally
@@ -9,11 +10,13 @@ class ServiceProxy(TemplateBase):
     """
 
     def __init__(self, name, guid, zrobot_client):
-        super().__init__(name, guid)
+        self._zrobot_client = zrobot_client
+        self.name = name
+        self.guid = guid
         # a proxy service doesn't have direct access to the data of it's remote omologue
         # cause data are always only accessible  by the service itself and locally
         self.data = None
-        self._zrobot_client = zrobot_client
+        self.state = ServiceState()
 
     def schedule_action(self, action, args=None, resp_q=None):
         """
@@ -28,4 +31,13 @@ class ServiceProxy(TemplateBase):
         @param args: dictionnary of the argument to pass to the action
         @param resp_q: is the response queue on which the result of the action need to be put
         """
-        raise NotImplementedError()
+        req = {
+            "action_name": action,
+        }
+        if args:
+            req["args"] = args
+        resp = self._zrobot_client.api.services.AddTaskToList(req, service_guid=self.guid)
+        return resp.data
+
+    def delete(self):
+        self._zrobot_client.api.services.DeleteService(self.guid)

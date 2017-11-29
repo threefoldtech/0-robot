@@ -7,7 +7,7 @@ _name_index = {}
 _guid_index = {}
 
 
-def add_service(service):
+def add(service):
     if hasattr(service, 'name'):
         if service.name in _name_index:
             raise ServiceConflictError("a service with name=%s already exist" % service.name)
@@ -33,6 +33,14 @@ def get_by_guid(guid):
 
 def list_services():
     return list(_guid_index.values())
+
+
+def delete(service):
+    if hasattr(service, 'name') and service.name in _name_index:
+        del _name_index[service.name]
+
+    if hasattr(service, 'guid') and service.guid in _guid_index:
+        del _guid_index[service.guid]
 
 
 class ServiceConflictError(Exception):

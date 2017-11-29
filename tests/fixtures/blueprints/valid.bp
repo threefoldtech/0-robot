@@ -1,0 +1,7 @@
+node__node1:
+  foo: bar
+
+actions:
+  template: node
+  service: node1
+  actions: ['start', 'monitor']

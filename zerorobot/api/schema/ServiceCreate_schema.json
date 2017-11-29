@@ -16,7 +16,6 @@
 		}
 	},
 	"required": [
-		"data",
 		"name",
 		"template",
 		"version"

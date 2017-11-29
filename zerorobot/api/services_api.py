@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify, request
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.service_collection import ServiceConflictError
+from zerorobot.template import BadActionArgumentError, ActionNotFoundError
 
 
 import os
@@ -51,17 +52,18 @@ def createService():
     try:
         ServiceCreate_schema_validator.validate(inputs)
     except jsonschema.ValidationError as e:
+        print(e)
         return JSON.dumps({'code': 400, 'message': "bad request body"}), 400, {"Content-type": 'application/json'}
 
     try:
-        TemplateClass = tcol.get_template(inputs['template'])
+        TemplateClass = tcol.get(inputs['template'])
     except KeyError:
         return JSON.dumps({'code': 400, 'message': "template '%s' not found" % inputs['template']}), \
             400, {"Content-type": 'application/json'}
 
     service = TemplateClass(inputs['name'])
     try:
-        scol.add_service(service)
+        scol.add(service)
     except ServiceConflictError:
         service = None
         return JSON.dumps({'code': 409, 'message': "a service with name '%s' already exists" % inputs['name']}), \
@@ -85,6 +87,22 @@ def GetService(service_guid):
     return JSON.dumps(service_view(service)), 200, {"Content-type": 'application/json'}
 
 
+@services_api.route('/services/<service_guid>', methods=['DELETE'])
+def DeleteService(service_guid):
+    '''
+    Delete a service
+    It is handler for DELETE /services/<service_guid>
+    '''
+
+    try:
+        service = scol.get_by_guid(service_guid)
+        scol.delete(service)
+    except KeyError:
+        pass
+
+    return "", 204, {"Content-type": 'application/json'}
+
+
 @services_api.route('/services/<service_guid>/actions', methods=['GET'])
 def ListActions(service_guid):
     '''
@@ -92,7 +110,15 @@ def ListActions(service_guid):
     It is handler for GET /services/<service_guid>/actions
     '''
 
-    return jsonify()
+    try:
+        service = scol.get_by_guid(service_guid)
+    except KeyError:
+        return JSON.dumps({'code': 404, 'message': "service with guid '%s' not found" % service_guid}), \
+            404, {"Content-type": 'application/json'}
+
+    actions = get_actions_list(service)
+
+    return JSON.dumps(actions), 200, {"Content-type": 'application/json'}
 
 
 @services_api.route('/services/<service_guid>/task_list', methods=['GET'])
@@ -101,14 +127,15 @@ def getTaskList(service_guid):
     Return all the action in the task list
     It is handler for GET /services/<service_guid>/task_list
     '''
-
-    inputs = request.get_json()
     try:
-        Task_schema_validator.validate(inputs)
-    except jsonschema.ValidationError as e:
-        return jsonify(errors="bad request body"), 400
+        service = scol.get_by_guid(service_guid)
+    except KeyError:
+        return JSON.dumps({'code': 404, 'message': "service with guid '%s' not found" % service_guid}), \
+            404, {"Content-type": 'application/json'}
 
-    return jsonify()
+    tasks = [task_view(t) for t in service.task_list.list_tasks()]
+
+    return JSON.dumps(tasks), 200, {"Content-type": 'application/json'}
 
 
 @services_api.route('/services/<service_guid>/task_list', methods=['POST'])
@@ -117,14 +144,30 @@ def AddTaskToList(service_guid):
     Add a task to the task list
     It is handler for POST /services/<service_guid>/task_list
     '''
-
     inputs = request.get_json()
     try:
         TaskCreate_schema_validator.validate(inputs)
     except jsonschema.ValidationError as e:
-        return jsonify(errors="bad request body"), 400
+        print(e)
+        return JSON.dumps({'code': 400, 'message': str(e)}), 400, {"Content-type": 'application/json'}
 
-    return jsonify()
+    try:
+        service = scol.get_by_guid(service_guid)
+    except KeyError:
+        return JSON.dumps({'code': 404, 'message': "service with guid '%s' not found" % service_guid}), \
+            404, {"Content-type": 'application/json'}
+
+    args = inputs.get('args', None)
+    try:
+        task = service.schedule_action(action=inputs['action_name'], args=args)
+    except ActionNotFoundError:
+        return JSON.dumps({'code': 400, 'message': "action '%s' not found" % inputs['action_name']}), \
+            400, {"Content-type": 'application/json'}
+    except BadActionArgumentError:
+        return JSON.dumps({'code': 400, 'message': "the argument passed in the requests, doesn't match the signature of the action"}), \
+            400, {"Content-type": 'application/json'}
+
+    return JSON.dumps(task_view(task)), 201, {"Content-type": 'application/json'}
 
 
 @services_api.route('/services/<service_guid>/task_list/<task_guid>', methods=['GET'])
@@ -134,7 +177,19 @@ def GetTask(task_guid, service_guid):
     It is handler for GET /services/<service_guid>/task_list/<task_guid>
     '''
 
-    return jsonify()
+    try:
+        service = scol.get_by_guid(service_guid)
+    except KeyError:
+        return JSON.dumps({'code': 404, 'message': "service with guid '%s' not found" % service_guid}), \
+            404, {"Content-type": 'application/json'}
+
+    try:
+        task = service.task_list.get_task_by_guid(task_guid)
+    except KeyError:
+        return JSON.dumps({'code': 404, 'message': "task with guid '%s' not found" % task_guid}), \
+            404, {"Content-type": 'application/json'}
+
+    return JSON.dumps(task_view(task)), 200, {"Content-type": 'application/json'}
 
 
 def service_view(service):
@@ -143,6 +198,32 @@ def service_view(service):
         "version": service.version,
         "name": service.name,
         "guid": service.guid,
-        "state": {},
+        "state": [],
         "actions": [],
     }
+
+
+def task_view(task):
+    return {
+        'template_name': task.service.template_name,
+        'service_name': task.service.name,
+        'service_guid': task.service.guid,
+        'action_name': task.action_name,
+        'state': task.state,
+        'guid': task.guid,
+    }
+
+
+def get_actions_list(obj):
+    """
+    extract the method name that the service has that are not the
+    method comming from the template base
+    """
+    skip = ['load', 'save', 'schedule_action']
+    actions = []
+    for name in dir(obj):
+        if name in skip or name.startswith('_'):
+            continue
+        if callable(getattr(obj, name)):
+            actions.append(name)
+    return actions

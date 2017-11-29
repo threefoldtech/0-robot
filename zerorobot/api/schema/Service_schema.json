@@ -2,11 +2,8 @@
 	"$schema": "http://json-schema.org/schema#",
 	"type": "object",
 	"properties": {
-		"actions": {
-			"type": "array",
-			"items": {
-				"$ref": "Action_schema.json"
-			}
+		"guid": {
+			"type": "string"
 		},
 		"name": {
 			"type": "string"
@@ -25,7 +22,7 @@
 		}
 	},
 	"required": [
-		"actions",
+		"guid",
 		"name",
 		"state",
 		"template",

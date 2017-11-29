@@ -27,11 +27,11 @@ class TestTemplateCollection(unittest.TestCase):
         tcol._load_template(file_path)
         self.assertEqual(len(tcol._templates), 1, 'should have loaded a template')
 
-        template = tcol.get_template('node')
+        template = tcol.get('node')
         self.assertTrue(template is not None)
 
         try:
-            tcol.get_template('notexist')
+            tcol.get('notexist')
             self.fail("should raise KeyError")
         except KeyError:
             pass

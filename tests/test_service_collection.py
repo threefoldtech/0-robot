@@ -17,7 +17,7 @@ class TestServiceCollection(unittest.TestCase):
 
     def test_add_get_service(self):
         service = FakeService('1234567890', 's1')
-        scol.add_service(service)
+        scol.add(service)
 
         self.assertEqual(service, scol.get_by_guid('1234567890'))
         self.assertEqual(service, scol.get_by_name('s1'))
@@ -30,11 +30,11 @@ class TestServiceCollection(unittest.TestCase):
         s1 = FakeService('1111', 's1')
         s2 = FakeService('1111', 's2')
         s3 = FakeService('2222', 's1')
-        scol.add_service(s1)
+        scol.add(s1)
 
         try:
-            scol.add_service(s2)
-            scol.add_service(s3)
+            scol.add(s2)
+            scol.add(s3)
             self.fail('should raise exception is try to overwrite service')
         except scol.ServiceConflictError as err:
             pass
@@ -46,8 +46,8 @@ class TestServiceCollection(unittest.TestCase):
         s1 = FakeService('1111', 's1')
         s2 = FakeService('2222', 's2')
         s3 = FakeService('3333', 's3')
-        scol.add_service(s1)
-        scol.add_service(s2)
+        scol.add(s1)
+        scol.add(s2)
 
         services = scol.list_services()
         self.assertEqual(len(services), 2, "services count should be 2")
