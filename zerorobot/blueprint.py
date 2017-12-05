@@ -5,6 +5,8 @@ import yaml
 
 from js9 import j
 
+from zerorobot.template_collection import TemplateUID
+
 
 def parse(content):
     """
@@ -83,7 +85,7 @@ def _parse_service(key, data):
     template, name = key.split("__", 1)
     # TODO: move this into name_validation function
     validate_service_name(name)
-    validate_template_name(template)
+    validate_template_uid(template)
     # if ":" in name:
     #     raise BadBlueprintFormatError("service names (%s) cannot contain colons (:)" % name)
     # if ":" in template:
@@ -130,14 +132,15 @@ def validate_service_name(name):
     return True
 
 
-def validate_template_name(name):
+def validate_template_uid(uid):
     """
     Validates that template have valid name
     """
     message = ''
-    if not re.sub("[-_.]", "", name).isalnum():
-        message = "Template name should be digits or alphanumeric. you passed [%s]" % name
-        raise BadBlueprintFormatError(message)
+    try:
+        TemplateUID.parse(uid)
+    except ValueError:
+        raise BadBlueprintFormatError("Template uid not valid")
     return True
 
 

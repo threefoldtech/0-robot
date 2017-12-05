@@ -32,7 +32,7 @@ class ServiceCreate(object):
 
         # set attributes
         data_types = [dict]
-        self.data = client_support.set_property('data', data, data_types, False, [], False, True, class_name)
+        self.data = client_support.set_property('data', data, data_types, False, [], False, False, class_name)
         data_types = [string_types]
         self.name = client_support.set_property('name', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]

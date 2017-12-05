@@ -10,14 +10,10 @@
 		},
 		"template": {
 			"type": "string"
-		},
-		"version": {
-			"type": "string"
 		}
 	},
 	"required": [
 		"name",
-		"template",
-		"version"
+		"template"
 	]
 }

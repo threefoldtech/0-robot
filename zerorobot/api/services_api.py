@@ -194,7 +194,7 @@ def GetTask(task_guid, service_guid):
 
 def service_view(service):
     return {
-        "template": service.template_name,
+        "template": str(service.template_uid),
         "version": service.version,
         "name": service.name,
         "guid": service.guid,

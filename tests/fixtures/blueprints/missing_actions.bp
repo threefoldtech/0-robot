@@ -1,6 +1,6 @@
-node__node1:
+github.com/jumpscale/zerorobot/node/0.0.1__node1:
   foo: bar
 
 actions:
-  template: node
+  template: github.com/jumpscale/zerorobot/node/0.0.1
   service: node1

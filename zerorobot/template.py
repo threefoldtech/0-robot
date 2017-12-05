@@ -6,18 +6,31 @@ from gevent.greenlet import Greenlet, GreenletExit
 
 from .task import TaskList, Task
 from zerorobot import service_collection as scol
+from zerorobot import template_collection as tcol
+from zerorobot.template_collection import TemplateUID
 
-# Error return when the argument pass when trying to schedule an action
-# doesn't match with the method signature
+from js9 import j
 
 
 class BadActionArgumentError(Exception):
+    """
+    Error return when the argument pass when trying to schedule an action
+    doesn't match with the method signature
+    """
     pass
-
-# Error raised when trying to schedule an action that doesn't exist
 
 
 class ActionNotFoundError(Exception):
+    """
+    Error raised when trying to schedule an action that doesn't exist
+    """
+    pass
+
+
+class BadTemplateError(Exception):
+    """
+    Error raised when trying to load a service with a wrong template class
+    """
     pass
 
 
@@ -28,16 +41,18 @@ class TemplateBase:
     The child class will implement actions on this class.
     """
 
-    # The developer of the template need to set
-    # the name and the version the template
+    # The developer of the template need to set the version the template
     version = None
-    template_name = None
+    # This is the unique identifier of the template. This is set during template loading
+    template_uid = None
+    # path of the template on disk. This is set during template loading
+    template_dir = None
 
     def __init__(self, name, guid=None):
-        self.name = name
         self.guid = guid or str(uuid4())
+        self.name = name
 
-        self.data = ServiceData()
+        self.data = ServiceData(self)
         self.state = ServiceState()
         self.task_list = TaskList()
 

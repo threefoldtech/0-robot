@@ -44,13 +44,34 @@ types:
 
   Template:
     properties:
-      version:
+      uid:
+        type: string
+        description: |
+          This is the unique identifier of a template.
+          A tempate UID is identify by the url fo the git repository from where it comes from.
+          There are different informations extracted from
+          - the host
+          - the account
+          - the repository name
+          - the name of the template itself
+          - a version
+      host:
+        type: string
+      account:
+        type: string
+      repository:
         type: string
       name:
         type: string
+      version:
+        type: string
     example:
-      version: 1.0.1
-      name: node.zero-os
+      uid: github.com/jumpscale/zerorobot/node/0.0.1
+      host: github.com
+      account: jumpscale
+      repository: zerorobot
+      name: node
+      version: 0.0.1
 
 
   ServiceState:
@@ -70,9 +91,7 @@ types:
     properties:
       template:
         type: string
-        description: This is the full qualified name of a template using the URL from it's repository
-      version:
-        type: string
+        description: This is UID of a template
       name:
         type: string
       data:
@@ -80,18 +99,17 @@ types:
         description: Instance data used to create the service
         required: false
     example:
-      template: github.com/account/repository/master/node.zero-os
-      version: 1.0.1
-      name: node1
+      template: github.com/jumpscale/zerorobot/node/1.0.1
+      name: vm1
       data:
-        ip_addr: 192.168.1.10
-        port: 6379
+        cpu_nr: 2
+        memory: 1024
 
   Service:
     properties:
       template:
         type: string
-        description: This is the full qualified name of a template using the URL from it's repository
+        description: This is the UID of a template
       version:
         type: string
       guid:
@@ -101,7 +119,8 @@ types:
       state:
         type: ServiceState[]
     example:
-      template: github.com/account/repository/master/node.zero-os
+      guid: 7040fda3-08e1-4109-829c-925a907809f9
+      template: github.com/jumpscale/zerorobot/node/0.0.1
       version: 1.0.1
       name: node1
       state:
@@ -114,7 +133,6 @@ types:
       - category: data
         tag: db
         state: ok
-
 
   Action:
     properties:
@@ -224,8 +242,10 @@ types:
   get:
     displayName: listServices
     description: List all the services known by the ZeroRobot.
-    body:
-      type: Service[]
+    responses:
+      200:
+        body:
+          type: Service[]
   post:
     displayName: createService
     description: create a new service
@@ -266,10 +286,6 @@ types:
       responses:
         204:
           description: Service deleted successfully
-        404:
-          description: Service with this guid not found
-          body:
-            type: Error
     /actions:
       get:
         displayName: ListActions

@@ -47,6 +47,10 @@ def AddTemplateRepo():
 
 def template_view(template):
     return {
-        "name": template.template_name,
-        "version": template.version
+        "uid": str(template.template_uid),
+        "host": template.template_uid.host,
+        "account": template.template_uid.account,
+        "repository": template.template_uid.repo,
+        "name": template.template_uid.name,
+        "version": template.template_uid.version,
     }
