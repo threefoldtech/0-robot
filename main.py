@@ -18,12 +18,19 @@ monkey.patch_all(
     builtins=True,
     signal=True)
 
+import click
 
 from zerorobot.robot import Robot
 
 
-def main():
+@click.command()
+@click.option('--data-repo', '-D', required=True, help='URL of the git repository where to save the data of the zero robot')
+@click.option('--template-repo', '-T', multiple=True, help='list of templare repository URL')
+def main(data_repo, template_repo):
     robot = Robot()
+    for url in template_repo:
+        robot.add_template_repo(url)
+    robot.set_data_repo(data_repo)
     robot.start()
 
 if __name__ == "__main__":

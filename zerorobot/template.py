@@ -60,16 +60,35 @@ class TemplateBase:
         self._gl = Greenlet(self._run)
         self._gl.start()
 
-    def load(self, base_path):
+    @classmethod
+    def load(cls, base_path):
         """
         load the service from it's file system serialized format
 
         @param base_path: path of the directory where
-                          to save the service state and data
+                          to load the service state and data from
         """
-        self.state.load(os.path.join(base_path, '_state.yaml'))
-        self.data.load(os.path.join(base_path, '_data.yaml'))
-        raise NotImplementedError()
+        if not os.path.exists(base_path):
+            raise FileNotFoundError("Trying to load service from %s, but directory doesn't exists" % base_path)
+
+        name = os.path.basename(base_path)
+        service_info = j.data.serializer.yaml.load(os.path.join(base_path, 'service.yaml'))
+        template_uid = TemplateUID.parse(service_info['template'])
+        if template_uid != cls.template_uid:
+            raise BadTemplateError("Trying to load service %s with template %s, while it requires %s"
+                                   % (name, cls.template_uid, service_info['template']))
+
+        if service_info['name'] != name:
+            raise BadTemplateError("Trying to load service from folder %s, but name of the service is %s"
+                                   % (base_path, service_info['name']))
+
+        srv = cls(service_info['name'], service_info['guid'])
+
+        srv.state.load(os.path.join(base_path, 'state.yaml'))
+        srv.data.load(os.path.join(base_path, 'data.yaml'))
+        srv.task_list.load(os.path.join(base_path, 'tasks.yaml'), srv)
+
+        return srv
 
     def save(self, base_path):
         """
@@ -77,10 +96,21 @@ class TemplateBase:
 
         @param base_path: path of the directory where
                           to save the service state and data
+        return the path where the service is saved
         """
-        self.state.save(os.path.join(base_path, '_state.yaml'))
-        self.data.save(os.path.join(base_path, '_data.yaml'))
-        raise NotImplementedError()
+        path = os.path.join(base_path, self.name)
+        os.makedirs(path, exist_ok=True)
+
+        j.data.serializer.yaml.dump(os.path.join(path, 'service.yaml'), {
+            'template': str(self.template_uid),
+            'version': self.version,
+            'name': self.name,
+            'guid': self.guid
+        })
+        self.state.save(os.path.join(path, 'state.yaml'))
+        self.data.save(os.path.join(path, 'data.yaml'))
+        self.task_list.save(os.path.join(path, 'tasks.yaml'))
+        return path
 
     def _run(self):
         """
@@ -89,12 +119,15 @@ class TemplateBase:
         """
         while True:
             try:
-                # TODO: walk over the task list and execute actions
                 task = self.task_list.get()
                 task.execute()
             except GreenletExit:
                 # TODO: gracefull shutdown
-                print("stop service %s" % str(self))
+                pass
+
+    def create_service(self, template, name, data):
+        TemplateClass = tcol.get(template)
+        return tcol.instanciate_service(TemplateClass, name, data)
 
     def schedule_action(self, action, args=None, resp_q=None):
         """
@@ -131,6 +164,8 @@ class TemplateBase:
     def delete(self):
         scol.delete(self)
 
+import collections
+
 
 class ServiceData(dict):
     """
@@ -138,9 +173,15 @@ class ServiceData(dict):
     access to capnp object easy for the service
     """
 
-    def __init__(self):
-        super().__init__(self)
-        self.capnp = None
+    def __init__(self, service):
+        """
+        @param schema_path: path to the
+        """
+        path = os.path.join(service.template_dir, 'schema.capnp')
+        if os.path.exists(path):
+            schema_str = j.sal.fs.fileGetContents(path)
+            msg = j.data.capnp.getObj(schema_str)
+            self.update(msg.to_dict(verbose=True))
 
     def save(self, path):
         """
@@ -148,7 +189,7 @@ class ServiceData(dict):
 
         @param path: file path where to save the data
         """
-        raise NotImplementedError()
+        j.data.serializer.yaml.dump(path, dict(self))
 
     def load(self, path):
         """
@@ -156,7 +197,7 @@ class ServiceData(dict):
 
         @param path: file path from where to load the data
         """
-        raise NotImplementedError()
+        self.update(j.data.serializer.yaml.load(path))
 
 
 class ServiceState:
@@ -173,7 +214,7 @@ class ServiceState:
 
         @param path: file path where to save the state
         """
-        raise NotImplementedError()
+        j.data.serializer.yaml.dump(path, {})
 
     def load(self, path):
         """
@@ -181,4 +222,5 @@ class ServiceState:
 
         @param path: file path from where to load the state
         """
-        raise NotImplementedError()
+        state = j.data.serializer.yaml.load(path)
+        # TODO: load state

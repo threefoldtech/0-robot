@@ -93,19 +93,84 @@ class TaskList:
         """
         return self._queue.empty()
 
-    def list_tasks(self):
+    def list_tasks(self, all=False):
         """
+        @param all: if True, also return the task that have been executed
+                    if False only return the task waiting in the task list
         returns all the task that are currently in the task list
         """
-        if self.empty():
-            return []
-        return list(self._queue.queue)
+        tasks = list(self._queue.queue)
+        if all:
+            tasks.extend(self._done)
+        elif len(self._done) > 1 and self._done[-1].state == TASK_STATE_RUNNING:
+            # also return the current running
+            # task as part of the task list
+            tasks.insert(0, self._done[-1])
+        return tasks
 
     def get_task_by_guid(self, guid):
         """
         return a task from the list by it's guid
         """
-        for task in self._queue.queue:
-            if task.guid == guid:
-                return task
+        # FIXME: this is really inefficient
+        def find_task(guid, l):
+            for task in l:
+                if task.guid == guid:
+                    return task
+
+        task = find_task(guid, self._queue.queue)
+        if task:
+            return task
+        task = find_task(guid, self._done)
+        if task:
+            return task
         raise KeyError("no task with guid %s found" % guid)
+
+    def save(self, path):
+        """
+        serialize the task list to disk
+        @param path: file path where to serialize the task list
+        """
+        def serialize_task(task):
+            return {
+                "guid": task.guid,
+                # "service": = task.service.name,
+                "action_name": task.action_name,
+                # "_resp_q": = resp_q TODO: figure out what to do with the resp_q
+                "args": task._args,
+                "state": task.state,
+            }
+        # FIXME: stream into file instead, this can consume a lot
+        # of memory in case lots of tasks
+        output = []
+        for task in self.list_tasks(all=True):
+            output.append(serialize_task(task))
+        j.data.serializer.yaml.dump(path, output)
+
+    def load(self, path, service):
+        """
+        load a task list that have been serialized with save method
+        @param path: file path where the task list is serialized
+        @param service: the service object to which this task list belongs
+        """
+        def instanciate_task(task):
+            t = Task(service, task['action_name'], task['args'], resp_q=None)
+            if task['state'] in [TASK_STATE_RUNNING, TASK_STATE_NEW]:
+                t.state = TASK_STATE_NEW
+            else:
+                t.state = task['state']
+            t.guid = task['guid']
+            return t
+
+        if not os.path.exists(path):
+            return
+
+        data = j.data.serializer.yaml.load(path)
+        for task in data:
+            if task['state'] in [TASK_STATE_NEW, TASK_STATE_RUNNING]:
+                self.put(instanciate_task(task))
+            elif task['state'] in [TASK_STATE_OK, TASK_STATE_ERROR]:
+                self._done.append(instanciate_task(task))
+            else:
+                # None supported state, just skip it
+                continue
