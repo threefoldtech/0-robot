@@ -61,10 +61,11 @@ def createService():
     except KeyError:
         return JSON.dumps({'code': 400, 'message': "template '%s' not found" % inputs['template']}), \
             400, {"Content-type": 'application/json'}
+    except ValueError as err:
+        return JSON.dumps({'code': 400, 'message': err.args[0]}), 400, {"Content-type": 'application/json'}
 
-    service = TemplateClass(inputs['name'])
     try:
-        scol.add(service)
+        service = tcol.instanciate_service(TemplateClass, inputs['name'], inputs.get('data', {}))
     except ServiceConflictError:
         service = None
         return JSON.dumps({'code': 409, 'message': "a service with name '%s' already exists" % inputs['name']}), \

@@ -96,13 +96,23 @@ class ServicesService:
         
 
 
-    def listServices(self, data, headers=None, query_params=None, content_type="application/json"):
+    def listServices(self, headers=None, query_params=None, content_type="application/json"):
         """
         List all the services known by the ZeroRobot.
         It is method for GET /services
         """
         uri = self.client.base_url + "/services"
-        return self.client.get(uri, data, headers, query_params, content_type)
+        resp = self.client.get(uri, None, headers, query_params, content_type)
+        try:
+            resps = []
+            for elem in resp.json():
+                resps.append(Service(elem))
+            return APIResponse(data=resps, response=resp)
+        except ValueError as msg:
+            raise UnmarshallError(resp, msg)
+        except Exception as e:
+            raise UnmarshallError(resp, e.message)
+        
 
 
     def createService(self, data, headers=None, query_params=None, content_type="application/json"):

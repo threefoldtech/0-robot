@@ -78,6 +78,14 @@ def _load_template(url, template_dir):
     return _templates[class_.template_uid]
 
 
+def instanciate_service(templateClass, name, data=None):
+    service = templateClass(name)
+    if data is not None:
+        service.data.update(data)
+
+    scol.add(service)
+    return service
+
 
 class TemplateUID:
 
