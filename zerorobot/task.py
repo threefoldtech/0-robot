@@ -1,3 +1,5 @@
+import os
+
 import gevent
 from gevent.queue import Queue
 from gevent.lock import Semaphore
@@ -26,6 +28,7 @@ class Task:
         self.action_name = action_name
         self._resp_q = resp_q
         self._args = args
+        self.created = int(time.time())
 
         self._state = TASK_STATE_NEW
         self._state_lock = Semaphore()
@@ -50,6 +53,7 @@ class Task:
         finally:
             if result and self._resp_q:
                 self._resp_q.put(result)
+            return result
 
     @property
     def state(self):
@@ -71,13 +75,20 @@ class TaskList:
 
     def __init__(self):
         self._queue = Queue()
+        self.running = None
+        # done keeps the tasks that have been extracted from the queue
+        # so we can inspect them later
+        # TODO: done tasks should be kept on disk, not in memory
+        self._done = []
 
     def get(self):
         """
         pop out a task from the task list
         this call is blocking when the task list is empty
         """
-        return self._queue.get()
+        task = self._queue.get()
+        self._done.append(task)
+        return task
 
     def put(self, task):
         """

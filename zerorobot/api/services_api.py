@@ -134,7 +134,12 @@ def getTaskList(service_guid):
         return JSON.dumps({'code': 404, 'message': "service with guid '%s' not found" % service_guid}), \
             404, {"Content-type": 'application/json'}
 
-    tasks = [task_view(t) for t in service.task_list.list_tasks()]
+    # return only task waiting or all existing task for this service
+    all_task = request.args.get('all')
+    if all_task is not None:
+        all_task = j.data.types.bool.fromString(all_task)
+
+    tasks = [task_view(t) for t in service.task_list.list_tasks(all=all_task)]
 
     return JSON.dumps(tasks), 200, {"Content-type": 'application/json'}
 
@@ -212,6 +217,7 @@ def task_view(task):
         'action_name': task.action_name,
         'state': task.state,
         'guid': task.guid,
+        'created': task.created
     }
 
 

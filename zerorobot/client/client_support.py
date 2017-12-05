@@ -45,7 +45,7 @@ def has_properties(cls, property, child_properties):
 
 def list_factory(val, member_type):
     if not isinstance(val, list):
-        raise ValueError('list_factory: value must be a list not %s' % type(val))
+        raise ValueError('list_factory: value must be a list')
     return [val_factory(v, member_type) for v in val]
 
 

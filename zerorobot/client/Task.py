@@ -17,6 +17,7 @@ class Task(object):
         """
         :type action_name: str
         :type args: dict
+        :type created: int
         :type guid: str
         :type service_guid: str
         :type service_name: str
@@ -39,6 +40,8 @@ class Task(object):
         self.action_name = client_support.set_property('action_name', data, data_types, False, [], False, True, class_name)
         data_types = [dict]
         self.args = client_support.set_property('args', data, data_types, False, [], False, False, class_name)
+        data_types = [int]
+        self.created = client_support.set_property('created', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]
         self.guid = client_support.set_property('guid', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]

@@ -174,6 +174,9 @@ types:
         description: |
           a task that is waiting to be executed is in state new.
           a task that failed to execute and is being retried is in state error.
+      created:
+        type: integer
+        description: timestamp at the time the task was created
     example:
       template_name: github.com/account/repository/master/node.zero-os
       service_name: node1
@@ -183,6 +186,7 @@ types:
       state: new
       args:
         foo: bar
+      created: 1512038654
 
   Error:
     properties:
@@ -299,6 +303,14 @@ types:
       get:
         displayName: getTaskList
         description: Return all the action in the task list
+        queryParameters:
+          all:
+            description: |
+              If specified, return also the tasks that are done.
+              If not specified, only return the task waiting to be executed
+              type:        bool
+              required:    false
+              default: false
         body:
           type: Task[]
       post:

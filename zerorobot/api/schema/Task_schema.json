@@ -8,6 +8,9 @@
 		"args": {
 			"type": "object"
 		},
+		"created": {
+			"type": "integer"
+		},
 		"guid": {
 			"type": "string"
 		},
@@ -29,6 +32,7 @@
 		}
 	},
 	"required": [
+		"created",
 		"guid",
 		"service_guid",
 		"service_name",
