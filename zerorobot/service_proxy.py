@@ -23,10 +23,6 @@ class ServiceProxy():
         Do a call on a remote ZeroRobot to add an action to the task list of
         the corresponding service
 
-        This method should never be called directly by the user.
-        It will always be called by another service.
-        Or from a local service or from a remote service trough RPC
-
         @param action: action is the name of the action to add to the task list
         @param args: dictionnary of the argument to pass to the action
         @param resp_q: is the response queue on which the result of the action need to be put
