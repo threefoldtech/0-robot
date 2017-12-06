@@ -205,9 +205,21 @@ def service_view(service):
         "version": service.version,
         "name": service.name,
         "guid": service.guid,
-        "state": [],
+        "state": state_view(service.state),
         "actions": [],
     }
+
+
+def state_view(state):
+    out = []
+    for category, tags in state.categories.items():
+        for tag, state in tags.items():
+            out.append({
+                'category': category,
+                'tag': tag,
+                'state': state,
+            })
+    return out
 
 
 def task_view(task):
