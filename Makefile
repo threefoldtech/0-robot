@@ -10,7 +10,7 @@ generate-client:
 	go-raml client -l python --kind requests --dir zerorobot/client --ramlfile raml/api.raml --python-unmarshall-response
 
 test:
-	nose2 --with-coverage
+	nose2 --with-coverage --coverage zerorobot
 
 test-ui:
-	nose2 --with-coverage --coverage-report html
+	nose2 --with-coverage --coverage-report html --coverage zerorobot
