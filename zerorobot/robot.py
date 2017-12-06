@@ -45,7 +45,7 @@ class Robot:
     def add_template_repo(self, url):
         tcol.add_repo(url)
 
-    def start(self, host='0.0.0.0', port=6600, log_level=logging.DEBUG):
+    def start(self, listen=":6600", log_level=logging.DEBUG):
         """
         start the rest web server
         load the services from the local git repository
@@ -66,9 +66,10 @@ class Robot:
 
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)
-        self._http = WSGIServer((host, port), app, spawn=pool, log=app.logger, error_log=app.logger)
+        hostport = _split_hostport(listen)
+        self._http = WSGIServer(hostport, app, spawn=pool, log=app.logger, error_log=app.logger)
 
-        app.logger.info("robot running at %s:%s" % (host, port))
+        app.logger.info("robot running at %s:%s" % hostport)
 
         self._http.serve_forever()
 
@@ -91,6 +92,9 @@ class Robot:
         self._save_services()
 
     def _load_services(self):
+        if not os.path.exists(self._data_dir):
+            os.makedirs(self._data_dir)
+
         for srv_dir in j.sal.fs.listDirsInDir(self._data_dir):
             service_info = j.data.serializer.yaml.load(os.path.join(srv_dir, 'service.yaml'))
             # TODO: template should be url+name
@@ -104,3 +108,15 @@ class Robot:
         """
         for service in scol.list_services():
             service.save(self._data_dir)
+
+
+def _split_hostport(hostport):
+    """
+    convert a listen addres of the form
+    host:port into a tuple (host, port)
+    host is a string, port is an int
+    """
+    i = hostport.index(':')
+    host = hostport[:i]
+    port = hostport[i + 1:]
+    return host, int(port)
