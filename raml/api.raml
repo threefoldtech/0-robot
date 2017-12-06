@@ -170,10 +170,12 @@ types:
         type: string
         description: unique ID of the task
       state:
-        enum: [ new, error ]
+        enum: [ new, ok, running, error ]
         description: |
           a task that is waiting to be executed is in state new.
-          a task that failed to execute and is being retried is in state error.
+          a task that being executed is in state running
+          a task that executed successfully is in state ok
+          a task that failed to execute and/or is being retried is in state error.
       created:
         type: integer
         description: timestamp at the time the task was created
@@ -311,8 +313,10 @@ types:
               type:        bool
               required:    false
               default: false
-        body:
-          type: Task[]
+        responses:
+          200:
+            body:
+              type: Task[]
       post:
         displayName: AddTaskToList
         description: Add a task to the task list

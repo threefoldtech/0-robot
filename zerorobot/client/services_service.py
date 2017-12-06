@@ -46,13 +46,23 @@ class ServicesService:
         
 
 
-    def getTaskList(self, data, service_guid, headers=None, query_params=None, content_type="application/json"):
+    def getTaskList(self, service_guid, headers=None, query_params=None, content_type="application/json"):
         """
         Return all the action in the task list
         It is method for GET /services/{service_guid}/task_list
         """
         uri = self.client.base_url + "/services/"+service_guid+"/task_list"
-        return self.client.get(uri, data, headers, query_params, content_type)
+        resp = self.client.get(uri, None, headers, query_params, content_type)
+        try:
+            resps = []
+            for elem in resp.json():
+                resps.append(Task(elem))
+            return APIResponse(data=resps, response=resp)
+        except ValueError as msg:
+            raise UnmarshallError(resp, msg)
+        except Exception as e:
+            raise UnmarshallError(resp, e.message)
+        
 
 
     def AddTaskToList(self, data, service_guid, headers=None, query_params=None, content_type="application/json"):
