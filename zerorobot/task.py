@@ -1,9 +1,11 @@
+import json
 import os
+import sys
+import time
 
 import gevent
 from gevent.queue import Queue
 from gevent.lock import Semaphore
-import time
 
 from js9 import j
 
@@ -30,12 +32,13 @@ class Task:
         self._args = args
         self.created = int(time.time())
 
+        # used when action raises an exception
+        self.eco = None
+
         self._state = TASK_STATE_NEW
         self._state_lock = Semaphore()
 
     def execute(self):
-        # if self._action is None:
-        #     return
 
         self.state = TASK_STATE_RUNNING
         # TODO: handle retries, exception, logging,...
@@ -49,11 +52,16 @@ class Task:
             self.state = TASK_STATE_OK
         except Exception as err:
             self.state = TASK_STATE_ERROR
-            raise err
+            # capture stacktrace and exception
+            _, _, exc_traceback = sys.exc_info()
+            self.eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
+            self.eco.printTraceback()
+            # TODO: retry
+
         finally:
             if result and self._resp_q:
                 self._resp_q.put(result)
-            return result
+        return result
 
     @property
     def state(self):
@@ -150,6 +158,7 @@ class TaskList:
                 # "_resp_q": = resp_q TODO: figure out what to do with the resp_q
                 "args": task._args,
                 "state": task.state,
+                "eco": json.loads(task.eco.toJson()),
             }
         # FIXME: stream into file instead, this can consume a lot
         # of memory in case lots of tasks
@@ -171,6 +180,7 @@ class TaskList:
             else:
                 t.state = task['state']
             t.guid = task['guid']
+            t.eco = j.core.errorhandler.getErrorConditionObject(ddict=task['eco'])
             return t
 
         if not os.path.exists(path):

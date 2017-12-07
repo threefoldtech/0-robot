@@ -2,6 +2,8 @@
 from zerorobot.template import ServiceState
 from zerorobot.task import TaskList, Task, TASK_STATE_NEW, TASK_STATE_OK, TASK_STATE_RUNNING, TASK_STATE_ERROR
 
+from js9 import j
+
 
 class ServiceProxy():
     """
@@ -68,6 +70,10 @@ class TaskListProxy:
         self = cls()
         for task in tasks:
             t = TaskProxy(task.guid, service, task.action_name, task.args, task.created)
+            d_eco = task.eco.as_dict()
+            d_eco['_traceback'] = task.eco._traceback
+            t.eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
+
             if task.state.value in (TASK_STATE_ERROR, TASK_STATE_OK):
                 self._done.append(t)
             elif task.state.value in (TASK_STATE_NEW, TASK_STATE_RUNNING):
@@ -121,6 +127,7 @@ class TaskProxy:
         # self._resp_q = resp_q TODO
         self._args = args
         self.created = created
+        self.eco = None
 
     @property
     def state(self):

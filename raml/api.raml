@@ -179,6 +179,10 @@ types:
       created:
         type: integer
         description: timestamp at the time the task was created
+      eco:
+        type: Eco
+        description: In case the task failed with an exception, description of the exception
+        required: false
     example:
       template_name: github.com/account/repository/master/node.zero-os
       service_name: node1
@@ -202,6 +206,63 @@ types:
         type: string
         description: optional stack_trace attached with the error.
         required: false
+
+  Eco:
+    description: |
+      Error conditions, is a custom error format that allow to investigate
+      an exceptions. It is used to serialize the error happening during task execution
+    properties:
+      appname:
+        type: string
+      epoch:
+        type: integer
+      errormessagePub:
+        type: string
+      type:
+        type: string
+      state:
+        type: string
+      data:
+        type: object
+        required: false
+      jid:
+        type: integer
+      masterjid:
+        type: integer
+      errormessage:
+        type: string
+      uniquekey:
+        type: string
+      category:
+        type: string
+      exceptionclassname:
+        type: string
+      funcfilename:
+        type: string
+      closetime:
+        type: integer
+      level:
+        type: integer
+      _limit:
+        type: integer
+      lasttime:
+        type: integer
+      code:
+        type: string
+      guid:
+        type: string
+      tags:
+        type: string
+      funclinenr:
+        type: integer
+      _traceback:
+        type: string
+      funcname:
+        type: string
+      pid:
+        type: integer
+      occurrences:
+        type: integer
 
 /blueprints:
   description: |

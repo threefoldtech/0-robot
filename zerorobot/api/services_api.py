@@ -230,7 +230,8 @@ def task_view(task):
         'action_name': task.action_name,
         'state': task.state,
         'guid': task.guid,
-        'created': task.created
+        'created': task.created,
+        'eco': JSON.loads(task.eco.toJson()) if task.eco else None
     }
 
 
