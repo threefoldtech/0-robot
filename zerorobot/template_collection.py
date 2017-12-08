@@ -15,12 +15,17 @@ from js9 import j
 _templates = {}
 
 
-def add_repo(url, branch='master'):
+def add_repo(url, branch='master', directory='templates'):
+    """
+    url: url of a git repository e.g: http://github.com/jumpscale/zeroroot
+    branch: the branch of the repository to checkout
+    directory: the path to the directory where the templates are located in the repository
+    """
     new_templates = []
     dir_path = j.clients.git.getContentPathFromURLorPath(url)
     if not os.path.exists(dir_path):
         dir_path = j.clients.git.pullGitRepo(url)
-    for path in j.sal.fs.listDirsInDir(j.sal.fs.joinPaths(dir_path, 'templates')):
+    for path in j.sal.fs.listDirsInDir(j.sal.fs.joinPaths(dir_path, directory)):
         if j.sal.fs.getBaseName(path) == '__pycache__':
             continue
         new_templates.append(_load_template(url, path))
@@ -78,8 +83,11 @@ def _load_template(url, template_dir):
     return _templates[class_.template_uid]
 
 
-def instanciate_service(templateClass, name, data=None):
-    service = templateClass(name)
+def instanciate_service(template, name, data=None):
+    if isinstance(template, str):
+        template = get(template)
+
+    service = template(name)
     if data is not None:
         service.data.update(data)
 

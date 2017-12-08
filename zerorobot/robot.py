@@ -42,10 +42,10 @@ class Robot:
         self.data_repo_url = url
         self._data_dir = j.sal.fs.joinPaths(location, 'zrobot_data')
 
-    def add_template_repo(self, url):
-        tcol.add_repo(url)
+    def add_template_repo(self, url, branch='master', directory='templates'):
+        tcol.add_repo(url=url, branch=branch, directory=directory)
 
-    def start(self, listen=":6600", log_level=logging.DEBUG):
+    def start(self, listen=":6600", log_level=logging.DEBUG, block=True):
         """
         start the rest web server
         load the services from the local git repository
@@ -71,7 +71,10 @@ class Robot:
 
         app.logger.info("robot running at %s:%s" % hostport)
 
-        self._http.serve_forever()
+        if block:
+            self._http.serve_forever()
+        else:
+            self._http.start()
 
     def stop(self):
         """
