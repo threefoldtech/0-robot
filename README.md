@@ -36,3 +36,6 @@ Each service is also running in a greenlet and is watching a queue, the task lis
 So when a service add a task to a producer's task list, it also provide a response queue on which the producer need to write to send the result of the action back to the originator service.
 
 Each ZeroRobot also expose a REST API, to allow communication between them. So when a service ask an action to service that is managed by another robot, the request is transported though a REST call to the remote robot. All of this happens transparently for the user and it doesn't really have to know where the service is located, only that what it can provide in term of actions.
+
+## API documentation
+See https://jumpscale.github.io/zerorobot/api/zerorobot/index.html
