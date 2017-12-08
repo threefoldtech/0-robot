@@ -51,6 +51,7 @@ class TemplateBase:
     def __init__(self, name, guid=None):
         self.guid = guid or str(uuid4())
         self.name = name
+        self.parent = None
 
         self.data = ServiceData(self)
         self.state = ServiceState()
@@ -83,6 +84,8 @@ class TemplateBase:
                                    % (base_path, service_info['name']))
 
         srv = cls(service_info['name'], service_info['guid'])
+        if service_info['parent']:
+            srv.parent = scol.get_by_guid(service_info['parent'])
 
         srv.state.load(os.path.join(base_path, 'state.yaml'))
         srv.data.load(os.path.join(base_path, 'data.yaml'))
@@ -98,14 +101,22 @@ class TemplateBase:
                           to save the service state and data
         return the path where the service is saved
         """
-        path = os.path.join(base_path, self.name)
+        parent = self.parent
+        path = base_path
+        while parent is not None:
+            path = os.path.join(path, parent.name)
+            parent = parent.parent
+
+        path = os.path.join(path, self.name)
+
         os.makedirs(path, exist_ok=True)
 
         j.data.serializer.yaml.dump(os.path.join(path, 'service.yaml'), {
             'template': str(self.template_uid),
             'version': self.version,
             'name': self.name,
-            'guid': self.guid
+            'guid': self.guid,
+            'parent': self.parent.guid if self.parent else None,
         })
         self.state.save(os.path.join(path, 'state.yaml'))
         self.data.save(os.path.join(path, 'data.yaml'))
@@ -124,10 +135,6 @@ class TemplateBase:
             except GreenletExit:
                 # TODO: gracefull shutdown
                 pass
-
-    def create_service(self, template, name, data):
-        TemplateClass = tcol.get(template)
-        return tcol.instanciate_service(TemplateClass, name, data)
 
     def schedule_action(self, action, args=None, resp_q=None):
         """

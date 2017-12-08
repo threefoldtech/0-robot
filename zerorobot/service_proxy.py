@@ -1,3 +1,4 @@
+from requests.exceptions import HTTPError
 
 from zerorobot.template import ServiceState
 from zerorobot.task import TaskList, Task, TASK_STATE_NEW, TASK_STATE_OK, TASK_STATE_RUNNING, TASK_STATE_ERROR
@@ -16,6 +17,7 @@ class ServiceProxy():
         self._zrobot_client = zrobot_client
         self.name = name
         self.guid = guid
+        self.parent = None
         # a proxy service doesn't have direct access to the data of it's remote homologue
         # cause data are always only accessible  by the service itself and locally
         self.data = None
@@ -48,8 +50,13 @@ class ServiceProxy():
         }
         if args:
             req["args"] = args
-        resp = self._zrobot_client.api.services.AddTaskToList(req, service_guid=self.guid)
-        return resp.data
+        try:
+            resp = self._zrobot_client.api.services.AddTaskToList(req, service_guid=self.guid)
+        except HTTPError as err:
+            print(str(err.response.json()))
+            raise err
+
+        return TaskProxy.from_api(resp.data, self)
 
     def delete(self):
         self._zrobot_client.api.services.DeleteService(self.guid)
@@ -69,10 +76,7 @@ class TaskListProxy:
         """
         self = cls()
         for task in tasks:
-            t = TaskProxy(task.guid, service, task.action_name, task.args, task.created)
-            d_eco = task.eco.as_dict()
-            d_eco['_traceback'] = task.eco._traceback
-            t.eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
+            t = TaskProxy.from_api(task, service)
 
             if task.state.value in (TASK_STATE_ERROR, TASK_STATE_OK):
                 self._done.append(t)
@@ -128,6 +132,15 @@ class TaskProxy:
         self._args = args
         self.created = created
         self.eco = None
+
+    @classmethod
+    def from_api(cls, task, service):
+        t = cls(task.guid, service, task.action_name, task.args, task.created)
+        if task.eco:
+            d_eco = task.eco.as_dict()
+            d_eco['_traceback'] = task.eco._traceback
+            t.eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
+        return t
 
     @property
     def state(self):

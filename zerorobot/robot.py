@@ -95,7 +95,7 @@ class Robot:
         if not os.path.exists(self._data_dir):
             os.makedirs(self._data_dir)
 
-        for srv_dir in j.sal.fs.listDirsInDir(self._data_dir):
+        for srv_dir in j.sal.fs.listDirsInDir(self._data_dir, recursive=True):
             service_info = j.data.serializer.yaml.load(os.path.join(srv_dir, 'service.yaml'))
             # TODO: template should be url+name
             tmplClass = tcol.get(service_info['template'])

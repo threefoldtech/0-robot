@@ -207,6 +207,7 @@ def service_view(service):
         "guid": service.guid,
         "state": state_view(service.state),
         "actions": [],
+        "parent": service.parent.guid if service.parent else None
     }
 
 
