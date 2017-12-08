@@ -158,7 +158,7 @@ class TaskList:
                 # "_resp_q": = resp_q TODO: figure out what to do with the resp_q
                 "args": task._args,
                 "state": task.state,
-                "eco": json.loads(task.eco.toJson()),
+                "eco": json.loads(task.eco.toJson()) if task.eco else None,
             }
         # FIXME: stream into file instead, this can consume a lot
         # of memory in case lots of tasks
@@ -180,7 +180,8 @@ class TaskList:
             else:
                 t.state = task['state']
             t.guid = task['guid']
-            t.eco = j.core.errorhandler.getErrorConditionObject(ddict=task['eco'])
+            if task['eco']:
+                t.eco = j.core.errorhandler.getErrorConditionObject(ddict=task['eco'])
             return t
 
         if not os.path.exists(path):
