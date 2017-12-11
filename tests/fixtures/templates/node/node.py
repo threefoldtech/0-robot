@@ -1,4 +1,4 @@
-from zerorobot.template.template import TemplateBase
+from zerorobot.template.base import TemplateBase
 
 
 class Node(TemplateBase):

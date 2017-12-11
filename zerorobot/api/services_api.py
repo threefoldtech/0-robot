@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify, request
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.service_collection import ServiceConflictError
-from zerorobot.template.template import BadActionArgumentError, ActionNotFoundError
+from zerorobot.template.base import BadActionArgumentError, ActionNotFoundError
 
 from js9 import j
 

@@ -1,3 +1,9 @@
+"""
+The base module defines the TemplateBase class.
+It is the class every template should inherits from.
+"""
+
+
 import os
 from uuid import uuid4
 from inspect import signature

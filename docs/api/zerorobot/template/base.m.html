@@ -4,12 +4,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
     <title>zerorobot.template.base API documentation</title>
-    <meta name="description" content="" />
+    <meta name="description" content="The base module defines the TemplateBase class.
+It is the class every template should inherits from...." />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
-
+  
   <style type="text/css">
-
+  
 * {
   box-sizing: border-box;
 }
@@ -550,7 +551,7 @@ table {
   </style>
 
   <style type="text/css">
-
+  
   html, body {
     margin: 0;
     padding: 0;
@@ -651,7 +652,7 @@ table {
 
   code {
     background: #f9f9f9;
-  }
+  } 
 
   pre {
     background: #fefefe;
@@ -668,7 +669,7 @@ table {
     .codehilite pre {
       margin: 0;
     }
-    .codehilite .err { background: #ff3300; color: #fff !important; }
+    .codehilite .err { background: #ff3300; color: #fff !important; } 
 
   table#module-list {
     font-size: 110%;
@@ -779,7 +780,7 @@ table {
       text-transform: uppercase;
       color: #fff;
       text-shadow: 1px 1px 0 #f4b700;
-
+      
       padding: 3px 8px;
       border-radius: 2px;
       transition: background .3s ease-in-out;
@@ -924,7 +925,7 @@ table {
   </style>
 
   <style type="text/css">
-
+  
 /* ==========================================================================
    EXAMPLE Media Queries for Responsive Design.
    These examples override the primary ('mobile first') styles.
@@ -1035,13 +1036,13 @@ table {
 <a href="#" id="top">Top</a>
 
 <div id="container">
-
-
+    
+  
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
     <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-
+      
   <ul>
     <li class="mono"><a href="#zerorobot.template.base.SERVICE_STATE_ERROR">SERVICE_STATE_ERROR</a></li>
     <li class="mono"><a href="#zerorobot.template.base.SERVICE_STATE_OK">SERVICE_STATE_OK</a></li>
@@ -1054,24 +1055,24 @@ table {
       <ul>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.ActionNotFoundError">ActionNotFoundError</a></span>
-
+        
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.BadActionArgumentError">BadActionArgumentError</a></span>
-
+        
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.BadServiceStateError">BadServiceStateError</a></span>
-
+        
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.BadTemplateError">BadTemplateError</a></span>
-
+        
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.ServiceData">ServiceData</a></span>
-
-
+        
+          
   <ul>
     <li class="mono"><a href="#zerorobot.template.base.ServiceData.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.template.base.ServiceData.load">load</a></li>
@@ -1081,8 +1082,8 @@ table {
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.ServiceState">ServiceState</a></span>
-
-
+        
+          
   <ul>
     <li class="mono"><a href="#zerorobot.template.base.ServiceState.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.template.base.ServiceState.check">check</a></li>
@@ -1095,16 +1096,16 @@ table {
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.StateCategoryNotExistsError">StateCategoryNotExistsError</a></span>
-
+        
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.StateCheckError">StateCheckError</a></span>
-
+        
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.TemplateBase">TemplateBase</a></span>
-
-
+        
+          
   <ul>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.delete">delete</a></li>
@@ -1121,19 +1122,26 @@ table {
   </div>
 
     <article id="content">
+      
+  
 
-
-
-
+  
 
 
   <header id="section-intro">
   <h1 class="title"><span class="name">zerorobot.template.base</span> module</h1>
-
-
+  <p>The base module defines the TemplateBase class.
+It is the class every template should inherits from.</p>
+  
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The base module defines the TemplateBase class.</span>
+<span class="sd">It is the class every template should inherits from.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">signature</span>
 
@@ -1453,16 +1461,16 @@ table {
     <h2 class="section-title" id="header-variables">Module variables</h2>
       <div class="item">
       <p id="zerorobot.template.base.SERVICE_STATE_ERROR" class="name">var <span class="ident">SERVICE_STATE_ERROR</span></p>
-
-
+      
+  
   <div class="source_cont">
 </div>
 
       </div>
       <div class="item">
       <p id="zerorobot.template.base.SERVICE_STATE_OK" class="name">var <span class="ident">SERVICE_STATE_OK</span></p>
-
-
+      
+  
   <div class="source_cont">
 </div>
 
@@ -1470,11 +1478,11 @@ table {
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
-
+      
       <div class="item">
       <p id="zerorobot.template.base.ActionNotFoundError" class="name">class <span class="ident">ActionNotFoundError</span></p>
-
-
+      
+  
     <div class="desc"><p>Error raised when trying to schedule an action that doesn't exist</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ActionNotFoundError', this);">Show source &equiv;</a></p>
@@ -1501,21 +1509,21 @@ table {
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.template.base.ActionNotFoundError.args" class="name">var <span class="ident">args</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.template.base.BadActionArgumentError" class="name">class <span class="ident">BadActionArgumentError</span></p>
-
-
+      
+  
     <div class="desc"><p>Error return when the argument pass when trying to schedule an action
 doesn't match with the method signature</p></div>
   <div class="source_cont">
@@ -1544,21 +1552,21 @@ doesn't match with the method signature</p></div>
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.template.base.BadActionArgumentError.args" class="name">var <span class="ident">args</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.template.base.BadServiceStateError" class="name">class <span class="ident">BadServiceStateError</span></p>
-
-
+      
+  
     <div class="desc"><p>This exception is raised when trying to set a state to a value
 that is not supported</p></div>
   <div class="source_cont">
@@ -1587,21 +1595,21 @@ that is not supported</p></div>
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.template.base.BadServiceStateError.args" class="name">var <span class="ident">args</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.template.base.BadTemplateError" class="name">class <span class="ident">BadTemplateError</span></p>
-
-
+      
+  
     <div class="desc"><p>Error raised when trying to load a service with a wrong template class</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.BadTemplateError', this);">Show source &equiv;</a></p>
@@ -1628,21 +1636,21 @@ that is not supported</p></div>
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.template.base.BadTemplateError.args" class="name">var <span class="ident">args</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.template.base.ServiceData" class="name">class <span class="ident">ServiceData</span></p>
-
-
+      
+  
     <div class="desc"><p>Small wrapper around dict object to make
 access to capnp object easy for the service</p></div>
   <div class="source_cont">
@@ -1693,15 +1701,15 @@ access to capnp object easy for the service</p></div>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
-
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.ServiceData.__init__">
     <p>def <span class="ident">__init__</span>(</p><p>self, service)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>@param schema_path: path to the</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceData.__init__', this);">Show source &equiv;</a></p>
@@ -1721,16 +1729,16 @@ access to capnp object easy for the service</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.ServiceData.load">
     <p>def <span class="ident">load</span>(</p><p>self, path)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Load the data from a file created by the save method</p>
 <p>@param path: file path from where to load the data</p></div>
   <div class="source_cont">
@@ -1748,16 +1756,16 @@ access to capnp object easy for the service</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.ServiceData.save">
     <p>def <span class="ident">save</span>(</p><p>self, path)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Serialize the data into a file</p>
 <p>@param path: file path where to save the data</p></div>
   <div class="source_cont">
@@ -1775,14 +1783,14 @@ access to capnp object easy for the service</p></div>
 </div>
 
   </div>
-
+  
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.template.base.ServiceState" class="name">class <span class="ident">ServiceState</span></p>
-
-
+      
+  
     <div class="desc"><p>This class represent the state of the service.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState', this);">Show source &equiv;</a></p>
@@ -1877,15 +1885,15 @@ access to capnp object easy for the service</p></div>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
-
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.ServiceState.__init__">
     <p>def <span class="ident">__init__</span>(</p><p>self)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState.__init__', this);">Show source &equiv;</a></p>
@@ -1898,16 +1906,16 @@ access to capnp object easy for the service</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.ServiceState.check">
     <p>def <span class="ident">check</span>(</p><p>self, category, tag, expected)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>checks if the state contains in category and tag is equal to expected
 if the category or the tag doesn't exists or the state is not equal to
 expected, raise StateCheckError, otherwise return True</p></div>
@@ -1937,16 +1945,16 @@ expected, raise StateCheckError, otherwise return True</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.ServiceState.get">
     <p>def <span class="ident">get</span>(</p><p>self, category, tag=None)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>get the value of a state</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState.get', this);">Show source &equiv;</a></p>
@@ -1971,16 +1979,16 @@ expected, raise StateCheckError, otherwise return True</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.ServiceState.load">
     <p>def <span class="ident">load</span>(</p><p>self, path)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Load the state from a file created by the save method</p>
 <p>@param path: file path from where to load the state</p></div>
   <div class="source_cont">
@@ -1998,16 +2006,16 @@ expected, raise StateCheckError, otherwise return True</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.ServiceState.save">
     <p>def <span class="ident">save</span>(</p><p>self, path)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Serialize the state into a file</p>
 <p>@param path: file path where to save the state</p></div>
   <div class="source_cont">
@@ -2025,16 +2033,16 @@ expected, raise StateCheckError, otherwise return True</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.ServiceState.set">
     <p>def <span class="ident">set</span>(</p><p>self, category, tag, state)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>set a state to a value.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState.set', this);">Show source &equiv;</a></p>
@@ -2054,25 +2062,25 @@ expected, raise StateCheckError, otherwise return True</p></div>
 </div>
 
   </div>
-
+  
           <h3>Instance variables</h3>
             <div class="item">
             <p id="zerorobot.template.base.ServiceState.categories" class="name">var <span class="ident">categories</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.template.base.StateCategoryNotExistsError" class="name">class <span class="ident">StateCategoryNotExistsError</span></p>
-
-
+      
+  
     <div class="desc"><p>This exception is raised when trying to read the state of a
 category that doesn't exists</p></div>
   <div class="source_cont">
@@ -2101,21 +2109,21 @@ category that doesn't exists</p></div>
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.template.base.StateCategoryNotExistsError.args" class="name">var <span class="ident">args</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.template.base.StateCheckError" class="name">class <span class="ident">StateCheckError</span></p>
-
-
+      
+  
     <div class="desc"><p>This exception is raised when a call to ServiceState.check fails</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.StateCheckError', this);">Show source &equiv;</a></p>
@@ -2141,21 +2149,21 @@ category that doesn't exists</p></div>
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.template.base.StateCheckError.args" class="name">var <span class="ident">args</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.template.base.TemplateBase" class="name">class <span class="ident">TemplateBase</span></p>
-
-
+      
+  
     <div class="desc"><p>This is the base class any service should inherit from.</p>
 <p>The child class will implement actions on this class.</p></div>
   <div class="source_cont">
@@ -2312,44 +2320,44 @@ category that doesn't exists</p></div>
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.template_dir" class="name">var <span class="ident">template_dir</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.template_uid" class="name">var <span class="ident">template_uid</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.version" class="name">var <span class="ident">version</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
           <h3>Static methods</h3>
-
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.__init__">
     <p>def <span class="ident">__init__</span>(</p><p>self, name, guid=None)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.__init__', this);">Show source &equiv;</a></p>
@@ -2370,16 +2378,16 @@ category that doesn't exists</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.delete">
     <p>def <span class="ident">delete</span>(</p><p>self)</p>
     </div>
+    
 
-
-
-
+    
+  
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.delete', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.TemplateBase.delete" class="source">
@@ -2391,16 +2399,16 @@ category that doesn't exists</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.save">
     <p>def <span class="ident">save</span>(</p><p>self, base_path)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>serialize the service state and data to a file</p>
 <p>@param base_path: path of the directory where
                   to save the service state and data
@@ -2439,16 +2447,16 @@ return the path where the service is saved</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.schedule_action">
     <p>def <span class="ident">schedule_action</span>(</p><p>self, action, args=None, resp_q=None)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Add an action to the task list of this service.
 This method should never be called directly by the user.
 It will always be called by another service.
@@ -2491,78 +2499,78 @@ Or from a local service or from a remote service trough RPC</p>
 </div>
 
   </div>
-
+  
           <h3>Instance variables</h3>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.data" class="name">var <span class="ident">data</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.guid" class="name">var <span class="ident">guid</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.name" class="name">var <span class="ident">name</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.parent" class="name">var <span class="ident">parent</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.state" class="name">var <span class="ident">state</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.task_list" class="name">var <span class="ident">task_list</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
           <h3>Methods</h3>
-
+            
   <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.load">
     <p>def <span class="ident">load</span>(</p><p>cls, base_path)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>load the service from it's file system serialized format</p>
 <p>@param base_path: path of the directory where
                   to load the service state and data from</p></div>
@@ -2600,7 +2608,7 @@ Or from a local service or from a remote service trough RPC</p>
 </div>
 
   </div>
-
+  
       </div>
       </div>
 
