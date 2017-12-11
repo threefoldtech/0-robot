@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot API documentation</title>
+    <title>zerorobot.template.decorator API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1041,22 +1041,16 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.template.decorator.retry">retry</a></li>
+    <li class="mono"><a href="#zerorobot.template.decorator.timeout">timeout</a></li>
+  </ul>
 
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="blueprint.m.html">zerorobot.blueprint</a></li>
-        <li class="mono"><a href="client/index.html">zerorobot.client</a></li>
-        <li class="mono"><a href="dsl/index.html">zerorobot.dsl</a></li>
-        <li class="mono"><a href="robot.m.html">zerorobot.robot</a></li>
-        <li class="mono"><a href="service_collection.m.html">zerorobot.service_collection</a></li>
-        <li class="mono"><a href="service_proxy.m.html">zerorobot.service_proxy</a></li>
-        <li class="mono"><a href="task.m.html">zerorobot.task</a></li>
-        <li class="mono"><a href="template/index.html">zerorobot.template</a></li>
-        <li class="mono"><a href="template_collection.m.html">zerorobot.template_collection</a></li>
-        <li class="mono"><a href="utils.m.html">zerorobot.utils</a></li>
-      </ul>
     </li>
+
+
     </ul>
   </div>
 
@@ -1068,82 +1062,200 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.template.decorator</span> module</h1>
   
   
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.decorator', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.decorator" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">def</span> <span class="nf">retry</span><span class="p">(</span><span class="n">exceptions</span><span class="p">,</span> <span class="n">tries</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retry calling the decorated function using an exponential backoff.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exceptions: The exception to check. may be a tuple of</span>
+<span class="sd">            exceptions to check.</span>
+<span class="sd">        tries: Number of times to try (not retry) before giving up.</span>
+<span class="sd">        delay: Initial delay between retries in seconds.</span>
+<span class="sd">        backoff: Backoff multiplier (e.g. value of 2 will double the delay</span>
+<span class="sd">            each retry).</span>
+<span class="sd">        logger: Logger to use. If None, print.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">deco_retry</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">f_retry</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">mtries</span><span class="p">,</span> <span class="n">mdelay</span> <span class="o">=</span> <span class="n">tries</span><span class="p">,</span> <span class="n">delay</span>
+            <span class="k">while</span> <span class="n">mtries</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">exceptions</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;{}, Retrying in {} seconds...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">mdelay</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">mdelay</span><span class="p">)</span>
+                    <span class="n">mtries</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="n">mdelay</span> <span class="o">*=</span> <span class="n">backoff</span>
+            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">f_retry</span>  <span class="c1"># true decorator</span>
+
+    <span class="k">return</span> <span class="n">deco_retry</span>
+
+
+<span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Function call timed out&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raise a Timeout error if the wrapped function takes more time then seconds to execute.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        seconds: timeout time in seconds</span>
+<span class="sd">        error_message: message to pass to the TimeoutError exception raised</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">deco_timout</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_handle_timeout</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">f_timeout</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGALRM</span><span class="p">,</span> <span class="n">_handle_timeout</span><span class="p">)</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="n">f_timeout</span>
+
+    <span class="k">return</span> <span class="n">deco_timout</span>
+</pre></div>
+
+  </div>
 
   </header>
 
   <section id="section-items">
 
-
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="blueprint.m.html">zerorobot.blueprint</a></p>
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
+  <div class="item">
+    <div class="name def" id="zerorobot.template.decorator.retry">
+    <p>def <span class="ident">retry</span>(</p><p>exceptions, tries=4, delay=3, backoff=2, logger=None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Retry calling the decorated function using an exponential backoff.</p>
+<p>Args:
+    exceptions: The exception to check. may be a tuple of
+        exceptions to check.
+    tries: Number of times to try (not retry) before giving up.
+    delay: Initial delay between retries in seconds.
+    backoff: Backoff multiplier (e.g. value of 2 will double the delay
+        each retry).
+    logger: Logger to use. If None, print.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.decorator.retry', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.decorator.retry" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">retry</span><span class="p">(</span><span class="n">exceptions</span><span class="p">,</span> <span class="n">tries</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retry calling the decorated function using an exponential backoff.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exceptions: The exception to check. may be a tuple of</span>
+<span class="sd">            exceptions to check.</span>
+<span class="sd">        tries: Number of times to try (not retry) before giving up.</span>
+<span class="sd">        delay: Initial delay between retries in seconds.</span>
+<span class="sd">        backoff: Backoff multiplier (e.g. value of 2 will double the delay</span>
+<span class="sd">            each retry).</span>
+<span class="sd">        logger: Logger to use. If None, print.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">deco_retry</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">f_retry</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">mtries</span><span class="p">,</span> <span class="n">mdelay</span> <span class="o">=</span> <span class="n">tries</span><span class="p">,</span> <span class="n">delay</span>
+            <span class="k">while</span> <span class="n">mtries</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">exceptions</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;{}, Retrying in {} seconds...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">mdelay</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">mdelay</span><span class="p">)</span>
+                    <span class="n">mtries</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="n">mdelay</span> <span class="o">*=</span> <span class="n">backoff</span>
+            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">f_retry</span>  <span class="c1"># true decorator</span>
+
+    <span class="k">return</span> <span class="n">deco_retry</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.template.decorator.timeout">
+    <p>def <span class="ident">timeout</span>(</p><p>seconds, error_message=&#39;Function call timed out&#39;)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Raise a Timeout error if the wrapped function takes more time then seconds to execute.</p>
+<p>Args:
+    seconds: timeout time in seconds
+    error_message: message to pass to the TimeoutError exception raised</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.decorator.timeout', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.decorator.timeout" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Function call timed out&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raise a Timeout error if the wrapped function takes more time then seconds to execute.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        seconds: timeout time in seconds</span>
+<span class="sd">        error_message: message to pass to the TimeoutError exception raised</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">deco_timout</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_handle_timeout</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">f_timeout</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGALRM</span><span class="p">,</span> <span class="n">_handle_timeout</span><span class="p">)</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="n">f_timeout</span>
+
+    <span class="k">return</span> <span class="n">deco_timout</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
   
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="client/index.html">zerorobot.client</a></p>
-      
-  
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="dsl/index.html">zerorobot.dsl</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="robot.m.html">zerorobot.robot</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="service_collection.m.html">zerorobot.service_collection</a></p>
-      
-  
-    <div class="desc"><p>this module is the only place where the service will be kept in memory.
-other services and class need to use this module method to create, access, list and search the services</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="service_proxy.m.html">zerorobot.service_proxy</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="task.m.html">zerorobot.task</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="template/index.html">zerorobot.template</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="template_collection.m.html">zerorobot.template_collection</a></p>
-      
-  
-    <div class="desc"><p>this module is the only place where the templates will be kept in memory.
-other services and class need to use this module method to load/access the templates</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="utils.m.html">zerorobot.utils</a></p>
-      
-  
-    <div class="desc"><p>Utilites modules for ays libs</p></div>
-
-      </div>
   </section>
 
     </article>
