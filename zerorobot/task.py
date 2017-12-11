@@ -1,3 +1,9 @@
+"""
+task module holds the logic regarding TaskList and Task classes.
+
+These two classes are used by the services to managed the requested actions
+"""
+
 import json
 import os
 import sys

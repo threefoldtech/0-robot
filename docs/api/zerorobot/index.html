@@ -1054,7 +1054,6 @@ table {
         <li class="mono"><a href="task.m.html">zerorobot.task</a></li>
         <li class="mono"><a href="template/index.html">zerorobot.template</a></li>
         <li class="mono"><a href="template_collection.m.html">zerorobot.template_collection</a></li>
-        <li class="mono"><a href="utils.m.html">zerorobot.utils</a></li>
       </ul>
     </li>
     </ul>
@@ -1083,24 +1082,33 @@ table {
       <p class="name"><a href="blueprint.m.html">zerorobot.blueprint</a></p>
       
   
+    <div class="desc"><p>This module holds all the logic regarding parsing and processing of a blueprint.</p>
+<p>It is being used from the REST API server handlers</p></div>
 
       </div>
       <div class="item">
       <p class="name"><a href="client/index.html">zerorobot.client</a></p>
       
   
+    <div class="desc"><p>This package is generated using <a href="https://github.com/Jumpscale/go-raml">go-raml</a></p>
+<p>It is the client of the REST API of the ZeroRobot</p></div>
 
       </div>
       <div class="item">
       <p class="name"><a href="dsl/index.html">zerorobot.dsl</a></p>
       
   
+    <div class="desc"><p>This package contains the class used by Jumpscale.</p>
+<p>Jumpscale provie a factory that return a instance of the class defined in this package
+We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p></div>
 
       </div>
       <div class="item">
       <p class="name"><a href="robot.m.html">zerorobot.robot</a></p>
       
   
+    <div class="desc"><p>robot modules define the Robot class</p>
+<p>It is the class responsible to start and managed the robot as well as the REST API.</p></div>
 
       </div>
       <div class="item">
@@ -1115,18 +1123,30 @@ other services and class need to use this module method to create, access, list 
       <p class="name"><a href="service_proxy.m.html">zerorobot.service_proxy</a></p>
       
   
+    <div class="desc"><p>This module implement the ServiceProxy class.</p>
+<p>This class is used to provide a local proxy to a remote service for a ZeroRobot.
+When a service or robot ask the creation of a service to another robot, a proxy class is created locally
+so the robot see the service as if it as local to him while in real...</p></div>
 
       </div>
       <div class="item">
       <p class="name"><a href="task.m.html">zerorobot.task</a></p>
       
   
+    <div class="desc"><p>task module holds the logic regarding TaskList and Task classes.</p>
+<p>These two classes are used by the services to managed the requested actions</p></div>
 
       </div>
       <div class="item">
       <p class="name"><a href="template/index.html">zerorobot.template</a></p>
       
   
+    <div class="desc"><p>This package contains all the logic regarding templates.</p>
+<p>This is mostly the only package AYS developer should work with when implementing services</p>
+<p>It contains 2 sub-module:
+- template:
+ This is where the TemplateBase class is defined. This is the class every every service should inherits from.
+- d...</p></div>
 
       </div>
       <div class="item">
@@ -1135,13 +1155,6 @@ other services and class need to use this module method to create, access, list 
   
     <div class="desc"><p>this module is the only place where the templates will be kept in memory.
 other services and class need to use this module method to load/access the templates</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="utils.m.html">zerorobot.utils</a></p>
-      
-  
-    <div class="desc"><p>Utilites modules for ays libs</p></div>
 
       </div>
   </section>

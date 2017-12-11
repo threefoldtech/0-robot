@@ -4,7 +4,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
     <title>zerorobot.blueprint API documentation</title>
-    <meta name="description" content="" />
+    <meta name="description" content="This module holds all the logic regarding parsing and processing of a blueprint.
+
+It is being used f..." />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1077,12 +1079,18 @@ table {
 
   <header id="section-intro">
   <h1 class="title"><span class="name">zerorobot.blueprint</span> module</h1>
-  
+  <p>This module holds all the logic regarding parsing and processing of a blueprint.</p>
+<p>It is being used from the REST API server handlers</p>
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.blueprint', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.blueprint" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">fcntl</span>
-<span class="kn">import</span> <span class="nn">os</span>
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module holds all the logic regarding parsing and processing of a blueprint.</span>
+
+<span class="sd">It is being used from the REST API server handlers</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
@@ -1096,19 +1104,26 @@ table {
 <span class="sd">    Parse a bluprint object and extract 3 types of blocks</span>
 
 <span class="sd">    action block: list of actions required to be executed on which service</span>
-<span class="sd">    e.g: [{</span>
+<span class="sd">    e.g:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    [{</span>
 <span class="sd">        &#39;template&#39;: &#39;node&#39;,</span>
 <span class="sd">        &#39;name&#39;: &#39;node1&#39;,</span>
 <span class="sd">        &#39;recurring&#39;: 1m,</span>
 <span class="sd">        &#39;action&#39;: &#39;start&#39;</span>
 <span class="sd">    }]</span>
+<span class="sd">    ```</span>
 <span class="sd">    service block: create/update of a service with its data</span>
-<span class="sd">    e.g.:[{</span>
+<span class="sd">    e.g.:</span>
+
+<span class="sd">    ```</span>
+<span class="sd">    [{</span>
 <span class="sd">        &#39;template&#39;: &#39;node&#39;,</span>
 <span class="sd">        &#39;service&#39;: &#39;node&#39;,</span>
 <span class="sd">        &#39;data&#39;: {&#39;foo&#39;: &#39;bar&#39;}</span>
 <span class="sd">    }]</span>
-
+<span class="sd">    ```</span>
 <span class="sd">    return a tuple containing these blocks: (actions, services)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -1252,19 +1267,22 @@ table {
   
     <div class="desc"><p>Parse a bluprint object and extract 3 types of blocks</p>
 <p>action block: list of actions required to be executed on which service
-e.g: [{
+e.g:</p>
+<p><code>python
+[{
     'template': 'node',
     'name': 'node1',
     'recurring': 1m,
     'action': 'start'
-}]
+}]</code>
 service block: create/update of a service with its data
-e.g.:[{
+e.g.:</p>
+<p><code>[{
     'template': 'node',
     'service': 'node',
     'data': {'foo': 'bar'}
-}]</p>
-<p>return a tuple containing these blocks: (actions, services)</p></div>
+}]</code>
+return a tuple containing these blocks: (actions, services)</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.blueprint.parse', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.blueprint.parse" class="source">
@@ -1273,19 +1291,26 @@ e.g.:[{
 <span class="sd">    Parse a bluprint object and extract 3 types of blocks</span>
 
 <span class="sd">    action block: list of actions required to be executed on which service</span>
-<span class="sd">    e.g: [{</span>
+<span class="sd">    e.g:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    [{</span>
 <span class="sd">        &#39;template&#39;: &#39;node&#39;,</span>
 <span class="sd">        &#39;name&#39;: &#39;node1&#39;,</span>
 <span class="sd">        &#39;recurring&#39;: 1m,</span>
 <span class="sd">        &#39;action&#39;: &#39;start&#39;</span>
 <span class="sd">    }]</span>
+<span class="sd">    ```</span>
 <span class="sd">    service block: create/update of a service with its data</span>
-<span class="sd">    e.g.:[{</span>
+<span class="sd">    e.g.:</span>
+
+<span class="sd">    ```</span>
+<span class="sd">    [{</span>
 <span class="sd">        &#39;template&#39;: &#39;node&#39;,</span>
 <span class="sd">        &#39;service&#39;: &#39;node&#39;,</span>
 <span class="sd">        &#39;data&#39;: {&#39;foo&#39;: &#39;bar&#39;}</span>
 <span class="sd">    }]</span>
-
+<span class="sd">    ```</span>
 <span class="sd">    return a tuple containing these blocks: (actions, services)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>

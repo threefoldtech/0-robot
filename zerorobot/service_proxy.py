@@ -1,3 +1,12 @@
+"""
+This module implement the ServiceProxy class.
+
+This class is used to provide a local proxy to a remote service for a ZeroRobot.
+When a service or robot ask the creation of a service to another robot, a proxy class is created locally
+so the robot see the service as if it as local to him while in reality the service is managed by another robot.
+"""
+
+
 from requests.exceptions import HTTPError
 
 from zerorobot.template.template import ServiceState

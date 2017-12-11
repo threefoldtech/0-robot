@@ -1,5 +1,10 @@
-import fcntl
-import os
+"""
+This module holds all the logic regarding parsing and processing of a blueprint.
+
+It is being used from the REST API server handlers
+"""
+
+
 import re
 import yaml
 
@@ -13,19 +18,26 @@ def parse(content):
     Parse a bluprint object and extract 3 types of blocks
 
     action block: list of actions required to be executed on which service
-    e.g: [{
+    e.g:
+
+    ```python
+    [{
         'template': 'node',
         'name': 'node1',
         'recurring': 1m,
         'action': 'start'
     }]
+    ```
     service block: create/update of a service with its data
-    e.g.:[{
+    e.g.:
+
+    ```
+    [{
         'template': 'node',
         'service': 'node',
         'data': {'foo': 'bar'}
     }]
-
+    ```
     return a tuple containing these blocks: (actions, services)
     """
     if isinstance(content, str):

@@ -69,8 +69,13 @@ class TestServiceState(unittest.TestCase):
         self.assertTrue(state.check('network', 'tcp-80', 'ok'))
         with self.assertRaises(StateCheckError):
             self.assertFalse(state.check('network', 'tcp-80', 'error'))
+        with self.assertRaises(StateCheckError):
             self.assertFalse(state.check('network', '', 'ok'))
+        with self.assertRaises(StateCheckError):
             self.assertFalse(state.check('foo', 'tcp-80', 'ok'))
+        with self.assertRaises(StateCheckError):
             self.assertFalse(state.check('', '', 'ok'))
+        with self.assertRaises(StateCheckError):
             self.assertFalse(state.check(None, 'tcp-80', 'ok'))
+        with self.assertRaises(StateCheckError):
             self.assertFalse(state.check('network', None, 'ok'))

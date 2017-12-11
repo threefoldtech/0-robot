@@ -1,3 +1,9 @@
+"""
+robot modules define the Robot class
+
+It is the class responsible to start and managed the robot as well as the REST API.
+"""
+
 import logging
 import os
 import signal
