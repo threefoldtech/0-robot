@@ -225,6 +225,12 @@ class StateCategoryNotExistsError(Exception):
     pass
 
 
+class StateCheckError(Exception):
+    """
+    This exception is raised when a call to ServiceState.check fails
+    """
+
+
 class ServiceState:
     """
     This class represent the state of the service.
@@ -262,6 +268,25 @@ class ServiceState:
         # return only the state for this tag
         # we return a dict so it's consistent with the case when tag is None
         return {tag: self.categories[category][tag]}
+
+    def check(self, category, tag, expected):
+        """
+        checks if the state contains in category and tag is equal to expected
+        if the category or the tag doesn't exists or the state is not equal to
+        expected, raise StateCheckError, otherwise return True
+        """
+        err_msg = "check for state %s:%s:%s failed" % (category, tag, expected)
+        try:
+            state = self.get(category, tag)
+            try:
+                if not state[tag] == expected:
+                    raise StateCheckError(err_msg)
+            except KeyError:
+                raise StateCheckError(err_msg)
+        except StateCategoryNotExistsError:
+            raise StateCheckError(err_msg)
+
+        return True
 
     def save(self, path):
         """

@@ -4,7 +4,7 @@ import unittest
 
 from js9 import j
 
-from zerorobot.template.template import ServiceState, BadServiceStateError, StateCategoryNotExistsError
+from zerorobot.template.template import ServiceState, BadServiceStateError, StateCategoryNotExistsError, StateCheckError
 
 
 class TestServiceState(unittest.TestCase):
@@ -61,3 +61,16 @@ class TestServiceState(unittest.TestCase):
             state2 = ServiceState()
             state2.load(path)
             self.assertDictEqual(state.categories, state2.categories)
+
+    def test_check(self):
+        state = ServiceState()
+        state.set('network', 'tcp-80', 'ok')
+
+        self.assertTrue(state.check('network', 'tcp-80', 'ok'))
+        with self.assertRaises(StateCheckError):
+            self.assertFalse(state.check('network', 'tcp-80', 'error'))
+            self.assertFalse(state.check('network', '', 'ok'))
+            self.assertFalse(state.check('foo', 'tcp-80', 'ok'))
+            self.assertFalse(state.check('', '', 'ok'))
+            self.assertFalse(state.check(None, 'tcp-80', 'ok'))
+            self.assertFalse(state.check('network', None, 'ok'))
