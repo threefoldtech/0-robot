@@ -1,7 +1,8 @@
 import logging
+import time
 import unittest
 
-from zerorobot.template.decorator import retry
+from zerorobot.template.decorator import retry, timeout
 
 
 class RetryableError(Exception):
@@ -16,7 +17,7 @@ class UnexpectedError(Exception):
     pass
 
 
-class RetryTestCase(unittest.TestCase):
+class TestRetryDecorator(unittest.TestCase):
 
     def test_no_retry_required(self):
         self.counter = 0
@@ -100,3 +101,84 @@ class RetryTestCase(unittest.TestCase):
                 return 'success'
 
         fails_once()
+
+
+class TestTimeoutDecorator(unittest.TestCase):
+
+    def test_no_timeout(self):
+        self.counter = 0
+
+        @timeout(0)
+        def notimeout():
+            time.sleep(1)
+            self.counter += 1
+            return 'success'
+
+        r = notimeout()
+        self.assertEqual(r, 'success')
+        self.assertEqual(self.counter, 1)
+
+    def test_with_timeout(self):
+        self.counter = 0
+
+        @timeout(1)
+        def notimeout():
+            time.sleep(2)
+            self.counter += 1
+            return 'success'
+
+        with self.assertRaises(TimeoutError):
+            r = notimeout()
+
+        self.assertEqual(self.counter, 0)
+
+    def test_exception(self):
+        self.counter = 0
+
+        @timeout(2)
+        def with_exception():
+            time.sleep(1)
+            raise RuntimeError()
+            self.counter += 1
+            return 'success'
+
+        with self.assertRaises(RuntimeError):
+            r = with_exception()
+
+        self.assertEqual(self.counter, 0)
+
+
+class TestRetryTimout(unittest.TestCase):
+
+    def test_rety_with_timeout(self):
+        self.counter = 0
+
+        @timeout(1)
+        @retry(RetryableError, tries=4, delay=2)
+        def fails_once():
+            self.counter += 1
+            if self.counter < 2:
+                raise RetryableError('failed')
+            else:
+                return 'success'
+
+        with self.assertRaises(TimeoutError):
+            r = fails_once()
+
+        self.assertEqual(self.counter, 1)
+
+    def test_rety_with_timeout_too_long(self):
+        self.counter = 0
+
+        @timeout(1)
+        @retry(RetryableError, tries=2, delay=0.1)
+        def fails_once():
+            self.counter += 1
+            if self.counter < 2:
+                raise RetryableError('failed')
+            else:
+                return 'success'
+
+        r = fails_once()
+        self.assertEqual(r, 'success')
+        self.assertEqual(self.counter, 2)

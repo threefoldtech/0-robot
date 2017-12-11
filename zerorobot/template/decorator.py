@@ -1,6 +1,6 @@
-import time
 from functools import wraps
-import cProfile
+import signal
+import time
 
 
 def retry(exceptions, tries=4, delay=3, backoff=2, logger=None):
@@ -38,3 +38,30 @@ def retry(exceptions, tries=4, delay=3, backoff=2, logger=None):
         return f_retry  # true decorator
 
     return deco_retry
+
+
+def timeout(seconds, error_message='Function call timed out'):
+    """
+    Raise a Timeout error if the wrapped function takes more time then seconds to execute.
+
+    Args:
+        seconds: timeout time in seconds
+        error_message: message to pass to the TimeoutError exception raised
+    """
+    def deco_timout(f):
+        def _handle_timeout(signum, frame):
+            raise TimeoutError(error_message)
+
+        @wraps(f)
+        def f_timeout(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                result = f(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+
+        return f_timeout
+
+    return deco_timout
