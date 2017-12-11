@@ -24,12 +24,10 @@ It's written in yaml.
 ### data
 Service data model: This is model that represent the specific data bind to a service. The schema used to define this model is capnp. The data of a service is only accessible by the service itself, it will never be exposed to a remote service. If some information need to be shared, it need to be communicated through an action.
 
-### DNS name
-
 ### DSL
 DLS stands for "domain specific language". This is the language used in the [template](#template) [action](#action) to describe what needs to be done to execute an [action](#action).
 
-The DLS we use is actually some python code. Some easy to use module have been created inside Jumpscale and are supposed to be re-used inside the [template](#template) [action](#action)
+The DLS we use is actually some python code. Some easy to use module have been created inside [Jumpscale](https://github.com/Jumpscale/home) and are supposed to be re-used inside the [template](#template) [action](#action)
 
 
 ### Proxy
