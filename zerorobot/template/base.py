@@ -297,6 +297,23 @@ class ServiceState:
 
         return True
 
+    def delete(self, category, tag=None):
+        """
+        delete a state
+        if tag is None, delete the full category
+        """
+        if category not in self.categories:
+            return
+
+        if tag is None:
+            del self.categories[category]
+            return
+
+        if tag not in self.categories[category]:
+            return
+
+        del self.categories[category][tag]
+
     def save(self, path):
         """
         Serialize the state into a file

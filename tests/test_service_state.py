@@ -79,3 +79,24 @@ class TestServiceState(unittest.TestCase):
             self.assertFalse(state.check(None, 'tcp-80', 'ok'))
         with self.assertRaises(StateCheckError):
             self.assertFalse(state.check('network', None, 'ok'))
+
+    def test_delete(self):
+        state = ServiceState()
+        state.set('network', 'tcp-80', 'ok')
+        state.set('network', 'tcp-81', 'error')
+
+        # make sure the state is correct
+        self.assertEqual(state.categories['network']['tcp-80'], 'ok', "state should be ok")
+        self.assertEqual(state.categories['network']['tcp-81'], 'error', "state should be error")
+
+        state.delete('network', 'tcp-80')
+        with self.assertRaises(StateCategoryNotExistsError, msg='tag tcp-80 should not exists'):
+            state.get('network', 'tcp-80')
+
+        state.delete('network')
+        self.assertEqual(state.categories, {}, "state should be empty now")
+
+        # should not raise when trying to delete non existing category or tag
+        state.set('network', 'tcp-80', 'ok')
+        state.delete('noexsits')
+        state.delete('network', 'noexists')
