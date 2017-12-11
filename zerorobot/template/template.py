@@ -4,7 +4,7 @@ from inspect import signature
 
 from gevent.greenlet import Greenlet, GreenletExit
 
-from .task import TaskList, Task
+from zerorobot.task import TaskList, Task
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.template_collection import TemplateUID

@@ -1,6 +1,6 @@
 from requests.exceptions import HTTPError
 
-from zerorobot.template import ServiceState
+from zerorobot.template.template import ServiceState
 from zerorobot.task import TaskList, Task, TASK_STATE_NEW, TASK_STATE_OK, TASK_STATE_RUNNING, TASK_STATE_ERROR
 
 from js9 import j

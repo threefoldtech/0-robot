@@ -4,9 +4,9 @@ import unittest
 
 from js9 import j
 
-from zerorobot.template import TemplateBase, BadActionArgumentError, ActionNotFoundError
+from zerorobot.template.template import TemplateBase, BadActionArgumentError, ActionNotFoundError
+from zerorobot.template.template import BadTemplateError, ActionNotFoundError, BadActionArgumentError
 from zerorobot.template_collection import _load_template
-from zerorobot.template import BadTemplateError, ActionNotFoundError, BadActionArgumentError
 
 
 class TestServiceData(unittest.TestCase):
