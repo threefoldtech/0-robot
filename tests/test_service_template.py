@@ -107,11 +107,17 @@ class TestServiceTemplate(unittest.TestCase):
         self.assertEqual(task.action_name, 'start', "action name should be start")
         self.assertIsNotNone(task.guid, "task guid should not be None")
 
+        task = srv.schedule_action('foo', args={'bar': 'foo'})
+        self.assertDictEqual(task._args, {'bar': 'foo'})
+
         with self.assertRaises(ActionNotFoundError):
             srv.schedule_action('nonexist')
 
-        with self.assertRaises(BadActionArgumentError):
-            srv.schedule_action('start', args={'foo': 'bar'})
+        with self.assertRaises(ActionNotFoundError, msg='should raise when trying to schedule a attribute that is not callable'):
+            srv.schedule_action('guid')
 
-        with self.assertRaises(BadActionArgumentError):
-            srv.schedule_action('foo', args={'wrong_arg': 'bar'})
+        with self.assertRaises(BadActionArgumentError, msg='should raise BadActionArgumentError when mandatory parameters is missing'):
+            task = srv.schedule_action('foo', args={'bor': 'foo'})
+
+        with self.assertRaises(BadActionArgumentError, msg="should raise if passing argument that are not part of the signature of the action"):
+            srv.schedule_action('foo', args={'bar': 'foo', 'wrong_arg': 'bar'})

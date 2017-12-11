@@ -15,5 +15,5 @@ class Node(TemplateBase):
     def stop(self):
         print('stop')
 
-    def foo(self, bar):
+    def foo(self, bar, bor=None):
         print('foo')

@@ -6,7 +6,7 @@ It is the class every template should inherits from.
 
 import os
 from uuid import uuid4
-from inspect import signature
+from inspect import signature, _empty
 
 from gevent.greenlet import Greenlet, GreenletExit
 
@@ -162,13 +162,16 @@ class TemplateBase:
 
         # make sure the argument we pass are correct
         s = signature(method)
-        if args is not None:
-            if len(args) != len(s.parameters):
-                raise BadActionArgumentError()
+        for param in s.parameters.values():
+            if param.default == _empty and param.name not in args:
+                raise BadActionArgumentError("parameter %s is mandatory but not passed to in args" % param.name)
 
-            for param in s.parameters.values():
-                if param.name not in args:
-                    raise BadActionArgumentError()
+        if args is not None:
+            signature_keys = set(s.parameters.keys())
+            args_keys = set(args.keys())
+            diff = args_keys.difference(signature_keys)
+            if len(diff) > 0:
+                raise BadActionArgumentError('arguments "%s" are not present in the signature of the action' % ','.join(args_keys))
 
         task = Task(self, action, args, resp_q)
         self.task_list.put(task)
