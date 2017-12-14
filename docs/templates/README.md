@@ -32,3 +32,44 @@ name = "container1"
 args = {'foo': 'bar'}
 container = tcol.instanciate_service(template_uid, name, args)
 ```
+
+## How to create a new template
+A template is composed of 2 files, a capnp schema and a python class that inherits `zerorobot.template.base.TemplateBase`
+
+These 2 files needs to be in a directory that is named after the template name.
+
+This is a tree of a templates repository with a single template called node.
+
+```
+templates
+├── node
+│   ├── node.py
+│   └── schema.capnp
+```
+
+The name of the template class needs to be the name of the template capitalized. So for a template `node`, the class needs to be called `Node`.
+
+### Minimal code:
+
+python class:
+```python
+from zerorobot.template.base import TemplateBase
+
+
+class Node(TemplateBase):
+    # define the verion of this template
+    version = '0.0.1'
+    template_name = "node"
+
+    def __init__(self, name, guid=None):
+        super().__init__(name=name, guid=guid)
+```
+capnp schema:
+```capnp
+# this id needs to be unique per template
+@0xc5ba0f64c9013a79;
+
+struct Schema {
+    # here we define the service data of the template
+}
+```

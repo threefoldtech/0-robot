@@ -1,7 +1,9 @@
 # 0-Robot Documentation
 
 ## Index
-- Introduction and concepts
-- Definitions:
-    - [Template](definitinos/template)
-    - Service
+- [Introduction and concepts](concepts.md)
+- [Getting started](getting_started.md)
+
+- Components:
+    - [Templates](templates/README.md)
+    - [Services](services/README.md)
