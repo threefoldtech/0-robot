@@ -11,8 +11,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'JumpScale9>=9.2.0',
-        'JumpScale9Lib>=9.2.0',
+        'JumpScale9',
+        'JumpScale9Lib',
         'gevent>=1.2.2',
         'Flask==0.10.1',
         'Flask-Inputs==0.2.0',
@@ -23,6 +23,6 @@ setup(
         'jsonschema==2.5.1',
         'six==1.10.0',
         'python-jose==1.3.2',
-
-    ]
+    ],
+    scripts=['cmd/zrobot']
 )

@@ -1,9 +1,7 @@
+from requests.exceptions import HTTPError
+
 from zerorobot.client import Client
 from zerorobot.service_proxy import ServiceProxy
-from zerorobot import service_collection as scol
-from zerorobot import template_collection as tcol
-
-from requests.exceptions import HTTPError
 
 
 class TemplateNotFoundError(Exception):
@@ -103,7 +101,7 @@ class TemplatesMgr:
         Returns a list of template UID present on the ZeroRobot
         """
         resp = self._client.api.templates.ListTemplates()
-        return [t.uid for t in resp.data]
+        return {t.uid: t for t in resp.data}
 
 
 class ZeroRobotClient:

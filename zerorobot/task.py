@@ -10,9 +10,8 @@ import sys
 import time
 
 import gevent
-from gevent.queue import Queue
 from gevent.lock import Semaphore
-
+from gevent.queue import Queue
 from js9 import j
 
 # Task state constant
@@ -47,7 +46,7 @@ class Task:
     def execute(self):
 
         self.state = TASK_STATE_RUNNING
-        # TODO: handle retries, exception, logging,...
+        # TODO: handle logging,...
         result = None
 
         try:
@@ -62,7 +61,6 @@ class Task:
             _, _, exc_traceback = sys.exc_info()
             self.eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
             self.eco.printTraceback()
-            # TODO: retry
 
         finally:
             if result and self._resp_q:
@@ -80,6 +78,14 @@ class Task:
             self._state = value
         finally:
             self._state_lock.release()
+
+    def wait(self, timeout):
+        """
+        wait blocks until the task has been executed or after timout seconds
+        """
+        end = time.time() + timeout
+        while self.state in ('new', 'running') and time.time() < end:
+            gevent.sleep(1)
 
 
 class TaskList:

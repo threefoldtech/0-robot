@@ -27,10 +27,16 @@ from zerorobot.robot import Robot
 @click.option('--data-repo', '-D', required=True, help='URL of the git repository where to save the data of the zero robot')
 @click.option('--template-repo', '-T', multiple=True, help='list of templare repository URL')
 @click.option('--listen', '-L', help='listen address', default=':6600')
-def main(data_repo, template_repo, listen):
+@click.option('--robots', '-R', multiple=True, help='address of reachable robots')
+def main(data_repo, template_repo, listen, robots):
     robot = Robot()
+
     for url in template_repo:
         robot.add_template_repo(url)
+
+    for addr in robots:
+        robot.add_remote_robot(addr)
+
     robot.set_data_repo(data_repo)
     robot.start(listen=listen)
 

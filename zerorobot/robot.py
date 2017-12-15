@@ -14,6 +14,7 @@ from gevent.pywsgi import WSGIServer
 from gevent.pool import Pool
 
 from js9 import j
+from JumpScale9.core.State import ClientConfig
 
 from zerorobot.api.app import app
 from zerorobot import service_collection as scol
@@ -50,6 +51,15 @@ class Robot:
 
     def add_template_repo(self, url, branch='master', directory='templates'):
         tcol.add_repo(url=url, branch=branch, directory=directory)
+
+    def add_remote_robot(self, addr):
+        """
+        configure a remote robot that should be know by this robot.abs
+        :param addr: HTTP URL of the other Robot API
+        :type addr: string
+        """
+        cl = j.clients.zrobot.get(addr)
+        j.clients.zrobot.set(addr, cl)
 
     def start(self, listen=":6600", log_level=logging.DEBUG, block=True):
         """
