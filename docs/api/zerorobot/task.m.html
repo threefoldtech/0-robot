@@ -1063,6 +1063,7 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.task.Task.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.task.Task.execute">execute</a></li>
+    <li class="mono"><a href="#zerorobot.task.Task.wait">wait</a></li>
   </ul>
 
         </li>
@@ -1114,9 +1115,8 @@ table {
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">import</span> <span class="nn">gevent</span>
-<span class="kn">from</span> <span class="nn">gevent.queue</span> <span class="kn">import</span> <span class="n">Queue</span>
 <span class="kn">from</span> <span class="nn">gevent.lock</span> <span class="kn">import</span> <span class="n">Semaphore</span>
-
+<span class="kn">from</span> <span class="nn">gevent.queue</span> <span class="kn">import</span> <span class="n">Queue</span>
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 
 <span class="c1"># Task state constant</span>
@@ -1151,7 +1151,7 @@ table {
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_RUNNING</span>
-        <span class="c1"># TODO: handle retries, exception, logging,...</span>
+        <span class="c1"># TODO: handle logging,...</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1166,7 +1166,6 @@ table {
             <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
-            <span class="c1"># TODO: retry</span>
 
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">result</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="p">:</span>
@@ -1184,6 +1183,14 @@ table {
             <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_state_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        wait blocks until the task has been executed or after timout seconds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="n">timeout</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">TaskList</span><span class="p">:</span>
@@ -1382,7 +1389,7 @@ table {
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_RUNNING</span>
-        <span class="c1"># TODO: handle retries, exception, logging,...</span>
+        <span class="c1"># TODO: handle logging,...</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1397,7 +1404,6 @@ table {
             <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
-            <span class="c1"># TODO: retry</span>
 
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">result</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="p">:</span>
@@ -1415,6 +1421,14 @@ table {
             <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_state_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        wait blocks until the task has been executed or after timout seconds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="n">timeout</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1482,7 +1496,7 @@ table {
   <div id="source-zerorobot.task.Task.execute" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_RUNNING</span>
-    <span class="c1"># TODO: handle retries, exception, logging,...</span>
+    <span class="c1"># TODO: handle logging,...</span>
     <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
@@ -1496,11 +1510,37 @@ table {
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
-        <span class="c1"># TODO: retry</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">result</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.task.Task.wait">
+    <p>def <span class="ident">wait</span>(</p><p>self, timeout)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>wait blocks until the task has been executed or after timout seconds</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.Task.wait', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.Task.wait" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    wait blocks until the task has been executed or after timout seconds</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="n">timeout</span>
+    <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
   </div>

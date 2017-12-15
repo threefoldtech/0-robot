@@ -1041,14 +1041,6 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.template.base.SERVICE_STATE_ERROR">SERVICE_STATE_ERROR</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.SERVICE_STATE_OK">SERVICE_STATE_OK</a></li>
-  </ul>
-
-    </li>
 
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
@@ -1062,44 +1054,7 @@ table {
         
         </li>
         <li class="mono">
-        <span class="class_name"><a href="#zerorobot.template.base.BadServiceStateError">BadServiceStateError</a></span>
-        
-        </li>
-        <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.BadTemplateError">BadTemplateError</a></span>
-        
-        </li>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.template.base.ServiceData">ServiceData</a></span>
-        
-          
-  <ul>
-    <li class="mono"><a href="#zerorobot.template.base.ServiceData.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.ServiceData.load">load</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.ServiceData.save">save</a></li>
-  </ul>
-
-        </li>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.template.base.ServiceState">ServiceState</a></span>
-        
-          
-  <ul>
-    <li class="mono"><a href="#zerorobot.template.base.ServiceState.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.ServiceState.check">check</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.ServiceState.get">get</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.ServiceState.load">load</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.ServiceState.save">save</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.ServiceState.set">set</a></li>
-  </ul>
-
-        </li>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.template.base.StateCategoryNotExistsError">StateCategoryNotExistsError</a></span>
-        
-        </li>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.template.base.StateCheckError">StateCheckError</a></span>
         
         </li>
         <li class="mono">
@@ -1142,17 +1097,17 @@ It is the class every template should inherits from.</p>
 
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">_empty</span><span class="p">,</span> <span class="n">signature</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
-<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">signature</span>
 
 <span class="kn">from</span> <span class="nn">gevent.greenlet</span> <span class="kn">import</span> <span class="n">Greenlet</span><span class="p">,</span> <span class="n">GreenletExit</span>
-
-<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">TaskList</span><span class="p">,</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
-<span class="kn">from</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
-
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+<span class="kn">from</span> <span class="nn">zerorobot.dsl.ZeroRobotAPI</span> <span class="kn">import</span> <span class="n">ZeroRobotAPI</span>
+<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TaskList</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template.data</span> <span class="kn">import</span> <span class="n">ServiceData</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template.state</span> <span class="kn">import</span> <span class="n">ServiceState</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
 
 
 <span class="k">class</span> <span class="nc">BadActionArgumentError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1195,6 +1150,8 @@ It is the class every template should inherits from.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">ZeroRobotAPI</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ServiceData</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
@@ -1299,13 +1256,16 @@ It is the class every template should inherits from.</p>
 
         <span class="c1"># make sure the argument we pass are correct</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">_empty</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s2">&quot;parameter </span><span class="si">%s</span><span class="s2"> is mandatory but not passed to in args&quot;</span> <span class="o">%</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">signature_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">args_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">args_keys</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">signature_keys</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s1">&#39;arguments &quot;</span><span class="si">%s</span><span class="s1">&quot; are not present in the signature of the action&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_keys</span><span class="p">))</span>
 
         <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
@@ -1313,144 +1273,6 @@ It is the class every template should inherits from.</p>
 
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">scol</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">ServiceData</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Small wrapper around dict object to make</span>
-<span class="sd">    access to capnp object easy for the service</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        @param schema_path: path to the</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-            <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize the data into a file</span>
-
-<span class="sd">        @param path: file path where to save the data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load the data from a file created by the save method</span>
-
-<span class="sd">        @param path: file path from where to load the data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-
-
-<span class="n">SERVICE_STATE_OK</span> <span class="o">=</span> <span class="s1">&#39;ok&#39;</span>
-<span class="n">SERVICE_STATE_ERROR</span> <span class="o">=</span> <span class="s1">&#39;error&#39;</span>
-
-
-<span class="k">class</span> <span class="nc">BadServiceStateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This exception is raised when trying to set a state to a value</span>
-<span class="sd">    that is not supported</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-
-
-<span class="k">class</span> <span class="nc">StateCategoryNotExistsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This exception is raised when trying to read the state of a</span>
-<span class="sd">    category that doesn&#39;t exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-
-
-<span class="k">class</span> <span class="nc">StateCheckError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This exception is raised when a call to ServiceState.check fails</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-
-<span class="k">class</span> <span class="nc">ServiceState</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class represent the state of the service.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        set a state to a value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">SERVICE_STATE_OK</span><span class="p">,</span> <span class="n">SERVICE_STATE_ERROR</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="n">BadServiceStateError</span><span class="p">(</span><span class="s2">&quot;state not supported: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">state</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">][</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
-
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        get the value of a state</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">StateCategoryNotExistsError</span><span class="p">(</span><span class="s2">&quot;category </span><span class="si">%s</span><span class="s2"> does not exists&quot;</span> <span class="o">%</span> <span class="n">category</span><span class="p">)</span>
-
-        <span class="c1"># we don&#39;t filer on tag, early return</span>
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="n">StateCategoryNotExistsError</span><span class="p">(</span><span class="s2">&quot;tag </span><span class="si">%s</span><span class="s2"> does not exists in category </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">category</span><span class="p">))</span>
-
-        <span class="c1"># return only the state for this tag</span>
-        <span class="c1"># we return a dict so it&#39;s consistent with the case when tag is None</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">tag</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">][</span><span class="n">tag</span><span class="p">]}</span>
-
-    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        checks if the state contains in category and tag is equal to expected</span>
-<span class="sd">        if the category or the tag doesn&#39;t exists or the state is not equal to</span>
-<span class="sd">        expected, raise StateCheckError, otherwise return True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;check for state </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2"> failed&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">state</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">==</span> <span class="n">expected</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">StateCheckError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">StateCheckError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">StateCategoryNotExistsError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">StateCheckError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">True</span>
-
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize the state into a file</span>
-
-<span class="sd">        @param path: file path where to save the state</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load the state from a file created by the save method</span>
-
-<span class="sd">        @param path: file path from where to load the state</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
-
-    <span class="fm">__str__</span> <span class="o">=</span> <span class="fm">__repr__</span>
 </pre></div>
 
   </div>
@@ -1458,23 +1280,6 @@ It is the class every template should inherits from.</p>
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.template.base.SERVICE_STATE_ERROR" class="name">var <span class="ident">SERVICE_STATE_ERROR</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.template.base.SERVICE_STATE_OK" class="name">var <span class="ident">SERVICE_STATE_OK</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1564,49 +1369,6 @@ doesn't match with the method signature</p></div>
       </div>
       
       <div class="item">
-      <p id="zerorobot.template.base.BadServiceStateError" class="name">class <span class="ident">BadServiceStateError</span></p>
-      
-  
-    <div class="desc"><p>This exception is raised when trying to set a state to a value
-that is not supported</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.BadServiceStateError', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.BadServiceStateError" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BadServiceStateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This exception is raised when trying to set a state to a value</span>
-<span class="sd">    that is not supported</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.template.base.BadServiceStateError">BadServiceStateError</a></li>
-          <li>builtins.Exception</li>
-          <li>builtins.BaseException</li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Class variables</h3>
-            <div class="item">
-            <p id="zerorobot.template.base.BadServiceStateError.args" class="name">var <span class="ident">args</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
-      
-      <div class="item">
       <p id="zerorobot.template.base.BadTemplateError" class="name">class <span class="ident">BadTemplateError</span></p>
       
   
@@ -1648,519 +1410,6 @@ that is not supported</p></div>
       </div>
       
       <div class="item">
-      <p id="zerorobot.template.base.ServiceData" class="name">class <span class="ident">ServiceData</span></p>
-      
-  
-    <div class="desc"><p>Small wrapper around dict object to make
-access to capnp object easy for the service</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceData', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceData" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ServiceData</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Small wrapper around dict object to make</span>
-<span class="sd">    access to capnp object easy for the service</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        @param schema_path: path to the</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-            <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize the data into a file</span>
-
-<span class="sd">        @param path: file path where to save the data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load the data from a file created by the save method</span>
-
-<span class="sd">        @param path: file path from where to load the data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.template.base.ServiceData">ServiceData</a></li>
-          <li>builtins.dict</li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Static methods</h3>
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.ServiceData.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, service)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>@param schema_path: path to the</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceData.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceData.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    @param schema_path: path to the</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.ServiceData.load">
-    <p>def <span class="ident">load</span>(</p><p>self, path)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Load the data from a file created by the save method</p>
-<p>@param path: file path from where to load the data</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceData.load', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceData.load" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load the data from a file created by the save method</span>
-<span class="sd">    @param path: file path from where to load the data</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.ServiceData.save">
-    <p>def <span class="ident">save</span>(</p><p>self, path)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Serialize the data into a file</p>
-<p>@param path: file path where to save the data</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceData.save', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceData.save" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Serialize the data into a file</span>
-<span class="sd">    @param path: file path where to save the data</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      </div>
-      </div>
-      
-      <div class="item">
-      <p id="zerorobot.template.base.ServiceState" class="name">class <span class="ident">ServiceState</span></p>
-      
-  
-    <div class="desc"><p>This class represent the state of the service.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceState" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ServiceState</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class represent the state of the service.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        set a state to a value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">SERVICE_STATE_OK</span><span class="p">,</span> <span class="n">SERVICE_STATE_ERROR</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="n">BadServiceStateError</span><span class="p">(</span><span class="s2">&quot;state not supported: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">state</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">][</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
-
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        get the value of a state</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">StateCategoryNotExistsError</span><span class="p">(</span><span class="s2">&quot;category </span><span class="si">%s</span><span class="s2"> does not exists&quot;</span> <span class="o">%</span> <span class="n">category</span><span class="p">)</span>
-
-        <span class="c1"># we don&#39;t filer on tag, early return</span>
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="n">StateCategoryNotExistsError</span><span class="p">(</span><span class="s2">&quot;tag </span><span class="si">%s</span><span class="s2"> does not exists in category </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">category</span><span class="p">))</span>
-
-        <span class="c1"># return only the state for this tag</span>
-        <span class="c1"># we return a dict so it&#39;s consistent with the case when tag is None</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">tag</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">][</span><span class="n">tag</span><span class="p">]}</span>
-
-    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        checks if the state contains in category and tag is equal to expected</span>
-<span class="sd">        if the category or the tag doesn&#39;t exists or the state is not equal to</span>
-<span class="sd">        expected, raise StateCheckError, otherwise return True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;check for state </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2"> failed&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">state</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">==</span> <span class="n">expected</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">StateCheckError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">StateCheckError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">StateCategoryNotExistsError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">StateCheckError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">True</span>
-
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize the state into a file</span>
-
-<span class="sd">        @param path: file path where to save the state</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load the state from a file created by the save method</span>
-
-<span class="sd">        @param path: file path from where to load the state</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
-
-    <span class="fm">__str__</span> <span class="o">=</span> <span class="fm">__repr__</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.template.base.ServiceState">ServiceState</a></li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Static methods</h3>
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.ServiceState.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceState.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.ServiceState.check">
-    <p>def <span class="ident">check</span>(</p><p>self, category, tag, expected)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>checks if the state contains in category and tag is equal to expected
-if the category or the tag doesn't exists or the state is not equal to
-expected, raise StateCheckError, otherwise return True</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState.check', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceState.check" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    checks if the state contains in category and tag is equal to expected</span>
-<span class="sd">    if the category or the tag doesn&#39;t exists or the state is not equal to</span>
-<span class="sd">    expected, raise StateCheckError, otherwise return True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;check for state </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2"> failed&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">state</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">==</span> <span class="n">expected</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">StateCheckError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">StateCheckError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">StateCategoryNotExistsError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">StateCheckError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-    <span class="k">return</span> <span class="bp">True</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.ServiceState.get">
-    <p>def <span class="ident">get</span>(</p><p>self, category, tag=None)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>get the value of a state</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState.get', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceState.get" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    get the value of a state</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">StateCategoryNotExistsError</span><span class="p">(</span><span class="s2">&quot;category </span><span class="si">%s</span><span class="s2"> does not exists&quot;</span> <span class="o">%</span> <span class="n">category</span><span class="p">)</span>
-    <span class="c1"># we don&#39;t filer on tag, early return</span>
-    <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="n">StateCategoryNotExistsError</span><span class="p">(</span><span class="s2">&quot;tag </span><span class="si">%s</span><span class="s2"> does not exists in category </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">category</span><span class="p">))</span>
-    <span class="c1"># return only the state for this tag</span>
-    <span class="c1"># we return a dict so it&#39;s consistent with the case when tag is None</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">tag</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">][</span><span class="n">tag</span><span class="p">]}</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.ServiceState.load">
-    <p>def <span class="ident">load</span>(</p><p>self, path)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Load the state from a file created by the save method</p>
-<p>@param path: file path from where to load the state</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState.load', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceState.load" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load the state from a file created by the save method</span>
-<span class="sd">    @param path: file path from where to load the state</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.ServiceState.save">
-    <p>def <span class="ident">save</span>(</p><p>self, path)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Serialize the state into a file</p>
-<p>@param path: file path where to save the state</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState.save', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceState.save" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Serialize the state into a file</span>
-<span class="sd">    @param path: file path where to save the state</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.ServiceState.set">
-    <p>def <span class="ident">set</span>(</p><p>self, category, tag, state)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>set a state to a value.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.ServiceState.set', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.ServiceState.set" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    set a state to a value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">SERVICE_STATE_OK</span><span class="p">,</span> <span class="n">SERVICE_STATE_ERROR</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="n">BadServiceStateError</span><span class="p">(</span><span class="s2">&quot;state not supported: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">state</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">][</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-          <h3>Instance variables</h3>
-            <div class="item">
-            <p id="zerorobot.template.base.ServiceState.categories" class="name">var <span class="ident">categories</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
-      
-      <div class="item">
-      <p id="zerorobot.template.base.StateCategoryNotExistsError" class="name">class <span class="ident">StateCategoryNotExistsError</span></p>
-      
-  
-    <div class="desc"><p>This exception is raised when trying to read the state of a
-category that doesn't exists</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.StateCategoryNotExistsError', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.StateCategoryNotExistsError" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">StateCategoryNotExistsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This exception is raised when trying to read the state of a</span>
-<span class="sd">    category that doesn&#39;t exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.template.base.StateCategoryNotExistsError">StateCategoryNotExistsError</a></li>
-          <li>builtins.Exception</li>
-          <li>builtins.BaseException</li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Class variables</h3>
-            <div class="item">
-            <p id="zerorobot.template.base.StateCategoryNotExistsError.args" class="name">var <span class="ident">args</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
-      
-      <div class="item">
-      <p id="zerorobot.template.base.StateCheckError" class="name">class <span class="ident">StateCheckError</span></p>
-      
-  
-    <div class="desc"><p>This exception is raised when a call to ServiceState.check fails</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.StateCheckError', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.StateCheckError" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">StateCheckError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This exception is raised when a call to ServiceState.check fails</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.template.base.StateCheckError">StateCheckError</a></li>
-          <li>builtins.Exception</li>
-          <li>builtins.BaseException</li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Class variables</h3>
-            <div class="item">
-            <p id="zerorobot.template.base.StateCheckError.args" class="name">var <span class="ident">args</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
-      
-      <div class="item">
       <p id="zerorobot.template.base.TemplateBase" class="name">class <span class="ident">TemplateBase</span></p>
       
   
@@ -2187,6 +1436,8 @@ category that doesn't exists</p></div>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">ZeroRobotAPI</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ServiceData</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
@@ -2291,13 +1542,16 @@ category that doesn't exists</p></div>
 
         <span class="c1"># make sure the argument we pass are correct</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">_empty</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s2">&quot;parameter </span><span class="si">%s</span><span class="s2"> is mandatory but not passed to in args&quot;</span> <span class="o">%</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">signature_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">args_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">args_keys</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">signature_keys</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s1">&#39;arguments &quot;</span><span class="si">%s</span><span class="s1">&quot; are not present in the signature of the action&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_keys</span><span class="p">))</span>
 
         <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
@@ -2366,6 +1620,7 @@ category that doesn't exists</p></div>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">ZeroRobotAPI</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ServiceData</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">()</span>
@@ -2484,12 +1739,15 @@ Or from a local service or from a remote service trough RPC</p>
         <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a function&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">)</span>
     <span class="c1"># make sure the argument we pass are correct</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">_empty</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s2">&quot;parameter </span><span class="si">%s</span><span class="s2"> is mandatory but not passed to in args&quot;</span> <span class="o">%</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">()</span>
+        <span class="n">signature_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">args_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">args_keys</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">signature_keys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s1">&#39;arguments &quot;</span><span class="si">%s</span><span class="s1">&quot; are not present in the signature of the action&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_keys</span><span class="p">))</span>
     <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">task</span>
@@ -2501,6 +1759,16 @@ Or from a local service or from a remote service trough RPC</p>
   </div>
   
           <h3>Instance variables</h3>
+            <div class="item">
+            <p id="zerorobot.template.base.TemplateBase.api" class="name">var <span class="ident">api</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.data" class="name">var <span class="ident">data</span></p>
             

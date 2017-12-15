@@ -1052,6 +1052,7 @@ table {
           
   <ul>
     <li class="mono"><a href="#zerorobot.robot.Robot.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.robot.Robot.add_remote_robot">add_remote_robot</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.add_template_repo">add_template_repo</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.set_data_repo">set_data_repo</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.start">start</a></li>
@@ -1095,6 +1096,7 @@ table {
 <span class="kn">from</span> <span class="nn">gevent.pool</span> <span class="kn">import</span> <span class="n">Pool</span>
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">JumpScale9.core.State</span> <span class="kn">import</span> <span class="n">ClientConfig</span>
 
 <span class="kn">from</span> <span class="nn">zerorobot.api.app</span> <span class="kn">import</span> <span class="n">app</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
@@ -1131,6 +1133,15 @@ table {
 
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add_remote_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        configure a remote robot that should be know by this robot.abs</span>
+<span class="sd">        :param addr: HTTP URL of the other Robot API</span>
+<span class="sd">        :type addr: string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1264,6 +1275,15 @@ It is responsible to:
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">add_remote_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        configure a remote robot that should be know by this robot.abs</span>
+<span class="sd">        :param addr: HTTP URL of the other Robot API</span>
+<span class="sd">        :type addr: string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
@@ -1362,6 +1382,36 @@ It is responsible to:
     <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.robot.Robot.add_remote_robot">
+    <p>def <span class="ident">add_remote_robot</span>(</p><p>self, addr)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>configure a remote robot that should be know by this robot.abs
+:param addr: HTTP URL of the other Robot API
+:type addr: string</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.add_remote_robot', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.Robot.add_remote_robot" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_remote_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    configure a remote robot that should be know by this robot.abs</span>
+<span class="sd">    :param addr: HTTP URL of the other Robot API</span>
+<span class="sd">    :type addr: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+    <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span>
 </pre></div>
 
   </div>

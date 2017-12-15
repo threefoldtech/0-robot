@@ -3,10 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.template API documentation</title>
-    <meta name="description" content="This package contains all the logic regarding templates.
-
-This is mostly the only package AYS develo..." />
+    <title>zerorobot.template.data API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1044,15 +1042,22 @@ table {
     <ul id="index">
 
 
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
-        <li class="mono"><a href="base.m.html">zerorobot.template.base</a></li>
-        <li class="mono"><a href="data.m.html">zerorobot.template.data</a></li>
-        <li class="mono"><a href="decorator.m.html">zerorobot.template.decorator</a></li>
-        <li class="mono"><a href="state.m.html">zerorobot.template.state</a></li>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.template.data.ServiceData">ServiceData</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#zerorobot.template.data.ServiceData.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.template.data.ServiceData.load">load</a></li>
+    <li class="mono"><a href="#zerorobot.template.data.ServiceData.save">save</a></li>
+  </ul>
+
+        </li>
       </ul>
     </li>
+
     </ul>
   </div>
 
@@ -1064,28 +1069,37 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.template</span> module</h1>
-  <p>This package contains all the logic regarding templates.</p>
-<p>This is mostly the only package AYS developer should work with when implementing services</p>
-<p>It contains 2 sub-module:
-- base:
- This is where the TemplateBase class is defined. This is the class every every service should inherits from.
-- decorator:
- A bunch of decorator tha can be used to wrap service actions to enabled new behaviors. E.g: retry policy, timeouts,...</p>
+  <h1 class="title"><span class="name">zerorobot.template.data</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This package contains all the logic regarding templates.</span>
-
-<span class="sd">This is mostly the only package AYS developer should work with when implementing services</span>
-
-<span class="sd">It contains 2 sub-module:</span>
-<span class="sd">- base:</span>
-<span class="sd"> This is where the TemplateBase class is defined. This is the class every every service should inherits from.</span>
-<span class="sd">- decorator:</span>
-<span class="sd"> A bunch of decorator tha can be used to wrap service actions to enabled new behaviors. E.g: retry policy, timeouts,...</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.data" class="source">
+    <div class="codehilite"><pre><span></span><span class="n">lass</span> <span class="n">ServiceData</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+   <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">   Small wrapper around dict object to make</span>
+<span class="sd">   access to capnp object easy for the service</span>
+<span class="sd">   &quot;&quot;&quot;</span>
+   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+       <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       @param schema_path: path to the</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+       <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
+       <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+           <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+           <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+   <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+       <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       Serialize the data into a file</span>
+<span class="sd">       @param path: file path where to save the data</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+       <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+   <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+       <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       Load the data from a file created by the save method</span>
+<span class="sd">       @param path: file path from where to load the data</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 </pre></div>
 
   </div>
@@ -1095,34 +1109,148 @@ table {
   <section id="section-items">
 
 
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+    <h2 class="section-title" id="header-classes">Classes</h2>
+      
       <div class="item">
-      <p class="name"><a href="base.m.html">zerorobot.template.base</a></p>
+      <p id="zerorobot.template.data.ServiceData" class="name">class <span class="ident">ServiceData</span></p>
       
   
-    <div class="desc"><p>The base module defines the TemplateBase class.
-It is the class every template should inherits from.</p></div>
+    <div class="desc"><p>Small wrapper around dict object to make
+access to capnp object easy for the service</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data.ServiceData', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.data.ServiceData" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ServiceData</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Small wrapper around dict object to make</span>
+<span class="sd">    access to capnp object easy for the service</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="data.m.html">zerorobot.template.data</a></p>
-      
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @param schema_path: path to the</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialize the data into a file</span>
+
+<span class="sd">        @param path: file path where to save the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the data from a file created by the save method</span>
+
+<span class="sd">        @param path: file path from where to load the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.template.data.ServiceData">ServiceData</a></li>
+          <li>builtins.dict</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.data.ServiceData.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, service)</p>
+    </div>
+    
+
+    
   
+    <div class="desc"><p>@param schema_path: path to the</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data.ServiceData.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.data.ServiceData.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    @param schema_path: path to the</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="decorator.m.html">zerorobot.template.decorator</a></p>
-      
+  </div>
+</div>
+
+  </div>
   
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.data.ServiceData.load">
+    <p>def <span class="ident">load</span>(</p><p>self, path)</p>
+    </div>
+    
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="state.m.html">zerorobot.template.state</a></p>
-      
+    
   
+    <div class="desc"><p>Load the data from a file created by the save method</p>
+<p>@param path: file path from where to load the data</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data.ServiceData.load', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.data.ServiceData.load" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the data from a file created by the save method</span>
+<span class="sd">    @param path: file path from where to load the data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</pre></div>
 
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.data.ServiceData.save">
+    <p>def <span class="ident">save</span>(</p><p>self, path)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Serialize the data into a file</p>
+<p>@param path: file path where to save the data</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data.ServiceData.save', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.data.ServiceData.save" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serialize the data into a file</span>
+<span class="sd">    @param path: file path where to save the data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
       </div>
+      </div>
+
   </section>
 
     </article>

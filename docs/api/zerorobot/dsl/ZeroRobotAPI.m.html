@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.dsl.ZeroRobotClient API documentation</title>
+    <title>zerorobot.dsl.ZeroRobotAPI API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1045,34 +1045,26 @@ table {
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
         <li class="mono">
-        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotClient.ServicesMgr">ServicesMgr</a></span>
+        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr">ServicesMgr</a></span>
         
           
   <ul>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotClient.ServicesMgr.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotClient.ServicesMgr.create">create</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create">create</a></li>
   </ul>
 
         </li>
         <li class="mono">
-        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotClient.TemplateNotFoundError">TemplateNotFoundError</a></span>
+        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotAPI.TemplateNotFoundError">TemplateNotFoundError</a></span>
         
         </li>
         <li class="mono">
-        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotClient.TemplatesMgr">TemplatesMgr</a></span>
+        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI">ZeroRobotAPI</a></span>
         
           
   <ul>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotClient.TemplatesMgr.__init__">__init__</a></li>
-  </ul>
-
-        </li>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotClient.ZeroRobotClient">ZeroRobotClient</a></span>
-        
-          
-  <ul>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotClient.ZeroRobotClient.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot">get_robot</a></li>
   </ul>
 
         </li>
@@ -1090,15 +1082,17 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.dsl.ZeroRobotClient</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.dsl.ZeroRobotAPI</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotClient" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
 
-<span class="kn">from</span> <span class="nn">zerorobot.client</span> <span class="kn">import</span> <span class="n">Client</span>
-<span class="kn">from</span> <span class="nn">zerorobot.service_proxy</span> <span class="kn">import</span> <span class="n">ServiceProxy</span>
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
+<span class="kn">from</span> <span class="nn">zerorobot.dsl.ZeroRobotClient</span> <span class="kn">import</span> <span class="n">ZeroRobotClient</span>
 
 
 <span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1111,19 +1105,8 @@ table {
 
 <span class="k">class</span> <span class="nc">ServicesMgr</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span> <span class="o">=</span> <span class="n">robot</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">_client</span>
-
-    <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">srv</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
-            <span class="n">srv</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">srv</span>
-
-    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetService</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base</span> <span class="o">=</span> <span class="n">base</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1132,13 +1115,11 @@ table {
 <span class="sd">        the ZeroRobot</span>
 
 <span class="sd">        key is the name of the service</span>
-<span class="sd">        value is a ServiceProxy object</span>
+<span class="sd">        value is a Service or ServiceProxy object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">listServices</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-            <span class="n">services</span><span class="p">[</span><span class="n">srv</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">srv</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">_name_index</span>
+        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">services</span>
 
     <span class="nd">@property</span>
@@ -1148,13 +1129,11 @@ table {
 <span class="sd">        the ZeroRobot</span>
 
 <span class="sd">        key is the guid of the service</span>
-<span class="sd">        value is a ServiceProxy object</span>
+<span class="sd">        value is a Service or ServiceProxy object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">listServices</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-            <span class="n">services</span><span class="p">[</span><span class="n">srv</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">srv</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span>
+        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">services</span>
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -1165,48 +1144,58 @@ table {
 <span class="sd">        @param service_name: name of the service, needs to be unique within the robot instance</span>
 <span class="sd">        @param data: a dictionnary with the data of the service to create</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
-
-        <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="n">template_uid</span><span class="p">,</span>
-            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">service_name</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">req</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># we can create a service locally, the local robot has the template</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instanciate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># we need to look for a robot that handle this template</span>
+            <span class="k">pass</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">createService</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
-            <span class="k">raise</span> <span class="n">err</span>
+            <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
 
-        <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">service</span>
+        <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">TemplatesMgr</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">ZeroRobotAPI</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span> <span class="o">=</span> <span class="n">robot</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">_client</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">uids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">robots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a list of template UID present on the ZeroRobot</span>
+<span class="sd">        list all the ZeroRobot client loaded in memory</span>
+<span class="sd">        return a dictionary with</span>
+<span class="sd">        key = base_url of the API of the robot</span>
+<span class="sd">        value: ZeroRobotClient object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">ListTemplates</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">uid</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">clientConfigList</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">):</span>
+            <span class="n">base_url</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">base_url</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+                <span class="n">cl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">cl</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
 
+    <span class="k">def</span> <span class="nf">get_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">robot</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;no robot that managed </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">ZeroRobotClient</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">base_url</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="o">=</span> <span class="n">TemplatesMgr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a ZeroRobot client for base_url.</span>
+<span class="sd">        if it exists a client for this base_url loaded in memory, return it.</span>
+<span class="sd">        otherwise, create a new client, put it in the cache and then return it</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">base_url</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">base_url</span><span class="p">]</span> <span class="o">=</span> <span class="n">ZeroRobotClient</span><span class="p">(</span><span class="n">base_url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">base_url</span><span class="p">]</span>
 </pre></div>
 
   </div>
@@ -1219,27 +1208,16 @@ table {
     <h2 class="section-title" id="header-classes">Classes</h2>
       
       <div class="item">
-      <p id="zerorobot.dsl.ZeroRobotClient.ServicesMgr" class="name">class <span class="ident">ServicesMgr</span></p>
+      <p id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr" class="name">class <span class="ident">ServicesMgr</span></p>
       
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient.ServicesMgr', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotClient.ServicesMgr" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ServicesMgr</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span> <span class="o">=</span> <span class="n">robot</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">_client</span>
-
-    <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">srv</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
-            <span class="n">srv</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">srv</span>
-
-    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetService</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base</span> <span class="o">=</span> <span class="n">base</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1248,13 +1226,11 @@ table {
 <span class="sd">        the ZeroRobot</span>
 
 <span class="sd">        key is the name of the service</span>
-<span class="sd">        value is a ServiceProxy object</span>
+<span class="sd">        value is a Service or ServiceProxy object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">listServices</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-            <span class="n">services</span><span class="p">[</span><span class="n">srv</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">srv</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">_name_index</span>
+        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">services</span>
 
     <span class="nd">@property</span>
@@ -1264,13 +1240,11 @@ table {
 <span class="sd">        the ZeroRobot</span>
 
 <span class="sd">        key is the guid of the service</span>
-<span class="sd">        value is a ServiceProxy object</span>
+<span class="sd">        value is a Service or ServiceProxy object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">listServices</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-            <span class="n">services</span><span class="p">[</span><span class="n">srv</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">srv</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span>
+        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">services</span>
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -1281,25 +1255,20 @@ table {
 <span class="sd">        @param service_name: name of the service, needs to be unique within the robot instance</span>
 <span class="sd">        @param data: a dictionnary with the data of the service to create</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
-
-        <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="n">template_uid</span><span class="p">,</span>
-            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">service_name</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">req</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># we can create a service locally, the local robot has the template</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instanciate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># we need to look for a robot that handle this template</span>
+            <span class="k">pass</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">createService</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
-            <span class="k">raise</span> <span class="n">err</span>
+            <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
 
-        <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">service</span>
+        <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1309,14 +1278,14 @@ table {
       <div class="class">
           <h3>Ancestors (in MRO)</h3>
           <ul class="class_list">
-          <li><a href="#zerorobot.dsl.ZeroRobotClient.ServicesMgr">ServicesMgr</a></li>
+          <li><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr">ServicesMgr</a></li>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
             
   <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotClient.ServicesMgr.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, robot)</p>
+    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, base)</p>
     </div>
     
 
@@ -1324,11 +1293,10 @@ table {
   
     <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient.ServicesMgr.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotClient.ServicesMgr.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span> <span class="o">=</span> <span class="n">robot</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">_client</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_base</span> <span class="o">=</span> <span class="n">base</span>
 </pre></div>
 
   </div>
@@ -1338,7 +1306,7 @@ table {
   
             
   <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotClient.ServicesMgr.create">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create">
     <p>def <span class="ident">create</span>(</p><p>self, template_uid, service_name, data=None)</p>
     </div>
     
@@ -1350,8 +1318,8 @@ table {
 @param service_name: name of the service, needs to be unique within the robot instance
 @param data: a dictionnary with the data of the service to create</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient.ServicesMgr.create', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotClient.ServicesMgr.create" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Instantiate a service from a template</span>
@@ -1359,22 +1327,18 @@ table {
 <span class="sd">    @param service_name: name of the service, needs to be unique within the robot instance</span>
 <span class="sd">    @param data: a dictionnary with the data of the service to create</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
-    <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="n">template_uid</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">service_name</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
-        <span class="n">req</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">createService</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
-        <span class="k">raise</span> <span class="n">err</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">service</span>
+        <span class="c1"># we can create a service locally, the local robot has the template</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instanciate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="c1"># we need to look for a robot that handle this template</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1384,7 +1348,7 @@ table {
   
           <h3>Instance variables</h3>
             <div class="item">
-            <p id="zerorobot.dsl.ZeroRobotClient.ServicesMgr.guids" class="name">var <span class="ident">guids</span></p>
+            <p id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.guids" class="name">var <span class="ident">guids</span></p>
             
 
             
@@ -1392,13 +1356,13 @@ table {
     <div class="desc"><p>Return a dictionnary that contains all the service present on
 the ZeroRobot</p>
 <p>key is the guid of the service
-value is a ServiceProxy object</p></div>
+value is a Service or ServiceProxy object</p></div>
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
-            <p id="zerorobot.dsl.ZeroRobotClient.ServicesMgr.names" class="name">var <span class="ident">names</span></p>
+            <p id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.names" class="name">var <span class="ident">names</span></p>
             
 
             
@@ -1406,7 +1370,7 @@ value is a ServiceProxy object</p></div>
     <div class="desc"><p>Return a dictionnary that contains all the service present on
 the ZeroRobot</p>
 <p>key is the name of the service
-value is a ServiceProxy object</p></div>
+value is a Service or ServiceProxy object</p></div>
   <div class="source_cont">
 </div>
 
@@ -1415,14 +1379,14 @@ value is a ServiceProxy object</p></div>
       </div>
       
       <div class="item">
-      <p id="zerorobot.dsl.ZeroRobotClient.TemplateNotFoundError" class="name">class <span class="ident">TemplateNotFoundError</span></p>
+      <p id="zerorobot.dsl.ZeroRobotAPI.TemplateNotFoundError" class="name">class <span class="ident">TemplateNotFoundError</span></p>
       
   
     <div class="desc"><p>This exception is raised when trying to create a service
 from a template that doesn't exists</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient.TemplateNotFoundError', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotClient.TemplateNotFoundError" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.TemplateNotFoundError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.TemplateNotFoundError" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This exception is raised when trying to create a service</span>
@@ -1438,14 +1402,14 @@ from a template that doesn't exists</p></div>
       <div class="class">
           <h3>Ancestors (in MRO)</h3>
           <ul class="class_list">
-          <li><a href="#zerorobot.dsl.ZeroRobotClient.TemplateNotFoundError">TemplateNotFoundError</a></li>
+          <li><a href="#zerorobot.dsl.ZeroRobotAPI.TemplateNotFoundError">TemplateNotFoundError</a></li>
           <li>builtins.Exception</li>
           <li>builtins.BaseException</li>
           <li>builtins.object</li>
           </ul>
           <h3>Class variables</h3>
             <div class="item">
-            <p id="zerorobot.dsl.ZeroRobotClient.TemplateNotFoundError.args" class="name">var <span class="ident">args</span></p>
+            <p id="zerorobot.dsl.ZeroRobotAPI.TemplateNotFoundError.args" class="name">var <span class="ident">args</span></p>
             
 
             
@@ -1458,25 +1422,48 @@ from a template that doesn't exists</p></div>
       </div>
       
       <div class="item">
-      <p id="zerorobot.dsl.ZeroRobotClient.TemplatesMgr" class="name">class <span class="ident">TemplatesMgr</span></p>
+      <p id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI" class="name">class <span class="ident">ZeroRobotAPI</span></p>
       
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient.TemplatesMgr', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotClient.TemplatesMgr" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TemplatesMgr</span><span class="p">:</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ZeroRobotAPI</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span> <span class="o">=</span> <span class="n">robot</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">_client</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">uids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">robots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a list of template UID present on the ZeroRobot</span>
+<span class="sd">        list all the ZeroRobot client loaded in memory</span>
+<span class="sd">        return a dictionary with</span>
+<span class="sd">        key = base_url of the API of the robot</span>
+<span class="sd">        value: ZeroRobotClient object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">ListTemplates</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">uid</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">clientConfigList</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">):</span>
+            <span class="n">base_url</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">base_url</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+                <span class="n">cl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">cfg</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;base_url&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">cl</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
+
+    <span class="k">def</span> <span class="nf">get_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">robot</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;no robot that managed </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a ZeroRobot client for base_url.</span>
+<span class="sd">        if it exists a client for this base_url loaded in memory, return it.</span>
+<span class="sd">        otherwise, create a new client, put it in the cache and then return it</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">base_url</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">base_url</span><span class="p">]</span> <span class="o">=</span> <span class="n">ZeroRobotClient</span><span class="p">(</span><span class="n">base_url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">base_url</span><span class="p">]</span>
 </pre></div>
 
   </div>
@@ -1486,14 +1473,14 @@ from a template that doesn't exists</p></div>
       <div class="class">
           <h3>Ancestors (in MRO)</h3>
           <ul class="class_list">
-          <li><a href="#zerorobot.dsl.ZeroRobotClient.TemplatesMgr">TemplatesMgr</a></li>
+          <li><a href="#zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI">ZeroRobotAPI</a></li>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
             
   <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotClient.TemplatesMgr.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, robot)</p>
+    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self)</p>
     </div>
     
 
@@ -1501,76 +1488,35 @@ from a template that doesn't exists</p></div>
   
     <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient.TemplatesMgr.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotClient.TemplatesMgr.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span> <span class="o">=</span> <span class="n">robot</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">_client</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-          <h3>Instance variables</h3>
-            <div class="item">
-            <p id="zerorobot.dsl.ZeroRobotClient.TemplatesMgr.uids" class="name">var <span class="ident">uids</span></p>
-            
-
-            
-  
-    <div class="desc"><p>Returns a list of template UID present on the ZeroRobot</p></div>
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
-      
-      <div class="item">
-      <p id="zerorobot.dsl.ZeroRobotClient.ZeroRobotClient" class="name">class <span class="ident">ZeroRobotClient</span></p>
-      
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient.ZeroRobotClient', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotClient.ZeroRobotClient" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ZeroRobotClient</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">base_url</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="o">=</span> <span class="n">TemplatesMgr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.dsl.ZeroRobotClient.ZeroRobotClient">ZeroRobotClient</a></li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Static methods</h3>
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotClient.ZeroRobotClient.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, base_url)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient.ZeroRobotClient.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotClient.ZeroRobotClient.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">base_url</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="o">=</span> <span class="n">TemplatesMgr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot">
+    <p>def <span class="ident">get_robot</span>(</p><p>self, template_uid)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">robot</span>
+    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;no robot that managed </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1580,17 +1526,21 @@ from a template that doesn't exists</p></div>
   
           <h3>Instance variables</h3>
             <div class="item">
-            <p id="zerorobot.dsl.ZeroRobotClient.ZeroRobotClient.services" class="name">var <span class="ident">services</span></p>
+            <p id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.robots" class="name">var <span class="ident">robots</span></p>
             
 
             
   
+    <div class="desc"><p>list all the ZeroRobot client loaded in memory
+return a dictionary with
+key = base_url of the API of the robot
+value: ZeroRobotClient object</p></div>
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
-            <p id="zerorobot.dsl.ZeroRobotClient.ZeroRobotClient.templates" class="name">var <span class="ident">templates</span></p>
+            <p id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.services" class="name">var <span class="ident">services</span></p>
             
 
             
