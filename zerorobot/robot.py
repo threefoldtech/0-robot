@@ -34,7 +34,14 @@ class Robot:
         self.data_repo_url = None
         self._data_dir = None
         self._http = None  # server handler
+        self.addr = None
         self._sig_handler = []
+
+    @property
+    def address(self):
+        if self._http:
+            return self._http.address
+        return None
 
     def set_data_repo(self, url):
         """
@@ -104,6 +111,7 @@ class Robot:
 
         print('stopping robot')
         self._http.stop()
+        self._http = None
 
         # here no more requests are comming in
         # all services should have received kill signal

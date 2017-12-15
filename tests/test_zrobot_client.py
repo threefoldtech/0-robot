@@ -45,6 +45,9 @@ class TestZRobotClient(unittest.TestCase):
     def tearDown(self):
         self.robot.stop()
         shutil.rmtree(self.robot._data_dir)
+        # make sure we don't have any service loaded
+        scol._guid_index = {}
+        scol._name_index = {}
 
     def test_list_templates(self):
         uids = self.cl.templates.uids

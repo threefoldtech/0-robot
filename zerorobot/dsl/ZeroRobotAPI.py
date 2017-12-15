@@ -64,6 +64,7 @@ class ServicesMgr:
             pass
 
         try:
+            # try to find a robot that manage the template with uid template_uid
             robot = self._base.get_robot(template_uid)
         except KeyError:
             raise TemplateNotFoundError("no robot managing the template %s found" % template_uid)
