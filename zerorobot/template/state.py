@@ -1,3 +1,5 @@
+from js9 import j
+
 SERVICE_STATE_OK = 'ok'
 SERVICE_STATE_ERROR = 'error'
 

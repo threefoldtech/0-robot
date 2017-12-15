@@ -1,4 +1,9 @@
 
+import os
+
+from js9 import j
+
+
 class ServiceData(dict):
     """
     Small wrapper around dict object to make

@@ -1,6 +1,7 @@
 
 from wtforms.validators import ValidationError
 
+
 def multiple_of(mult):
     ''' check if value is multipe of mult'''
 

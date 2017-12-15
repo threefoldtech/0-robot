@@ -1,6 +1,6 @@
-from functools import wraps
 import signal
 import time
+from functools import wraps
 
 
 def retry(exceptions, tries=4, delay=3, backoff=2, logger=None):

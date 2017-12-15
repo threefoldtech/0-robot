@@ -3,13 +3,13 @@ import shutil
 import unittest
 import uuid
 
-from zerorobot.robot import Robot
-from zerorobot.dsl.ZeroRobotClient import ZeroRobotClient
-from zerorobot.service_proxy import ServiceProxy
 from gevent import monkey
-
-from zerorobot import template_collection as tcol
 from zerorobot import service_collection as scol
+from zerorobot import template_collection as tcol
+from zerorobot.dsl.ZeroRobotClient import ZeroRobotClient
+from zerorobot.robot import Robot
+from zerorobot.service_proxy import ServiceProxy
+
 # need to patch sockets to make requests async
 monkey.patch_all(
     socket=True,

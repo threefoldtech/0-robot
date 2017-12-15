@@ -3,9 +3,9 @@ import tempfile
 import unittest
 
 from js9 import j
-
-from zerorobot.template.base import TemplateBase, BadActionArgumentError, ActionNotFoundError
-from zerorobot.template.base import BadTemplateError, ActionNotFoundError, BadActionArgumentError
+from zerorobot.template.base import (ActionNotFoundError,
+                                     BadActionArgumentError, BadTemplateError,
+                                     TemplateBase)
 from zerorobot.template_collection import _load_template
 
 

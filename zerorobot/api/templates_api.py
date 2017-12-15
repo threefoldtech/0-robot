@@ -1,12 +1,11 @@
 import json as JSON
-import jsonschema
-from jsonschema import Draft4Validator
-from flask import Blueprint, jsonify, request
+import os
 
+import jsonschema
+from flask import Blueprint, jsonify, request
+from jsonschema import Draft4Validator
 from zerorobot import template_collection as tcol
 
-
-import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 TemplateRepository_schema = JSON.load(open(dir_path + '/schema/TemplateRepository_schema.json'))

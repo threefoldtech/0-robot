@@ -1,8 +1,10 @@
-from flask import Flask, send_from_directory, send_file
+import os
+
+from flask import Flask, send_file, send_from_directory
+
 from .blueprints_api import blueprints_api
 from .services_api import services_api
 from .templates_api import templates_api
-
 
 app = Flask(__name__)
 
@@ -10,7 +12,6 @@ app.register_blueprint(blueprints_api)
 app.register_blueprint(services_api)
 app.register_blueprint(templates_api)
 
-import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 

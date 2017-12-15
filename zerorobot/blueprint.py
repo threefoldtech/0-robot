@@ -6,10 +6,10 @@ It is being used from the REST API server handlers
 
 
 import re
+
 import yaml
 
 from js9 import j
-
 from zerorobot.template_collection import TemplateUID
 
 

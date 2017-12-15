@@ -1,5 +1,5 @@
-import unittest
 import os
+import unittest
 
 from zerorobot import template_collection as tcol
 from zerorobot.template_collection import TemplateUID

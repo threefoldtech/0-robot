@@ -3,8 +3,9 @@ import tempfile
 import unittest
 
 from js9 import j
-
-from zerorobot.template.base import ServiceState, BadServiceStateError, StateCategoryNotExistsError, StateCheckError
+from zerorobot.template.state import (BadServiceStateError, ServiceState,
+                                      StateCategoryNotExistsError,
+                                      StateCheckError)
 
 
 class TestServiceState(unittest.TestCase):

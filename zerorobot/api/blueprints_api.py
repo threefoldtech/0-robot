@@ -1,14 +1,14 @@
 import json as JSON
-import jsonschema
-from jsonschema import Draft4Validator
-from flask import Blueprint, jsonify, request
+import os
 
-from zerorobot import blueprint
+import jsonschema
+from flask import Blueprint, jsonify, request
+from jsonschema import Draft4Validator
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
+from zerorobot import blueprint
 from zerorobot.service_collection import ServiceConflictError
 
-import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 Blueprint_schema = JSON.load(open(dir_path + '/schema/Blueprint_schema.json'))

@@ -7,9 +7,9 @@ so the robot see the service as if it as local to him while in reality the servi
 """
 import time
 
+import gevent
 from requests.exceptions import HTTPError
 
-import gevent
 from js9 import j
 from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                             TASK_STATE_RUNNING)

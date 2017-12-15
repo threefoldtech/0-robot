@@ -4,13 +4,12 @@ other services and class need to use this module method to load/access the templ
 """
 
 import importlib.util
-import sys
 import os
+import sys
 from urllib.parse import urlparse
 
-from zerorobot import service_collection as scol
-
 from js9 import j
+from zerorobot import service_collection as scol
 
 _templates = {}
 

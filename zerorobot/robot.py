@@ -10,15 +10,14 @@ import signal
 import tempfile
 
 import gevent
-from gevent.pywsgi import WSGIServer
 from gevent.pool import Pool
+from gevent.pywsgi import WSGIServer
 
 from js9 import j
 from JumpScale9.core.State import ClientConfig
-
-from zerorobot.api.app import app
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
+from zerorobot.api.app import app
 
 
 class Robot:
