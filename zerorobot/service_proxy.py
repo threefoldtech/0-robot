@@ -24,6 +24,12 @@ class ServiceProxy():
     """
 
     def __init__(self, name, guid, zrobot_client):
+        """
+        @param name: name of the service
+        @param guid: guid of the service
+        @param zrobot_client: Instance of ZeroRobotClient that talks to the robot on which the
+                              service is actually running
+        """
         self._zrobot_client = zrobot_client
         self.name = name
         self.guid = guid
@@ -44,7 +50,7 @@ class ServiceProxy():
     @property
     def task_list(self):
         resp = self._zrobot_client.api.services.getTaskList(service_guid=self.guid, query_params={'all': True})
-        return TaskListProxy.from_api(resp.data, self)
+        return _task_list_proxy_from_api(resp.data, self)
 
     def schedule_action(self, action, args=None, resp_q=None):
         """
@@ -66,7 +72,7 @@ class ServiceProxy():
             print(str(err.response.json()))
             raise err
 
-        return TaskProxy.from_api(resp.data, self)
+        return _task_proxy_from_api(resp.data, self)
 
     def delete(self):
         self._zrobot_client.api.services.DeleteService(self.guid)
@@ -77,22 +83,6 @@ class TaskListProxy:
     def __init__(self):
         self._tasks = []
         self._done = []
-
-    @classmethod
-    def from_api(cls, tasks, service):
-        """
-        instantiate an TaskListProxy from API response of
-        GetTaskList call
-        """
-        self = cls()
-        for task in tasks:
-            t = TaskProxy.from_api(task, service)
-
-            if task.state.value in (TASK_STATE_ERROR, TASK_STATE_OK):
-                self._done.append(t)
-            elif task.state.value in (TASK_STATE_NEW, TASK_STATE_RUNNING):
-                self._tasks.append(t)
-        return self
 
     def empty(self):
         return len(self._tasks) == 0
@@ -143,15 +133,6 @@ class TaskProxy:
         self.created = created
         self.eco = None
 
-    @classmethod
-    def from_api(cls, task, service):
-        t = cls(task.guid, service, task.action_name, task.args, task.created)
-        if task.eco:
-            d_eco = task.eco.as_dict()
-            d_eco['_traceback'] = task.eco._traceback
-            t.eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
-        return t
-
     @property
     def state(self):
         resp = self.service._zrobot_client.api.services.GetTask(
@@ -166,3 +147,28 @@ class TaskProxy:
         end = time.time() + timeout
         while self.state in ('new', 'running') and time.time() < end:
             gevent.sleep(1)
+
+
+def _task_list_proxy_from_api(tasks, service):
+    """
+    instantiate an TaskListProxy from API response of
+    GetTaskList call
+    """
+    task_list = TaskListProxy()
+    for task in tasks:
+        t = _task_proxy_from_api(task, service)
+
+        if task.state.value in (TASK_STATE_ERROR, TASK_STATE_OK):
+            task_list._done.append(t)
+        elif task.state.value in (TASK_STATE_NEW, TASK_STATE_RUNNING):
+            task_list._tasks.append(t)
+    return task_list
+
+
+def _task_proxy_from_api(task, service):
+    t = TaskProxy(task.guid, service, task.action_name, task.args, task.created)
+    if task.eco:
+        d_eco = task.eco.as_dict()
+        d_eco['_traceback'] = task.eco._traceback
+        t.eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
+    return t
