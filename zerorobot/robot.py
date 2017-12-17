@@ -10,14 +10,15 @@ import signal
 import tempfile
 
 import gevent
+from gevent import GreenletExit
 from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
-
 from js9 import j
 from JumpScale9.core.State import ClientConfig
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.api.app import app
+from zerorobot.task import PRIORITY_SYSTEM, Task
 
 
 class Robot:
@@ -36,6 +37,7 @@ class Robot:
         self._http = None  # server handler
         self.addr = None
         self._sig_handler = []
+        self._autosave_gl = None
 
     @property
     def address(self):
@@ -75,6 +77,8 @@ class Robot:
         if self._data_dir is None:
             raise RuntimeError("Not data repository set. Robot doesn't know where to save data.")
 
+        self._autosave_gl = gevent.spawn(_auto_save_services, data_dir=self._data_dir)
+
         # load services from data repo
         self._load_services()
 
@@ -104,7 +108,7 @@ class Robot:
         gracefully stop all the services
         serialize all services state to disk
         """
-        # prevent the signal handler to be called again is
+        # prevent the signal handler to be called again if
         # more signal are received
         for h in self._sig_handler:
             h.cancel()
@@ -112,6 +116,9 @@ class Robot:
         print('stopping robot')
         self._http.stop()
         self._http = None
+
+        if self._autosave_gl:
+            self._autosave_gl.kill()
 
         # here no more requests are comming in
         # all services should have received kill signal
@@ -134,6 +141,25 @@ class Robot:
         """
         for service in scol.list_services():
             service.save(self._data_dir)
+
+
+def _auto_save_services(data_dir):
+    """
+    this method runs in a greenlet during the lifetime of the robot
+    it ask the services to saves themself every minutes
+
+    The save method is added as a task with high priority on the services, so we don't create race conditions
+    with other tasks
+    """
+    while True:
+        try:
+            for service in scol.list_services():
+                service._schedule_action('save', {'base_path': data_dir}, None, PRIORITY_SYSTEM)
+            gevent.sleep(60)
+        except GreenletExit:
+            # TODO: gracefull shutdown
+            print("exit auto save greenlet")
+            break
 
 
 def _split_hostport(hostport):

@@ -11,7 +11,7 @@ import time
 
 import gevent
 from gevent.lock import Semaphore
-from gevent.queue import Queue
+from gevent.queue import PriorityQueue
 
 from js9 import j
 
@@ -36,13 +36,17 @@ class Task:
         self.action_name = action_name
         self._resp_q = resp_q
         self._args = args
-        self.created = int(time.time())
+        self._created = time.time()
 
         # used when action raises an exception
         self.eco = None
 
         self._state = TASK_STATE_NEW
         self._state_lock = Semaphore()
+
+    @property
+    def created(self):
+        return int(self._created)
 
     def execute(self):
 
@@ -88,6 +92,13 @@ class Task:
         while self.state in ('new', 'running') and time.time() < end:
             gevent.sleep(1)
 
+    def __lt__(self, other):
+        return self._created < other._created
+
+
+PRIORITY_SYSTEM = 0  # has the highest priority, usually used by the robot when it needs a service to execute something
+PRIORITY_NORMAL = 10  # default value used when an action is schedule from normal user API
+
 
 class TaskList:
     """
@@ -95,8 +106,7 @@ class TaskList:
     """
 
     def __init__(self):
-        self._queue = Queue()
-        self.running = None
+        self._queue = PriorityQueue()
         # done keeps the tasks that have been extracted from the queue
         # so we can inspect them later
         # TODO: done tasks should be kept on disk, not in memory
@@ -107,17 +117,19 @@ class TaskList:
         pop out a task from the task list
         this call is blocking when the task list is empty
         """
-        task = self._queue.get()
-        self._done.append(task)
+        priority, task = self._queue.get()
+        # only keep non system task into the done task list
+        if priority != PRIORITY_SYSTEM:
+            self._done.append(task)
         return task
 
-    def put(self, task):
+    def put(self, task, priority=PRIORITY_NORMAL):
         """
         append task to the task list
         """
         if not isinstance(task, Task):
             raise ValueError("task should be an instance of the Task class not %s" % type(task))
-        self._queue.put(task)
+        self._queue.put((priority, task))
 
     def empty(self):
         """
@@ -131,7 +143,7 @@ class TaskList:
                     if False only return the task waiting in the task list
         returns all the task that are currently in the task list
         """
-        tasks = list(self._queue.queue)
+        tasks = [x[1] for x in self._queue.queue]
         if all:
             tasks.extend(self._done)
         elif len(self._done) > 1 and self._done[-1].state == TASK_STATE_RUNNING:
@@ -150,7 +162,7 @@ class TaskList:
                 if task.guid == guid:
                     return task
 
-        task = find_task(guid, self._queue.queue)
+        task = find_task(guid, [x[1] for x in self._queue.queue])
         if task:
             return task
         task = find_task(guid, self._done)
@@ -186,7 +198,7 @@ class TaskList:
         @param path: file path where the task list is serialized
         @param service: the service object to which this task list belongs
         """
-        def instanciate_task(task):
+        def instantiate_task(task):
             t = Task(service, task['action_name'], task['args'], resp_q=None)
             if task['state'] in [TASK_STATE_RUNNING, TASK_STATE_NEW]:
                 t.state = TASK_STATE_NEW
@@ -203,9 +215,9 @@ class TaskList:
         data = j.data.serializer.yaml.load(path)
         for task in data:
             if task['state'] in [TASK_STATE_NEW, TASK_STATE_RUNNING]:
-                self.put(instanciate_task(task))
+                self.put(instantiate_task(task))
             elif task['state'] in [TASK_STATE_OK, TASK_STATE_ERROR]:
-                self._done.append(instanciate_task(task))
+                self._done.append(instantiate_task(task))
             else:
                 # None supported state, just skip it
                 continue

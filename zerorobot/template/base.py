@@ -9,11 +9,10 @@ from inspect import _empty, signature
 from uuid import uuid4
 
 from gevent.greenlet import Greenlet, GreenletExit
-
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
-from zerorobot.task import Task, TaskList
+from zerorobot.task import PRIORITY_NORMAL, PRIORITY_SYSTEM, Task, TaskList
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
 from zerorobot.template_collection import TemplateUID
@@ -156,6 +155,9 @@ class TemplateBase:
         @param args: dictionnary of the argument to pass to the action
         @param resp_q: is the response queue on which the result of the action need to be put
         """
+        return self._schedule_action(action, args, resp_q)
+
+    def _schedule_action(self, action, args=None, resp_q=None, priority=PRIORITY_NORMAL):
         if not hasattr(self, action):
             raise ActionNotFoundError("sel %s doesn't have action %s" % (self.name, action))
 
@@ -166,6 +168,8 @@ class TemplateBase:
         # make sure the argument we pass are correct
         s = signature(method)
         for param in s.parameters.values():
+            if args is None:
+                args = {}
             if param.default == _empty and param.name not in args:
                 raise BadActionArgumentError("parameter %s is mandatory but not passed to in args" % param.name)
 
@@ -177,7 +181,7 @@ class TemplateBase:
                 raise BadActionArgumentError('arguments "%s" are not present in the signature of the action' % ','.join(args_keys))
 
         task = Task(self, action, args, resp_q)
-        self.task_list.put(task)
+        self.task_list.put(task, priority=priority)
         return task
 
     def delete(self):
