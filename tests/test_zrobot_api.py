@@ -49,23 +49,19 @@ class TestZRobotClient(unittest.TestCase):
             listen = "localhost:660%d" % int(id)
             addr = "http://%s" % listen
             robot.start(listen=listen)
-            self._register_robot(addr)
             # return robot
         p = Process(target=new, args=(id, with_tmpl))
+        self._register_robot(addr="http://localhost:660%d" % int(id))
         p.start()
         return p
 
     def setUp(self):
-        # self.robots = []
-
         self.ps = []
         self.ps.append(self._start_robot(1, with_tmpl=True))
         self.ps.append(self._start_robot(2, with_tmpl=False))
 
         # give time to the robot to starts TODO: find better then sleep
         time.sleep(1)
-        # self.robots.append(self._start_robot(1, with_tmpl=True))
-        # self.robots.append(self._start_robot(2, with_tmpl=False))
         self.api = ZeroRobotAPI()
 
         # make sure we don't have any service loaded

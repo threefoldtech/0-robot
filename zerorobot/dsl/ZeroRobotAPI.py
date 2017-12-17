@@ -58,7 +58,7 @@ class ServicesMgr:
         try:
             # we can create a service locally, the local robot has the template
             template = tcol.get(template_uid)
-            return tcol.instanciate_service(template, service_name, data)
+            return tcol.instantiate_service(template, service_name, data)
         except KeyError:
             # we need to look for a robot that handle this template
             pass

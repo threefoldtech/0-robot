@@ -27,9 +27,9 @@ class TestServiceTemplate(unittest.TestCase):
                               os.path.join(dir_path, 'fixtures', 'templates', name))
         return tmpl
 
-    def test_instanciate_service(self):
+    def test_instantiate_service(self):
         Node = self.load_template('node')
-        srv = tcol.instanciate_service(Node, 'testnode')
+        srv = tcol.instantiate_service(Node, 'testnode')
         self.assertIsNotNone(srv, "service should not be None")
         self.assertEqual(srv.name, 'testnode', "service name should be 'testnode'")
         self.assertIsNotNone(srv.guid, "service guid should not be None")
@@ -42,7 +42,7 @@ class TestServiceTemplate(unittest.TestCase):
 
     def test_service_save(self):
         Node = self.load_template('node')
-        srv = tcol.instanciate_service(Node, 'testnode')
+        srv = tcol.instantiate_service(Node, 'testnode')
         with tempfile.TemporaryDirectory() as tmpdir:
             srv.save(tmpdir)
             srv_dir = os.path.join(tmpdir, srv.name)
@@ -56,7 +56,7 @@ class TestServiceTemplate(unittest.TestCase):
 
     def test_service_load(self):
         Node = self.load_template('node')
-        srv = tcol.instanciate_service(Node, 'testnode')
+        srv = tcol.instantiate_service(Node, 'testnode')
         with tempfile.TemporaryDirectory() as tmpdir:
             path = srv.save(tmpdir)
 
@@ -71,7 +71,7 @@ class TestServiceTemplate(unittest.TestCase):
 
     def test_service_load_dir_not_exists(self):
         Node = self.load_template('node')
-        srv = tcol.instanciate_service(Node, 'testnode')
+        srv = tcol.instantiate_service(Node, 'testnode')
         with tempfile.TemporaryDirectory() as tmpdir:
             path = srv.save(tmpdir)
             with self.assertRaises(FileNotFoundError):
@@ -79,7 +79,7 @@ class TestServiceTemplate(unittest.TestCase):
 
     def test_service_load_wrong_name(self):
         Node = self.load_template('node')
-        srv = tcol.instanciate_service(Node, 'testnode')
+        srv = tcol.instantiate_service(Node, 'testnode')
         with tempfile.TemporaryDirectory() as tmpdir:
             path = srv.save(tmpdir)
             # rename the folder where the service have been saved
@@ -91,7 +91,7 @@ class TestServiceTemplate(unittest.TestCase):
     def test_service_load_wrong_template(self):
         Node = self.load_template('node')
         Vm = self.load_template('vm')
-        srv = tcol.instanciate_service(Node, 'testnode')
+        srv = tcol.instantiate_service(Node, 'testnode')
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = srv.save(tmpdir)
@@ -101,7 +101,7 @@ class TestServiceTemplate(unittest.TestCase):
 
     def test_service_add_task(self):
         Node = self.load_template('node')
-        srv = tcol.instanciate_service(Node, 'testnode')
+        srv = tcol.instantiate_service(Node, 'testnode')
         task = srv.schedule_action('start')
         self.assertEqual(task.service, srv, "service in the task should be the same")
         self.assertEqual(task.action_name, 'start', "action name should be start")

@@ -19,7 +19,7 @@ class TestServiceData(unittest.TestCase):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         return _load_template(os.path.join(dir_path, 'fixtures', 'templates', name))
 
-    def test_instanciate_service(self):
+    def test_instantiate_service(self):
         self.skipTest("not implemented yet")
         # Node = self.load_template('node')
         # srv = Node('testnode')

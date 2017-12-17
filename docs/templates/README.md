@@ -30,7 +30,7 @@ from zerorobot import template_collection as tcol
 template_uid = "github.com/jumpscale/zerorobot/node/1.0.0"
 name = "container1"
 args = {'foo': 'bar'}
-container = tcol.instanciate_service(template_uid, name, args)
+container = tcol.instantiate_service(template_uid, name, args)
 ```
 
 ## How to create a new template

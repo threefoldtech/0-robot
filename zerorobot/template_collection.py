@@ -82,7 +82,7 @@ def _load_template(url, template_dir):
     return _templates[class_.template_uid]
 
 
-def instanciate_service(template, name, data=None):
+def instantiate_service(template, name, data=None):
     if isinstance(template, str):
         template = get(template)
 
