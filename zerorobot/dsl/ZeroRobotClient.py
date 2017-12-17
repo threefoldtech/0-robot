@@ -1,3 +1,10 @@
+"""
+This module contains a wrapper of the go-raml generated client for ZeroRobot.
+
+Jumpscale provie a factory that return a instance of the class defined in this module
+We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.
+"""
+
 from requests.exceptions import HTTPError
 
 from zerorobot.client import Client

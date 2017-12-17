@@ -1,4 +1,8 @@
-from requests.exceptions import HTTPError
+"""
+This module expose the high level API that is meant to be used by service developer in the template actions.
+
+It provie ways to create and list services from a group of ZeroRobots in a unified way.
+"""
 
 from js9 import j
 from zerorobot import service_collection as scol
@@ -50,10 +54,15 @@ class ServicesMgr:
     def create(self, template_uid, service_name, data=None):
         """
         Instantiate a service from a template
+        This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.
+
+        If this methos is used from a service action, it first check if we can create the service in the local robot.
+        If not, it looks for a remote robot to create the service onto.
 
         @param template_uid: UID of the template to use a base class for the service
         @param service_name: name of the service, needs to be unique within the robot instance
         @param data: a dictionnary with the data of the service to create
+        @return: A Service or ServiceProxy object. depending if the service has been created locally or remotely
         """
         try:
             # we can create a service locally, the local robot has the template
@@ -73,6 +82,7 @@ class ServicesMgr:
 
 
 class ZeroRobotAPI:
+    # TODO: find better name
 
     def __init__(self):
         self._cache = {}
@@ -94,6 +104,12 @@ class ZeroRobotAPI:
         return self._cache
 
     def get_robot(self, template_uid):
+        """
+        returns a instance of ZeroRobotClient that is managing the template identified by template_uid
+
+        It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.
+        If not known robots managed the template_uid, then KeyError is raised
+        """
         for robot in self.robots.values():
             if template_uid in robot.templates.uids:
                 return robot
