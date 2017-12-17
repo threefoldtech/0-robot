@@ -1092,15 +1092,14 @@ table {
 <span class="kn">import</span> <span class="nn">tempfile</span>
 
 <span class="kn">import</span> <span class="nn">gevent</span>
-<span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
 <span class="kn">from</span> <span class="nn">gevent.pool</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">JumpScale9.core.State</span> <span class="kn">import</span> <span class="n">ClientConfig</span>
-
-<span class="kn">from</span> <span class="nn">zerorobot.api.app</span> <span class="kn">import</span> <span class="n">app</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
+<span class="kn">from</span> <span class="nn">zerorobot.api.app</span> <span class="kn">import</span> <span class="n">app</span>
 
 
 <span class="k">class</span> <span class="nc">Robot</span><span class="p">:</span>
@@ -1117,7 +1116,14 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">address</span>
+        <span class="k">return</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">set_data_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1187,6 +1193,7 @@ table {
 
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="c1"># here no more requests are comming in</span>
         <span class="c1"># all services should have received kill signal</span>
@@ -1258,7 +1265,14 @@ It is responsible to:
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">address</span>
+        <span class="k">return</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">set_data_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1328,6 +1342,7 @@ It is responsible to:
 
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="c1"># here no more requests are comming in</span>
         <span class="c1"># all services should have received kill signal</span>
@@ -1381,6 +1396,7 @@ It is responsible to:
     <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
 </pre></div>
 
@@ -1543,6 +1559,7 @@ serialize all services state to disk</p></div>
         <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="c1"># here no more requests are comming in</span>
     <span class="c1"># all services should have received kill signal</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
@@ -1554,6 +1571,26 @@ serialize all services state to disk</p></div>
   </div>
   
           <h3>Instance variables</h3>
+            <div class="item">
+            <p id="zerorobot.robot.Robot.addr" class="name">var <span class="ident">addr</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.robot.Robot.address" class="name">var <span class="ident">address</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
             <div class="item">
             <p id="zerorobot.robot.Robot.data_repo_url" class="name">var <span class="ident">data_repo_url</span></p>
             

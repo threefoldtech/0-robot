@@ -4,12 +4,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
     <title>zerorobot.dsl.ZeroRobotAPI API documentation</title>
-    <meta name="description" content="" />
+    <meta name="description" content="This module expose the high level API that is meant to be used by service developer in the template ..." />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
-
+  
   <style type="text/css">
-
+  
 * {
   box-sizing: border-box;
 }
@@ -550,7 +550,7 @@ table {
   </style>
 
   <style type="text/css">
-
+  
   html, body {
     margin: 0;
     padding: 0;
@@ -651,7 +651,7 @@ table {
 
   code {
     background: #f9f9f9;
-  }
+  } 
 
   pre {
     background: #fefefe;
@@ -668,7 +668,7 @@ table {
     .codehilite pre {
       margin: 0;
     }
-    .codehilite .err { background: #ff3300; color: #fff !important; }
+    .codehilite .err { background: #ff3300; color: #fff !important; } 
 
   table#module-list {
     font-size: 110%;
@@ -779,7 +779,7 @@ table {
       text-transform: uppercase;
       color: #fff;
       text-shadow: 1px 1px 0 #f4b700;
-
+      
       padding: 3px 8px;
       border-radius: 2px;
       transition: background .3s ease-in-out;
@@ -924,7 +924,7 @@ table {
   </style>
 
   <style type="text/css">
-
+  
 /* ==========================================================================
    EXAMPLE Media Queries for Responsive Design.
    These examples override the primary ('mobile first') styles.
@@ -1035,8 +1035,8 @@ table {
 <a href="#" id="top">Top</a>
 
 <div id="container">
-
-
+    
+  
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
@@ -1046,8 +1046,8 @@ table {
       <ul>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr">ServicesMgr</a></span>
-
-
+        
+          
   <ul>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create">create</a></li>
@@ -1056,12 +1056,12 @@ table {
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotAPI.TemplateNotFoundError">TemplateNotFoundError</a></span>
-
+        
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI">ZeroRobotAPI</a></span>
-
-
+        
+          
   <ul>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot">get_robot</a></li>
@@ -1075,19 +1075,24 @@ table {
   </div>
 
     <article id="content">
+      
+  
 
-
-
-
+  
 
 
   <header id="section-intro">
   <h1 class="title"><span class="name">zerorobot.dsl.ZeroRobotAPI</span> module</h1>
-
-
+  <p>This module expose the high level API that is meant to be used by service developer in the template actions.</p>
+<p>It provie ways to create and list services from a group of ZeroRobots in a unified way.</p>
+  
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module expose the high level API that is meant to be used by service developer in the template actions.</span>
+
+<span class="sd">It provie ways to create and list services from a group of ZeroRobots in a unified way.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
@@ -1139,10 +1144,15 @@ table {
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Instantiate a service from a template</span>
+<span class="sd">        This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.</span>
+
+<span class="sd">        If this methos is used from a service action, it first check if we can create the service in the local robot.</span>
+<span class="sd">        If not, it looks for a remote robot to create the service onto.</span>
 
 <span class="sd">        @param template_uid: UID of the template to use a base class for the service</span>
 <span class="sd">        @param service_name: name of the service, needs to be unique within the robot instance</span>
 <span class="sd">        @param data: a dictionnary with the data of the service to create</span>
+<span class="sd">        @return: A Service or ServiceProxy object. depending if the service has been created locally or remotely</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># we can create a service locally, the local robot has the template</span>
@@ -1153,6 +1163,7 @@ table {
             <span class="k">pass</span>
 
         <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
             <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
@@ -1161,6 +1172,7 @@ table {
 
 
 <span class="k">class</span> <span class="nc">ZeroRobotAPI</span><span class="p">:</span>
+    <span class="c1"># TODO: find better name</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1182,6 +1194,12 @@ table {
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
 
     <span class="k">def</span> <span class="nf">get_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns a instance of ZeroRobotClient that is managing the template identified by template_uid</span>
+
+<span class="sd">        It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.</span>
+<span class="sd">        If not known robots managed the template_uid, then KeyError is raised</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">robot</span>
@@ -1206,11 +1224,11 @@ table {
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
-
+      
       <div class="item">
       <p id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr" class="name">class <span class="ident">ServicesMgr</span></p>
-
-
+      
+  
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr" class="source">
@@ -1250,10 +1268,15 @@ table {
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Instantiate a service from a template</span>
+<span class="sd">        This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.</span>
+
+<span class="sd">        If this methos is used from a service action, it first check if we can create the service in the local robot.</span>
+<span class="sd">        If not, it looks for a remote robot to create the service onto.</span>
 
 <span class="sd">        @param template_uid: UID of the template to use a base class for the service</span>
 <span class="sd">        @param service_name: name of the service, needs to be unique within the robot instance</span>
 <span class="sd">        @param data: a dictionnary with the data of the service to create</span>
+<span class="sd">        @return: A Service or ServiceProxy object. depending if the service has been created locally or remotely</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># we can create a service locally, the local robot has the template</span>
@@ -1264,6 +1287,7 @@ table {
             <span class="k">pass</span>
 
         <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
             <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
@@ -1282,15 +1306,15 @@ table {
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
-
+            
   <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.__init__">
     <p>def <span class="ident">__init__</span>(</p><p>self, base)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.__init__', this);">Show source &equiv;</a></p>
@@ -1303,29 +1327,37 @@ table {
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create">
     <p>def <span class="ident">create</span>(</p><p>self, template_uid, service_name, data=None)</p>
     </div>
+    
 
-
-
-
-    <div class="desc"><p>Instantiate a service from a template</p>
+    
+  
+    <div class="desc"><p>Instantiate a service from a template
+This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.</p>
+<p>If this methos is used from a service action, it first check if we can create the service in the local robot.
+If not, it looks for a remote robot to create the service onto.</p>
 <p>@param template_uid: UID of the template to use a base class for the service
 @param service_name: name of the service, needs to be unique within the robot instance
-@param data: a dictionnary with the data of the service to create</p></div>
+@param data: a dictionnary with the data of the service to create
+@return: A Service or ServiceProxy object. depending if the service has been created locally or remotely</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Instantiate a service from a template</span>
+<span class="sd">    This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.</span>
+<span class="sd">    If this methos is used from a service action, it first check if we can create the service in the local robot.</span>
+<span class="sd">    If not, it looks for a remote robot to create the service onto.</span>
 <span class="sd">    @param template_uid: UID of the template to use a base class for the service</span>
 <span class="sd">    @param service_name: name of the service, needs to be unique within the robot instance</span>
 <span class="sd">    @param data: a dictionnary with the data of the service to create</span>
+<span class="sd">    @return: A Service or ServiceProxy object. depending if the service has been created locally or remotely</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># we can create a service locally, the local robot has the template</span>
@@ -1335,6 +1367,7 @@ table {
         <span class="c1"># we need to look for a robot that handle this template</span>
         <span class="k">pass</span>
     <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
         <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
@@ -1345,14 +1378,14 @@ table {
 </div>
 
   </div>
-
+  
           <h3>Instance variables</h3>
             <div class="item">
             <p id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.guids" class="name">var <span class="ident">guids</span></p>
+            
 
-
-
-
+            
+  
     <div class="desc"><p>Return a dictionnary that contains all the service present on
 the ZeroRobot</p>
 <p>key is the guid of the service
@@ -1363,10 +1396,10 @@ value is a Service or ServiceProxy object</p></div>
             </div>
             <div class="item">
             <p id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.names" class="name">var <span class="ident">names</span></p>
+            
 
-
-
-
+            
+  
     <div class="desc"><p>Return a dictionnary that contains all the service present on
 the ZeroRobot</p>
 <p>key is the name of the service
@@ -1377,11 +1410,11 @@ value is a Service or ServiceProxy object</p></div>
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.dsl.ZeroRobotAPI.TemplateNotFoundError" class="name">class <span class="ident">TemplateNotFoundError</span></p>
-
-
+      
+  
     <div class="desc"><p>This exception is raised when trying to create a service
 from a template that doesn't exists</p></div>
   <div class="source_cont">
@@ -1410,25 +1443,26 @@ from a template that doesn't exists</p></div>
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.dsl.ZeroRobotAPI.TemplateNotFoundError.args" class="name">var <span class="ident">args</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI" class="name">class <span class="ident">ZeroRobotAPI</span></p>
-
-
+      
+  
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ZeroRobotAPI</span><span class="p">:</span>
+    <span class="c1"># TODO: find better name</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1450,6 +1484,12 @@ from a template that doesn't exists</p></div>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
 
     <span class="k">def</span> <span class="nf">get_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns a instance of ZeroRobotClient that is managing the template identified by template_uid</span>
+
+<span class="sd">        It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.</span>
+<span class="sd">        If not known robots managed the template_uid, then KeyError is raised</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">robot</span>
@@ -1477,15 +1517,15 @@ from a template that doesn't exists</p></div>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
-
+            
   <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__">
     <p>def <span class="ident">__init__</span>(</p><p>self)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__', this);">Show source &equiv;</a></p>
@@ -1499,20 +1539,28 @@ from a template that doesn't exists</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot">
     <p>def <span class="ident">get_robot</span>(</p><p>self, template_uid)</p>
     </div>
+    
 
-
-
-
+    
+  
+    <div class="desc"><p>returns a instance of ZeroRobotClient that is managing the template identified by template_uid</p>
+<p>It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.
+If not known robots managed the template_uid, then KeyError is raised</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns a instance of ZeroRobotClient that is managing the template identified by template_uid</span>
+<span class="sd">    It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.</span>
+<span class="sd">    If not known robots managed the template_uid, then KeyError is raised</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">robot</span>
@@ -1523,14 +1571,14 @@ from a template that doesn't exists</p></div>
 </div>
 
   </div>
-
+  
           <h3>Instance variables</h3>
             <div class="item">
             <p id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.robots" class="name">var <span class="ident">robots</span></p>
+            
 
-
-
-
+            
+  
     <div class="desc"><p>list all the ZeroRobot client loaded in memory
 return a dictionary with
 key = base_url of the API of the robot
@@ -1541,10 +1589,10 @@ value: ZeroRobotClient object</p></div>
             </div>
             <div class="item">
             <p id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.services" class="name">var <span class="ident">services</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 

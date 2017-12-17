@@ -1076,7 +1076,6 @@ table {
     <li class="mono"><a href="#zerorobot.service_proxy.TaskListProxy.empty">empty</a></li>
     <li class="mono"><a href="#zerorobot.service_proxy.TaskListProxy.get_task_by_guid">get_task_by_guid</a></li>
     <li class="mono"><a href="#zerorobot.service_proxy.TaskListProxy.list_tasks">list_tasks</a></li>
-    <li class="mono"><a href="#zerorobot.service_proxy.TaskListProxy.from_api">from_api</a></li>
   </ul>
 
         </li>
@@ -1087,7 +1086,6 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.service_proxy.TaskProxy.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.service_proxy.TaskProxy.wait">wait</a></li>
-    <li class="mono"><a href="#zerorobot.service_proxy.TaskProxy.from_api">from_api</a></li>
   </ul>
 
         </li>
@@ -1122,9 +1120,9 @@ so the robot see the service as if it as local to him while in reality the servi
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
+<span class="kn">import</span> <span class="nn">gevent</span>
 <span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
 
-<span class="kn">import</span> <span class="nn">gevent</span>
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span>
                             <span class="n">TASK_STATE_RUNNING</span><span class="p">)</span>
@@ -1139,6 +1137,12 @@ so the robot see the service as if it as local to him while in reality the servi
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">zrobot_client</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @param name: name of the service</span>
+<span class="sd">        @param guid: guid of the service</span>
+<span class="sd">        @param zrobot_client: Instance of ZeroRobotClient that talks to the robot on which the</span>
+<span class="sd">                              service is actually running</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span> <span class="o">=</span> <span class="n">zrobot_client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
@@ -1159,7 +1163,7 @@ so the robot see the service as if it as local to him while in reality the servi
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">task_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">getTaskList</span><span class="p">(</span><span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">query_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
-        <span class="k">return</span> <span class="n">TaskListProxy</span><span class="o">.</span><span class="n">from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_task_list_proxy_from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1181,7 +1185,7 @@ so the robot see the service as if it as local to him while in reality the servi
             <span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()))</span>
             <span class="k">raise</span> <span class="n">err</span>
 
-        <span class="k">return</span> <span class="n">TaskProxy</span><span class="o">.</span><span class="n">from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_task_proxy_from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">DeleteService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
@@ -1192,22 +1196,6 @@ so the robot see the service as if it as local to him while in reality the servi
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_api</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        instantiate an TaskListProxy from API response of</span>
-<span class="sd">        GetTaskList call</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
-            <span class="n">t</span> <span class="o">=</span> <span class="n">TaskProxy</span><span class="o">.</span><span class="n">from_api</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
@@ -1258,15 +1246,6 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="bp">self</span><span class="o">.</span><span class="n">created</span> <span class="o">=</span> <span class="n">created</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="bp">None</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_api</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
-            <span class="n">d_eco</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-            <span class="n">d_eco</span><span class="p">[</span><span class="s1">&#39;_traceback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">_traceback</span>
-            <span class="n">t</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">d_eco</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">t</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span>
@@ -1281,6 +1260,31 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="n">timeout</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_task_list_proxy_from_api</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    instantiate an TaskListProxy from API response of</span>
+<span class="sd">    GetTaskList call</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskListProxy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">_task_proxy_from_api</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">):</span>
+            <span class="n">task_list</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">):</span>
+            <span class="n">task_list</span><span class="o">.</span><span class="n">_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">task_list</span>
+
+
+<span class="k">def</span> <span class="nf">_task_proxy_from_api</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">TaskProxy</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
+        <span class="n">d_eco</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">d_eco</span><span class="p">[</span><span class="s1">&#39;_traceback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">_traceback</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">d_eco</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">t</span>
 </pre></div>
 
   </div>
@@ -1343,6 +1347,12 @@ so the robot see the service as if it as local to him while in reality the servi
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">zrobot_client</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @param name: name of the service</span>
+<span class="sd">        @param guid: guid of the service</span>
+<span class="sd">        @param zrobot_client: Instance of ZeroRobotClient that talks to the robot on which the</span>
+<span class="sd">                              service is actually running</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span> <span class="o">=</span> <span class="n">zrobot_client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
@@ -1363,7 +1373,7 @@ so the robot see the service as if it as local to him while in reality the servi
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">task_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">getTaskList</span><span class="p">(</span><span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">query_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
-        <span class="k">return</span> <span class="n">TaskListProxy</span><span class="o">.</span><span class="n">from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_task_list_proxy_from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1385,7 +1395,7 @@ so the robot see the service as if it as local to him while in reality the servi
             <span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()))</span>
             <span class="k">raise</span> <span class="n">err</span>
 
-        <span class="k">return</span> <span class="n">TaskProxy</span><span class="o">.</span><span class="n">from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_task_proxy_from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">DeleteService</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
@@ -1411,11 +1421,20 @@ so the robot see the service as if it as local to him while in reality the servi
 
     
   
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+    <div class="desc"><p>@param name: name of the service
+@param guid: guid of the service
+@param zrobot_client: Instance of ZeroRobotClient that talks to the robot on which the
+                      service is actually running</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_proxy.ServiceProxy.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_proxy.ServiceProxy.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">zrobot_client</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    @param name: name of the service</span>
+<span class="sd">    @param guid: guid of the service</span>
+<span class="sd">    @param zrobot_client: Instance of ZeroRobotClient that talks to the robot on which the</span>
+<span class="sd">                          service is actually running</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span> <span class="o">=</span> <span class="n">zrobot_client</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
@@ -1486,7 +1505,7 @@ the corresponding service</p>
     <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()))</span>
         <span class="k">raise</span> <span class="n">err</span>
-    <span class="k">return</span> <span class="n">TaskProxy</span><span class="o">.</span><span class="n">from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_task_proxy_from_api</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1570,22 +1589,6 @@ the corresponding service</p>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_api</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        instantiate an TaskListProxy from API response of</span>
-<span class="sd">        GetTaskList call</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
-            <span class="n">t</span> <span class="o">=</span> <span class="n">TaskProxy</span><span class="o">.</span><span class="n">from_api</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
@@ -1738,42 +1741,6 @@ the corresponding service</p>
 
   </div>
   
-          <h3>Methods</h3>
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.service_proxy.TaskListProxy.from_api">
-    <p>def <span class="ident">from_api</span>(</p><p>cls, tasks, service)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>instantiate an TaskListProxy from API response of
-GetTaskList call</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_proxy.TaskListProxy.from_api', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.service_proxy.TaskListProxy.from_api" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@classmethod</span>
-<span class="k">def</span> <span class="nf">from_api</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    instantiate an TaskListProxy from API response of</span>
-<span class="sd">    GetTaskList call</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">TaskProxy</span><span class="o">.</span><span class="n">from_api</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-    <span class="k">return</span> <span class="bp">self</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
       </div>
       </div>
       
@@ -1803,15 +1770,6 @@ actual state of the task on the remote ZeroRobot</p></div>
         <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">created</span> <span class="o">=</span> <span class="n">created</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="bp">None</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_api</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
-            <span class="n">d_eco</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-            <span class="n">d_eco</span><span class="p">[</span><span class="s1">&#39;_traceback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">_traceback</span>
-            <span class="n">t</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">d_eco</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">t</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1956,34 +1914,6 @@ actual state of the task on the remote ZeroRobot</p></div>
 </div>
 
             </div>
-          <h3>Methods</h3>
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.service_proxy.TaskProxy.from_api">
-    <p>def <span class="ident">from_api</span>(</p><p>cls, task, service)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_proxy.TaskProxy.from_api', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.service_proxy.TaskProxy.from_api" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@classmethod</span>
-<span class="k">def</span> <span class="nf">from_api</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
-        <span class="n">d_eco</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-        <span class="n">d_eco</span><span class="p">[</span><span class="s1">&#39;_traceback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">_traceback</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">d_eco</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">t</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
       </div>
       </div>
 

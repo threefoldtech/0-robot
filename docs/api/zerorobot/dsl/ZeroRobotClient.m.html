@@ -4,7 +4,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
     <title>zerorobot.dsl.ZeroRobotClient API documentation</title>
-    <meta name="description" content="" />
+    <meta name="description" content="This module contains a wrapper of the go-raml generated client for ZeroRobot.
+
+Jumpscale provie a fa..." />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1091,11 +1093,20 @@ table {
 
   <header id="section-intro">
   <h1 class="title"><span class="name">zerorobot.dsl.ZeroRobotClient</span> module</h1>
-  
+  <p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
+<p>Jumpscale provie a factory that return a instance of the class defined in this module
+We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p>
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotClient', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotClient" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains a wrapper of the go-raml generated client for ZeroRobot.</span>
+
+<span class="sd">Jumpscale provie a factory that return a instance of the class defined in this module</span>
+<span class="sd">We keep this logic in this repository itself and not jumpscale so we don&#39;t spread the code over multiple repositories.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
 
 <span class="kn">from</span> <span class="nn">zerorobot.client</span> <span class="kn">import</span> <span class="n">Client</span>
 <span class="kn">from</span> <span class="nn">zerorobot.service_proxy</span> <span class="kn">import</span> <span class="n">ServiceProxy</span>

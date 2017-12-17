@@ -8,9 +8,9 @@
 other services and class n..." />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
-
+  
   <style type="text/css">
-
+  
 * {
   box-sizing: border-box;
 }
@@ -551,7 +551,7 @@ table {
   </style>
 
   <style type="text/css">
-
+  
   html, body {
     margin: 0;
     padding: 0;
@@ -652,7 +652,7 @@ table {
 
   code {
     background: #f9f9f9;
-  }
+  } 
 
   pre {
     background: #fefefe;
@@ -669,7 +669,7 @@ table {
     .codehilite pre {
       margin: 0;
     }
-    .codehilite .err { background: #ff3300; color: #fff !important; }
+    .codehilite .err { background: #ff3300; color: #fff !important; } 
 
   table#module-list {
     font-size: 110%;
@@ -780,7 +780,7 @@ table {
       text-transform: uppercase;
       color: #fff;
       text-shadow: 1px 1px 0 #f4b700;
-
+      
       padding: 3px 8px;
       border-radius: 2px;
       transition: background .3s ease-in-out;
@@ -925,7 +925,7 @@ table {
   </style>
 
   <style type="text/css">
-
+  
 /* ==========================================================================
    EXAMPLE Media Queries for Responsive Design.
    These examples override the primary ('mobile first') styles.
@@ -1036,14 +1036,14 @@ table {
 <a href="#" id="top">Top</a>
 
 <div id="container">
-
-
+    
+  
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-
+      
   <ul>
     <li class="mono"><a href="#zerorobot.template_collection.add_repo">add_repo</a></li>
     <li class="mono"><a href="#zerorobot.template_collection.get">get</a></li>
@@ -1057,12 +1057,12 @@ table {
       <ul>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template_collection.TemplateNameError">TemplateNameError</a></span>
-
+        
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template_collection.TemplateUID">TemplateUID</a></span>
-
-
+        
+          
   <ul>
     <li class="mono"><a href="#zerorobot.template_collection.TemplateUID.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.template_collection.TemplateUID.tuple">tuple</a></li>
@@ -1077,17 +1077,17 @@ table {
   </div>
 
     <article id="content">
+      
+  
 
-
-
-
+  
 
 
   <header id="section-intro">
   <h1 class="title"><span class="name">zerorobot.template_collection</span> module</h1>
   <p>this module is the only place where the templates will be kept in memory.
 other services and class need to use this module method to load/access the templates</p>
-
+  
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection" class="source">
     <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -1096,13 +1096,12 @@ other services and class need to use this module method to load/access the templ
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">importlib.util</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
 
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
-
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 
 <span class="n">_templates</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1285,15 +1284,15 @@ other services and class need to use this module method to load/access the templ
   <section id="section-items">
 
     <h2 class="section-title" id="header-functions">Functions</h2>
-
+      
   <div class="item">
     <div class="name def" id="zerorobot.template_collection.add_repo">
     <p>def <span class="ident">add_repo</span>(</p><p>url, branch=&#39;master&#39;, directory=&#39;templates&#39;)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>url: url of a git repository e.g: http://github.com/jumpscale/zeroroot
 branch: the branch of the repository to checkout
 directory: the path to the directory where the templates are located in the repository</p></div>
@@ -1321,16 +1320,16 @@ directory: the path to the directory where the templates are located in the repo
 </div>
 
   </div>
-
-
+  
+      
   <div class="item">
     <div class="name def" id="zerorobot.template_collection.get">
     <p>def <span class="ident">get</span>(</p><p>uid)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>@uid: unique identifier for a template.
 Can be a string with valid format as : 'github.com/account/repository/name/version'
 or
@@ -1356,16 +1355,16 @@ a zerorobot.template_collection.TemplateUID object</p></div>
 </div>
 
   </div>
-
-
+  
+      
   <div class="item">
     <div class="name def" id="zerorobot.template_collection.instantiate_service">
     <p>def <span class="ident">instantiate_service</span>(</p><p>template, name, data=None)</p>
     </div>
+    
 
-
-
-
+    
+  
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.instantiate_service', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection.instantiate_service" class="source">
@@ -1385,16 +1384,16 @@ a zerorobot.template_collection.TemplateUID object</p></div>
 </div>
 
   </div>
-
-
+  
+      
   <div class="item">
     <div class="name def" id="zerorobot.template_collection.list_templates">
     <p>def <span class="ident">list_templates</span>(</p><p>)</p>
     </div>
+    
 
-
-
-
+    
+  
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.list_templates', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection.list_templates" class="source">
@@ -1406,14 +1405,14 @@ a zerorobot.template_collection.TemplateUID object</p></div>
 </div>
 
   </div>
-
+  
 
     <h2 class="section-title" id="header-classes">Classes</h2>
-
+      
       <div class="item">
       <p id="zerorobot.template_collection.TemplateNameError" class="name">class <span class="ident">TemplateNameError</span></p>
-
-
+      
+  
     <div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.TemplateNameError', this);">Show source &equiv;</a></p>
@@ -1437,21 +1436,21 @@ a zerorobot.template_collection.TemplateUID object</p></div>
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.template_collection.TemplateNameError.args" class="name">var <span class="ident">args</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
       </div>
       </div>
-
+      
       <div class="item">
       <p id="zerorobot.template_collection.TemplateUID" class="name">class <span class="ident">TemplateUID</span></p>
-
-
+      
+  
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.TemplateUID', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection.TemplateUID" class="source">
@@ -1553,15 +1552,15 @@ a zerorobot.template_collection.TemplateUID object</p></div>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
-
+            
   <div class="item">
     <div class="name def" id="zerorobot.template_collection.TemplateUID.__init__">
     <p>def <span class="ident">__init__</span>(</p><p>self, host, account, repo, name, version)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.TemplateUID.__init__', this);">Show source &equiv;</a></p>
@@ -1578,16 +1577,16 @@ a zerorobot.template_collection.TemplateUID object</p></div>
 </div>
 
   </div>
-
-
+  
+            
   <div class="item">
     <div class="name def" id="zerorobot.template_collection.TemplateUID.tuple">
     <p>def <span class="ident">tuple</span>(</p><p>self)</p>
     </div>
+    
 
-
-
-
+    
+  
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.TemplateUID.tuple', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection.TemplateUID.tuple" class="source">
@@ -1599,68 +1598,68 @@ a zerorobot.template_collection.TemplateUID object</p></div>
 </div>
 
   </div>
-
+  
           <h3>Instance variables</h3>
             <div class="item">
             <p id="zerorobot.template_collection.TemplateUID.account" class="name">var <span class="ident">account</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template_collection.TemplateUID.host" class="name">var <span class="ident">host</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template_collection.TemplateUID.name" class="name">var <span class="ident">name</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template_collection.TemplateUID.repo" class="name">var <span class="ident">repo</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
             <div class="item">
             <p id="zerorobot.template_collection.TemplateUID.version" class="name">var <span class="ident">version</span></p>
+            
 
-
-
-
+            
+  
   <div class="source_cont">
 </div>
 
             </div>
           <h3>Methods</h3>
-
+            
   <div class="item">
     <div class="name def" id="zerorobot.template_collection.TemplateUID.parse">
     <p>def <span class="ident">parse</span>(</p><p>cls, uid)</p>
     </div>
+    
 
-
-
-
+    
+  
     <div class="desc"><p>Parse a template unique identifier.
 A tempate is identify by the url fo the git repository from where it comes from.
 There are different information extracted from
@@ -1715,7 +1714,7 @@ version: version</p></div>
 </div>
 
   </div>
-
+  
       </div>
       </div>
 
