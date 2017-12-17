@@ -3,8 +3,8 @@
 [![codecov](https://codecov.io/gh/Jumpscale/zerorobot/branch/master/graph/badge.svg)](https://codecov.io/gh/Jumpscale/zerorobot)
 
 The goal of this project is to create a distributed live cycle management system.
-By combining multiple ZeroRobot, each of them focusing on a specific purpose. We can create a distributed network of robots that managed nodes and applications.
-The robot is responsible to orchestrate different entities that we call 'services'. A service purpose is to model anything required to manage your IT environments.  
+By combining multiple ZeroRobot, each of them focusing on a specific purpose. We can create a distributed network of robots that manages nodes and applications.
+A robot is responsible for orchestrating different entities that we call 'services'. A service's purpose is to model anything required to manage your IT environments.  
 A service can map to something physical, like a server or an network card, or it can model something more abstract like a virtual machine or a capacity planner.
 
 ## [Documentations](docs)

@@ -4,8 +4,8 @@ A template is the source of a service.
 It contains the definition of the [actions](../../glossary.md#action), the configuration and the data schema of a [service](../../glossary.md#service).
 
 ## Template Unique Identifier (template UID)
-A tempate is identify by the url fo the git repository from where it comes from.  
-There are different information extracted from the URL:
+A tempate is identified by the url of the git repository it comes from.  
+There is different information extracted from the URL:
 - the host
 - the account
 - the repository name
@@ -21,7 +21,7 @@ template name: node
 version: 1.0.0
 ```
 
-When creating a new service, the user needs to refer to the template use with its template UID.
+When creating a new service, the user needs to refer to the template used with its template UID.
 
 This snippet of code show how to create a new service using a template UID:
 ```python
@@ -34,9 +34,9 @@ container = tcol.instanciate_service(template_uid, name, args)
 ```
 
 ## How to create a new template
-A template is composed of 2 files, a capnp schema and a python class that inherits `zerorobot.template.base.TemplateBase`
+A template is composed of two files, a capnp schema and a python class that inherits `zerorobot.template.base.TemplateBase`
 
-These 2 files needs to be in a directory that is named after the template name.
+These two files needs to be in a directory that is named after the template name.
 
 This is a tree of a templates repository with a single template called node.
 
