@@ -32,6 +32,7 @@ class Robot:
 
     def __init__(self):
         self._started = False
+        self._block = True
         self.data_repo_url = None
         self._data_dir = None
         self._http = None  # server handler
@@ -74,8 +75,11 @@ class Robot:
         start the rest web server
         load the services from the local git repository
         """
+
         if self._data_dir is None:
             raise RuntimeError("Not data repository set. Robot doesn't know where to save data.")
+
+        self._block = block
 
         self._autosave_gl = gevent.spawn(_auto_save_services, data_dir=self._data_dir)
 
@@ -99,6 +103,12 @@ class Robot:
 
         if block:
             self._http.serve_forever()
+
+            # this is executed when self.stop is called.
+            # stop autosave greenlet
+            self._autosave_gl.kill()
+            # here no more requests are comming in, we can safely save all services
+            self._save_services()
         else:
             self._http.start()
 
@@ -117,12 +127,14 @@ class Robot:
         self._http.stop()
         self._http = None
 
-        if self._autosave_gl:
-            self._autosave_gl.kill()
+        # if we don't block, we can gracefully shutdown here
+        # case we're not in a sig handler
+        if self._block is False:
 
-        # here no more requests are comming in
-        # all services should have received kill signal
-        self._save_services()
+             # stop autosave greenlet
+            self._autosave_gl.kill()
+            # here no more requests are comming in, we can safely save all services
+            self._save_services()
 
     def _load_services(self):
         if not os.path.exists(self._data_dir):
@@ -140,6 +152,8 @@ class Robot:
         serialize all the services on disk
         """
         for service in scol.list_services():
+            # stop all the greenlets attached to the services
+            service._gl_mgr.stop_all()
             service.save(self._data_dir)
 
 
@@ -157,8 +171,6 @@ def _auto_save_services(data_dir):
                 service._schedule_action('save', {'base_path': data_dir}, None, PRIORITY_SYSTEM)
             gevent.sleep(60)
         except GreenletExit:
-            # TODO: gracefull shutdown
-            print("exit auto save greenlet")
             break
 
 

@@ -4,11 +4,12 @@ It is the class every template should inherits from.
 """
 
 
+import inspect
 import os
-from inspect import _empty, signature
+import time
 from uuid import uuid4
 
-from gevent.greenlet import Greenlet, GreenletExit
+import gevent
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
@@ -40,6 +41,41 @@ class BadTemplateError(Exception):
     pass
 
 
+class GreenletsMgr:
+    """
+    GreenletsMgr is a tools that lets you
+    manage a group of greenlets
+
+    it gives basic primitives to keep a reference of a greenlets and start/stop/get them
+    """
+
+    def __init__(self):
+        self.gls = {}
+
+    def add(self, key, gl):
+        if not isinstance(gl, gevent.Greenlet):
+            raise TypeError("gl should be a Greenlet not %s" % type(gl))
+
+        if not gl.started:
+            gl.start()
+
+        self.gls[key] = gl
+
+    def get(self, key):
+        return self.gls[key]
+
+    def stop(self, key):
+        try:
+            gl = self.get(key)
+            gl.kill()
+        except KeyError:
+            pass
+
+    def stop_all(self):
+        for gl in self.gls.values():
+            gl.kill()
+
+
 class TemplateBase:
     """
     This is the base class any service should inherit from.
@@ -65,9 +101,9 @@ class TemplateBase:
         self.state = ServiceState()
         self.task_list = TaskList()
 
-        # start the greenlet of this service
-        self._gl = Greenlet(self._run)
-        self._gl.start()
+        # start the greenlets of this service
+        self._gl_mgr = GreenletsMgr()
+        self._gl_mgr.add('executor', gevent.Greenlet(self._run))
 
     @classmethod
     def load(cls, base_path):
@@ -140,9 +176,9 @@ class TemplateBase:
             try:
                 task = self.task_list.get()
                 task.execute()
-            except GreenletExit:
+            except gevent.GreenletExit:
                 # TODO: gracefull shutdown
-                pass
+                break
 
     def schedule_action(self, action, args=None, resp_q=None):
         """
@@ -166,11 +202,11 @@ class TemplateBase:
             raise ActionNotFoundError("%s is not a function" % action)
 
         # make sure the argument we pass are correct
-        s = signature(method)
+        s = inspect.signature(method)
         for param in s.parameters.values():
             if args is None:
                 args = {}
-            if param.default == _empty and param.name not in args:
+            if param.default == inspect._empty and param.name not in args:
                 raise BadActionArgumentError("parameter %s is mandatory but not passed to in args" % param.name)
 
         if args is not None:
@@ -184,5 +220,50 @@ class TemplateBase:
         self.task_list.put(task, priority=priority)
         return task
 
+    def recurring_action(self, action, period):
+        """
+        configure an action to be executed every period second
+
+        It will ensure that the action from service is schedule at best every period second.
+
+        Since we dont' have control over how long other task from the task list take.
+        we can only ensure that the action is never going to be schedule faster then every period second
+
+        That means that it can be a longer time then period second during which the action is not executed
+
+        @param action: a method or string that match the name of the method we want to make recurring
+        @param period: minimum number of seconds between 2 scheduling of the action
+        """
+        if inspect.ismethod(action) or inspect.isfunction(action):
+            action = action.__name__
+
+        gl = gevent.Greenlet(_recurring_action, self, action, period)
+        self._gl_mgr.add("recurring_" + action, gl)
+
     def delete(self):
         scol.delete(self)
+
+
+def _recurring_action(service, action, period):
+    """
+    this function is intended to be run in a greenlet.
+    It will ensure that the action from service is schedule at best every period second.
+
+    Since we dont' have controle over how long other task from the task list take.
+    we can only ensure that the action is never going to be schedule faster then every period second
+
+    That means that it can be a longer time then period second during which the action is not executed
+    """
+    last = -1
+    elapsed = -1
+    while True:
+        try:
+            if last < 0 or elapsed >= period:
+                task = service._schedule_action(action, priority=PRIORITY_SYSTEM)
+                task.wait()
+            else:
+                gevent.sleep(0.5)
+
+            elapsed = int(time.time()) - task.created
+        except gevent.GreenletExit:
+            break

@@ -37,8 +37,7 @@ class TestServiceTemplate(unittest.TestCase):
         self.assertIsNotNone(srv.data, "service data should not be None")
         self.assertIsNotNone(srv.state, "service state should not be None")
         self.assertIsNotNone(srv.task_list, "service task_list should not be None")
-        self.assertIsNotNone(srv._gl, "service greenlet should not be None")
-        self.assertTrue(srv._gl.started, "service greenlet should be started")
+        self.assertIsNotNone(srv._gl_mgr, "service greenlet manager should not be None")
 
     def test_service_save(self):
         Node = self.load_template('node')
@@ -121,3 +120,9 @@ class TestServiceTemplate(unittest.TestCase):
 
         with self.assertRaises(BadActionArgumentError, msg="should raise if passing argument that are not part of the signature of the action"):
             srv.schedule_action('foo', args={'bar': 'foo', 'wrong_arg': 'bar'})
+
+    def test_recurring(self):
+        tmpl = self.load_template('recurring')
+        srv = tmpl('foo')
+        gl = srv._gl_mgr.get('recurring_monitor')
+        self.assertTrue(gl.started)

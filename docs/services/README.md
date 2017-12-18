@@ -1,8 +1,8 @@
 # Services
 
-- [Service data](#service_data)
-- [Service state](#service_state)
-- [Service Actions](#service_action)
+- [Service data](#service-data)
+- [Service state](#service-state)
+- [Service Actions](#service-actions)
 
 ## Service data
 The services data is the information that a service needs to receive to be created and the information the services gather during its lifetime. The data of a service is always private and is never going to be shared with another service or client. The service itself is the only one to have access to its data.
@@ -122,3 +122,35 @@ This decorator allow to set a maximum execution time for an action. It will rais
 Arguments of the decorator:
 - seconds: timeout time in seconds 
 - error_message: message to pass to the TimeoutError exception raised
+
+### Recurring actions
+It is also possible to have some action be recurring. Which means these action are going to be scheduled every X seconds.
+This is useful for some actions that monitor the state or some cleanup actions for examples.
+
+In order to make an action recurring you need to use the `recurring_action` method present on TemplateBase and thus in all your services.
+
+`recurring_action` takes 2 parameters; action and period:
+- action: Is the action you want to make recurring, it can be given as a reference to the method itself, or as a string being the name of the action.  
+- period is the recurring period in second (can be a floating number) 
+
+Since we don't have control over how long other tasks from the task list takes. We can only ensure that the action is never going to be scheduled faster then every period second. That means that it can be a longer time then period second during which the action is not executed.
+
+Example:
+```python
+class Node(TemplateBase):
+
+    version = '0.0.1'
+    template_name = "node"
+
+    def __init__(self, name, guid=None):
+        super().__init__(name=name, guid=guid)
+        # using the reference to the method
+        self.recurring_action(self.foo, 10)
+        # using the name of the method
+        self.recurring_action("foo", 10)
+
+    def foo(self):
+        # code of the recurring action goes here.
+        # ...
+
+```

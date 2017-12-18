@@ -52,7 +52,7 @@ class TestZRobotClient(unittest.TestCase):
     def test_list_templates(self):
         uids = self.cl.templates.uids
 
-        self.assertEqual(len(uids), 2, "number of templates should be 2")
+        self.assertEqual(len(uids), 3, "number of templates should be 3")
         self.assertIn('github.com/jumpscale/zerorobot/node/0.0.1', uids)
         self.assertIn('github.com/jumpscale/zerorobot/vm/0.0.1', uids)
 
