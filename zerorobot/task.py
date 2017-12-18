@@ -84,20 +84,35 @@ class Task:
         finally:
             self._state_lock.release()
 
-    def wait(self, timeout):
+    def wait(self, timeout=None):
         """
-        wait blocks until the task has been executed or after timout seconds
+        wait blocks until the task has been executed
+        if timeout is specified and the task didn't finished within timeout seconds,
+        raises TimeoutError
         """
-        end = time.time() + timeout
-        while self.state in ('new', 'running') and time.time() < end:
-            gevent.sleep(1)
+        def wait():
+            while self.state in ('new', 'running'):
+                gevent.sleep(0.5)
+
+        if timeout:
+            # ensure the type is correct
+            timeout = float(timeout)
+            try:
+                gevent.with_timeout(timeout, wait)
+            except gevent.Timeout:
+                raise TimeoutError()
+        else:
+            wait()
 
     def __lt__(self, other):
         return self._created < other._created
 
-
-PRIORITY_SYSTEM = 0  # has the highest priority, usually used by the robot when it needs a service to execute something
-PRIORITY_NORMAL = 10  # default value used when an action is schedule from normal user API
+# has the highest priority, usually used by the robot when it needs a service to execute something
+PRIORITY_SYSTEM = 0
+# priority used for recurring action, need to be higher then normal actions
+PRIORITY_RECURRING = 5
+# default value used when an action is schedule from normal user API
+PRIORITY_NORMAL = 10
 
 
 class TaskList:

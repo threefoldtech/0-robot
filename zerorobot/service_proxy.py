@@ -11,7 +11,7 @@ import gevent
 from requests.exceptions import HTTPError
 
 from js9 import j
-from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
+from zerorobot.task import (Task, TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                             TASK_STATE_RUNNING)
 from zerorobot.template.state import ServiceState
 
@@ -116,7 +116,7 @@ class TaskListProxy:
         raise KeyError("no task with guid %s found" % guid)
 
 
-class TaskProxy:
+class TaskProxy(Task):
     """
     class that represent a task on a remote service
 
@@ -125,13 +125,12 @@ class TaskProxy:
     """
 
     def __init__(self, guid, service, action_name, args, created):
+        super().__init__(service=service, action_name=action_name, args=args)
         self.guid = guid
-        self.service = service
-        self.action_name = action_name
-        # self._resp_q = resp_q TODO
-        self._args = args
-        self.created = created
-        self.eco = None
+        self._created = created
+
+    def execute(self):
+        raise RuntimeError("a TaskProxy should never be executed")
 
     @property
     def state(self):
@@ -140,13 +139,9 @@ class TaskProxy:
             service_guid=self.service.guid)
         return resp.data.state.value
 
-    def wait(self, timeout):
-        """
-        wait blocks until the task has been executed or after timout seconds
-        """
-        end = time.time() + timeout
-        while self.state in ('new', 'running') and time.time() < end:
-            gevent.sleep(1)
+    @state.setter
+    def state(self, value):
+        raise RuntimeError("you can't change the statet of a TaskProxy")
 
 
 def _task_list_proxy_from_api(tasks, service):
