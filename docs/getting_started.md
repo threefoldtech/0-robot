@@ -1,6 +1,6 @@
 # Getting started
 
-## Install ZeroRobot
+## Install 0-Robot
 TODO: block on jumspcale install
 
 ## Start the robot:
@@ -10,7 +10,7 @@ Usage: zrobot [OPTIONS]
 
 Options:
   -D, --data-repo TEXT      URL of the git repository where to save the data
-                            of the zero robot  [required]
+                            of the 0-robot  [required]
   -T, --template-repo TEXT  list of templare repository URL
   -L, --listen TEXT         listen address
   -R, --robots TEXT         address of reachable robots
@@ -28,5 +28,5 @@ e.g: `0.0.0.0:8080`
 
 ### example:
 ```bash
-zrobot --listen :6601 --template-repo https://github.com/jumpscale/zerorobot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602
+zrobot --listen :6601 --template-repo https://github.com/jumpscale/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602
 ```

@@ -56,11 +56,11 @@ e.g.:
 
 
 ### Task
-A task is what result after an action has been asked to be executed. When a user ask a [service](#service) to execute an [action](#action) from a [blueprint](#blueprint), a multitude of task are added to the task list of one or multiple [ZeroRobot](#robot)
+A task is what result after an action has been asked to be executed. When a user ask a [service](#service) to execute an [action](#action) from a [blueprint](#blueprint), a multitude of task are added to the task list of one or multiple [0-Robot](#robot)
 
 ### Task list
-A task list is all [tasks](#task) that a [ZeroRobot](#robot) still need to execute.
-By following the task list of a [ZeroRobot](#robot) we can generate in real time a dependency graph of what is still going to be executed for a specific [action](#action).
+A task list is all [tasks](#task) that a [0-Robot](#robot) still need to execute.
+By following the task list of a [0-Robot](#robot) we can generate in real time a dependency graph of what is still going to be executed for a specific [action](#action).
 
 ### Template
 A template is the source of a service. It contains the definition of the [actions](#action) of a service.  

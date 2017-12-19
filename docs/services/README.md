@@ -67,7 +67,7 @@ The service state management is completely left to the developer of the service.
 
 The developer can also check the state of a another service to take decision.
 
-See the detail API documentation about the service state for more detail about the interface: https://jumpscale.github.io/zerorobot/api/zerorobot/template/base.m.html#zerorobot.template.base.ServiceState
+See the detail API documentation about the service state for more detail about the interface: https://jumpscale.github.io/0-robot/api/0-robot/template/base.m.html#0-robot.template.base.ServiceState
 
 Example:
 ```python
@@ -102,7 +102,7 @@ An actions is just a method on the service object.
 
 ### Customize actions behavior
 It is possible to add some special behavior to an actions using decorators
-See the API documentation for more detail: https://jumpscale.github.io/zerorobot/api/zerorobot/template/decorator.m.html
+See the API documentation for more detail: https://jumpscale.github.io/0-robot/api/0-robot/template/decorator.m.html
 
 #### Rety decorator
 This decorator allows to define retry policy for the action. 

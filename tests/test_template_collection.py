@@ -13,7 +13,7 @@ class TestTemplateCollection(unittest.TestCase):
     def test_load_template(self):
         # valid template
         file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/jumpscale/zerorobot", file_path)
+        tcol._load_template("https://github.com/jumpscale/0-robot", file_path)
         self.assertEqual(len(tcol._templates), 1, 'should have loaded a template')
 
         # non existing template
@@ -22,15 +22,15 @@ class TestTemplateCollection(unittest.TestCase):
 
     def test_get_template(self):
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/jumpscale/zerorobot", dir_path)
+        tcol._load_template("https://github.com/jumpscale/0-robot", dir_path)
         self.assertGreater(len(tcol._templates), 0, 'should have loaded template, actual loaded')
 
-        template = tcol.get('github.com/jumpscale/zerorobot/node/0.0.1')
+        template = tcol.get('github.com/jumpscale/0-robot/node/0.0.1')
         self.assertTrue(template is not None)
         self.assertEqual(template.template_dir, dir_path)
 
         with self.assertRaises(KeyError, msg="should raise KeyError"):
-            tcol.get('github.com/jumpscale/zerorobot/noexists/0.0.1')
+            tcol.get('github.com/jumpscale/0-robot/noexists/0.0.1')
 
         with self.assertRaises(ValueError, msg="should raise ValueError cause template uid format is not valid"):
             tcol.get('wrong_format')
@@ -38,7 +38,7 @@ class TestTemplateCollection(unittest.TestCase):
     def test_list_template(self):
         # valid template
         file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/jumpscale/zerorobot", file_path)
+        tcol._load_template("https://github.com/jumpscale/0-robot", file_path)
 
         templates = tcol.list_templates()
         self.assertEqual(len(templates), 1, "size of templates list should 1")

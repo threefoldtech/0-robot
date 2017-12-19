@@ -33,8 +33,8 @@ class TestZRobotClient(unittest.TestCase):
     def setUp(self):
         self.cl = ZeroRobotClient('http://localhost:6600')
         self.robot = Robot()
-        self.robot.set_data_repo('http://github.com/jumpscale/zerorobot')
-        self.robot.add_template_repo('http://github.com/jumpscale/zerorobot', directory='tests/fixtures/templates')
+        self.robot.set_data_repo('http://github.com/jumpscale/0-robot')
+        self.robot.add_template_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
         if os.path.exists(self.robot._data_dir):
             shutil.rmtree(self.robot._data_dir)
         # make sure we don't have any service loaded
@@ -53,16 +53,16 @@ class TestZRobotClient(unittest.TestCase):
         uids = self.cl.templates.uids
 
         self.assertEqual(len(uids), 3, "number of templates should be 3")
-        self.assertIn('github.com/jumpscale/zerorobot/node/0.0.1', uids)
-        self.assertIn('github.com/jumpscale/zerorobot/vm/0.0.1', uids)
+        self.assertIn('github.com/jumpscale/0-robot/node/0.0.1', uids)
+        self.assertIn('github.com/jumpscale/0-robot/vm/0.0.1', uids)
 
     def test_service_create(self):
         with self.assertRaises(TemplateNotFoundError, msg='TemplateNotFoundError should be raise\
                                                         if trying to create service from a non existing template'):
-            self.cl.services.create('github.com/jumpscale/zerorobot/notexits/0.0.1', 'foo')
+            self.cl.services.create('github.com/jumpscale/0-robot/notexits/0.0.1', 'foo')
 
         data = {'ip': '127.0.0.1'}
-        node = self.cl.services.create('github.com/jumpscale/zerorobot/node/0.0.1', 'node1', data)
+        node = self.cl.services.create('github.com/jumpscale/0-robot/node/0.0.1', 'node1', data)
         self.assertEqual(type(node), ServiceProxy, 'service type should be ServiceProxy')
         # ensure the services actually exists
         scol.get_by_name(node.name)

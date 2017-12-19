@@ -44,7 +44,7 @@ class TestZRobotClient(unittest.TestCase):
             robot = Robot()
             robot._data_dir = tempfile.mkdtemp(prefix="robot1")
             if with_tmpl:
-                robot.add_template_repo('http://github.com/jumpscale/zerorobot', directory='tests/fixtures/templates')
+                robot.add_template_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
 
             listen = "localhost:660%d" % int(id)
             addr = "http://%s" % listen
@@ -89,19 +89,19 @@ class TestZRobotClient(unittest.TestCase):
 
     def test_service_create(self):
         with self.assertRaises(TemplateNotFoundError, msg='trying to create a service from non exiting template should raise '):
-            self.api.services.create("github.com/jumpscale/zerorobot/notexists/0.0.1", 'node1')
+            self.api.services.create("github.com/jumpscale/0-robot/notexists/0.0.1", 'node1')
 
         # make sure we don't have any template loaded in the current process
         tcol._templates = {}
-        node1 = self.api.services.create("github.com/jumpscale/zerorobot/node/0.0.1", 'node1')
+        node1 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
         # since we don't have any template in current process, we force to use a another robot, so it's a remote service
         # that is created
         self.assertEqual(type(node1), ServiceProxy)
 
         # load template in current process
-        tcol.add_repo('http://github.com/jumpscale/zerorobot', directory='tests/fixtures/templates')
+        tcol.add_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
         # now that we have some templates loaded, it should create a local service
-        node2 = self.api.services.create("github.com/jumpscale/zerorobot/node/0.0.1", 'node2')
+        node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
         self.assertTrue(isinstance(node2, TemplateBase))
 
         # the api should get all services from both local and remote robots

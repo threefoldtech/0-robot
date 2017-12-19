@@ -19,12 +19,12 @@ class TestBlueprintParsing(unittest.TestCase):
 
         self.assertEqual(len(actions), 2, 'number of actions should be 2')
         for action in actions:
-            self.assertEqual(action['template'], 'github.com/jumpscale/zerorobot/node/0.0.1')
+            self.assertEqual(action['template'], 'github.com/jumpscale/0-robot/node/0.0.1')
             self.assertEqual(action['service'], 'node1')
             self.assertIn(action['action'], ['start', 'monitor'])
 
         self.assertEqual(len(services), 1)
-        self.assertEqual(services[0]['template'], 'github.com/jumpscale/zerorobot/node/0.0.1')
+        self.assertEqual(services[0]['template'], 'github.com/jumpscale/0-robot/node/0.0.1')
         self.assertEqual(services[0]['service'], 'node1')
         self.assertDictEqual(services[0]['data'], {'foo': 'bar'})
 
@@ -34,7 +34,7 @@ class TestBlueprintParsing(unittest.TestCase):
             blueprint.parse(content)
         err = cm.exception
         self.assertNotEqual(err.args[0], "need to specify action key in action block")
-        self.assertDictEqual(err.block, {'actions': {'template': 'github.com/jumpscale/zerorobot/node/0.0.1', 'service': 'node1'}})
+        self.assertDictEqual(err.block, {'actions': {'template': 'github.com/jumpscale/0-robot/node/0.0.1', 'service': 'node1'}})
 
     def test_bad_service_key(self):
         content = self.read_bp('bad_service_key.bp')

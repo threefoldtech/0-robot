@@ -33,8 +33,8 @@ class TestServiceProxy(unittest.TestCase):
     def setUp(self):
         self.cl = ZeroRobotClient('http://localhost:6600')
         self.robot = Robot()
-        self.robot.set_data_repo('http://github.com/jumpscale/zerorobot')
-        self.robot.add_template_repo('http://github.com/jumpscale/zerorobot', directory='tests/fixtures/templates')
+        self.robot.set_data_repo('http://github.com/jumpscale/0-robot')
+        self.robot.add_template_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
         if os.path.exists(self.robot._data_dir):
             shutil.rmtree(self.robot._data_dir)
         # make sure we don't have any service loaded
@@ -47,7 +47,7 @@ class TestServiceProxy(unittest.TestCase):
         shutil.rmtree(self.robot._data_dir)
 
     def _create_proxy(self):
-        template = 'github.com/jumpscale/zerorobot/node/0.0.1'
+        template = 'github.com/jumpscale/0-robot/node/0.0.1'
         name = 'node1'
         proxy = self.cl.services.create(template, name)
         service = scol.get_by_guid(proxy.guid)
