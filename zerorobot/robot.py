@@ -86,7 +86,6 @@ class Robot:
         # load services from data repo
         self._load_services()
 
-        self._sig_handler.append(gevent.signal(signal.SIGQUIT, self.stop))
         self._sig_handler.append(gevent.signal(signal.SIGINT, self.stop))
 
         # configure logger
@@ -128,7 +127,7 @@ class Robot:
         self._http = None
 
         # if we don't block, we can gracefully shutdown here
-        # case we're not in a sig handler
+        # cause we're not in a sig handler
         if self._block is False:
 
              # stop autosave greenlet
