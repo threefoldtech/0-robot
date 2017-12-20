@@ -1,24 +1,13 @@
 
-import click
 from gevent import monkey
-from zerorobot.robot import Robot
 
 # need to patch sockets to make requests async
-monkey.patch_all(
-    socket=True,
-    dns=True,
-    time=True,
-    select=True,
-    thread=True,
-    os=True,
-    ssl=True,
-    httplib=False,
-    subprocess=False,
-    sys=False,
-    aggressive=True,
-    Event=False,
-    builtins=True,
-    signal=True)
+monkey.patch_all()
+
+import click
+from js9 import j
+
+from zerorobot.robot import Robot
 
 
 @click.group()
@@ -31,11 +20,15 @@ def server():
 @click.option('--data-repo', '-D', required=True, help='URL of the git repository where to save the data of the zero robot')
 @click.option('--template-repo', '-T', multiple=True, help='list of template repository URL')
 @click.option('--robots', '-R', multiple=True, help='address of reachable robots')
-def start(listen, data_repo, template_repo, robots):
+@click.option('--debug', help='enable debug logging', is_flag=True, default=False)
+def start(listen, data_repo, template_repo, robots, debug):
     """
     start the 0-robot daemon.
     this will start the REST API on address and port specified by --listen and block
     """
+    if debug:
+        j.logger.set_level("DEBUG")
+
     robot = Robot()
 
     for url in template_repo:

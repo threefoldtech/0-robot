@@ -11,6 +11,8 @@ from urllib.parse import urlparse
 from js9 import j
 from zerorobot import service_collection as scol
 
+logger = j.logger.get('zerorobot')
+
 _templates = {}
 
 
@@ -79,6 +81,7 @@ def _load_template(url, template_dir):
 
     class_.template_dir = template_dir
     _templates[class_.template_uid] = class_
+    logger.debug("add template %s to collection" % class_.template_uid)
     return _templates[class_.template_uid]
 
 

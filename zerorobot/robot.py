@@ -21,6 +21,10 @@ from zerorobot.api.app import app
 from zerorobot.task import PRIORITY_SYSTEM, Task
 
 
+# create logger
+logger = j.logger.get('zerorobot')
+
+
 class Robot:
     """
     A robot is the main context where the templates and service lives.
@@ -89,9 +93,7 @@ class Robot:
         self._sig_handler.append(gevent.signal(signal.SIGINT, self.stop))
 
         # configure logger
-        app.logger.setLevel(log_level)
-        app.logger.addHandler(j.logger.handlers.consoleHandler)
-        app.logger.addHandler(j.logger.handlers.fileRotateHandler)
+        app.logger_name = logger.name
 
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)

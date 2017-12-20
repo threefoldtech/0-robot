@@ -3,6 +3,11 @@ this module is the only place where the service will be kept in memory.
 other services and class need to use this module method to create, access, list and search the services
 """
 
+from js9 import j
+
+
+logger = j.logger.get('zerorobot')
+
 _name_index = {}
 _guid_index = {}
 
@@ -17,6 +22,8 @@ def add(service):
         if service.guid in _name_index:
             raise ServiceConflictError("a service with guid=%s already exist" % service.guid)
         _guid_index[service.guid] = service
+
+    logger.debug("add service %s to collection" % service)
 
 
 def get_by_name(name):
@@ -41,6 +48,8 @@ def delete(service):
 
     if hasattr(service, 'guid') and service.guid in _guid_index:
         del _guid_index[service.guid]
+
+    logger.debug("delete service %s from collection" % service)
 
 
 class ServiceConflictError(Exception):

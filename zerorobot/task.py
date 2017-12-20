@@ -22,6 +22,9 @@ TASK_STATE_OK = "ok"
 TASK_STATE_ERROR = "error"
 
 
+logger = j.logger.get('zerorobot')
+
+
 class Task:
 
     def __init__(self, service, action_name, args, resp_q=None):
