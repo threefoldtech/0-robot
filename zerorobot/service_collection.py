@@ -2,9 +2,11 @@
 this module is the only place where the service will be kept in memory.
 other services and class need to use this module method to create, access, list and search the services
 """
+import os
 
 from js9 import j
 
+from zerorobot.template_collection import TemplateUID
 
 logger = j.logger.get('zerorobot')
 
@@ -52,5 +54,46 @@ def delete(service):
     logger.debug("delete service %s from collection" % service)
 
 
+def load(template, base_path):
+    """
+    load the service from it's file system serialized format
+
+    @param template: the template class to use to instantiate the service
+    @param base_path: path of the directory where
+                        to load the service state and data from
+    """
+    if not os.path.exists(base_path):
+        raise FileNotFoundError("Trying to load service from %s, but directory doesn't exists" % base_path)
+
+    name = os.path.basename(base_path)
+    service_info = j.data.serializer.yaml.load(os.path.join(base_path, 'service.yaml'))
+    template_uid = TemplateUID.parse(service_info['template'])
+    if template_uid != template.template_uid:
+        raise BadTemplateError("Trying to load service %s with template %s, while it requires %s"
+                               % (name, template.template_uid, service_info['template']))
+
+    if service_info['name'] != name:
+        raise BadTemplateError("Trying to load service from folder %s, but name of the service is %s"
+                               % (base_path, service_info['name']))
+
+    srv = template(service_info['name'], service_info['guid'])
+    if service_info['parent']:
+        srv.parent = get_by_guid(service_info['parent'])
+
+    srv.state.load(os.path.join(base_path, 'state.yaml'))
+    srv.data.load(os.path.join(base_path, 'data.yaml'))
+    srv.task_list.load(os.path.join(base_path, 'tasks.yaml'), srv)
+
+    add(srv)
+    return srv
+
+
 class ServiceConflictError(Exception):
+    pass
+
+
+class BadTemplateError(Exception):
+    """
+    Error raised when trying to load a service with a wrong template class
+    """
     pass

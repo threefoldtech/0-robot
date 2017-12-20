@@ -16,7 +16,6 @@ from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.task import PRIORITY_NORMAL, PRIORITY_SYSTEM, Task, TaskList
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
-from zerorobot.template_collection import TemplateUID
 
 
 class BadActionArgumentError(Exception):
@@ -30,13 +29,6 @@ class BadActionArgumentError(Exception):
 class ActionNotFoundError(Exception):
     """
     Error raised when trying to schedule an action that doesn't exist
-    """
-    pass
-
-
-class BadTemplateError(Exception):
-    """
-    Error raised when trying to load a service with a wrong template class
     """
     pass
 
@@ -104,38 +96,6 @@ class TemplateBase:
         # start the greenlets of this service
         self._gl_mgr = GreenletsMgr()
         self._gl_mgr.add('executor', gevent.Greenlet(self._run))
-
-    @classmethod
-    def load(cls, base_path):
-        """
-        load the service from it's file system serialized format
-
-        @param base_path: path of the directory where
-                          to load the service state and data from
-        """
-        if not os.path.exists(base_path):
-            raise FileNotFoundError("Trying to load service from %s, but directory doesn't exists" % base_path)
-
-        name = os.path.basename(base_path)
-        service_info = j.data.serializer.yaml.load(os.path.join(base_path, 'service.yaml'))
-        template_uid = TemplateUID.parse(service_info['template'])
-        if template_uid != cls.template_uid:
-            raise BadTemplateError("Trying to load service %s with template %s, while it requires %s"
-                                   % (name, cls.template_uid, service_info['template']))
-
-        if service_info['name'] != name:
-            raise BadTemplateError("Trying to load service from folder %s, but name of the service is %s"
-                                   % (base_path, service_info['name']))
-
-        srv = cls(service_info['name'], service_info['guid'])
-        if service_info['parent']:
-            srv.parent = scol.get_by_guid(service_info['parent'])
-
-        srv.state.load(os.path.join(base_path, 'state.yaml'))
-        srv.data.load(os.path.join(base_path, 'data.yaml'))
-        srv.task_list.load(os.path.join(base_path, 'tasks.yaml'), srv)
-
-        return srv
 
     def save(self, base_path):
         """

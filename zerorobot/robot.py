@@ -145,8 +145,7 @@ class Robot:
             service_info = j.data.serializer.yaml.load(os.path.join(srv_dir, 'service.yaml'))
             # TODO: template should be url+name
             tmplClass = tcol.get(service_info['template'])
-            srv = tmplClass.load(srv_dir)
-            scol.add(srv)
+            srv = scol.load(tmplClass, srv_dir)
 
     def _save_services(self):
         """

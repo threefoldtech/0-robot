@@ -4,10 +4,10 @@ import unittest
 
 from js9 import j
 from zerorobot import service_collection as scol
+from zerorobot.service_collection import BadTemplateError
 from zerorobot import template_collection as tcol
 from zerorobot.template.base import (ActionNotFoundError,
-                                     BadActionArgumentError, BadTemplateError,
-                                     TemplateBase)
+                                     BadActionArgumentError, TemplateBase)
 from zerorobot.template_collection import _load_template
 
 
@@ -59,7 +59,11 @@ class TestServiceTemplate(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             path = srv.save(tmpdir)
 
-            loaded = Node.load(path)
+            # unload service from memory
+            scol._guid_index = {}
+            scol._name_index = {}
+
+            loaded = scol.load(Node, path)
             self.assertEqual(srv.name, loaded.name, "name of the loaded service should be %s" % srv.name)
             self.assertEqual(srv.template_name, loaded.template_name, "template_name of the loaded service should be %s" % srv.template_name)
             self.assertEqual(srv.guid, loaded.guid, "guid of the loaded service should be %s" % srv.guid)
@@ -74,7 +78,7 @@ class TestServiceTemplate(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             path = srv.save(tmpdir)
             with self.assertRaises(FileNotFoundError):
-                Node.load('/tmp/zerorobot-test-not-exists')
+                scol.load(Node, '/tmp/zerorobot-test-not-exists')
 
     def test_service_load_wrong_name(self):
         Node = self.load_template('node')
@@ -85,7 +89,7 @@ class TestServiceTemplate(unittest.TestCase):
             new_path = os.path.join(os.path.dirname(path), 'other')
             os.rename(path, new_path)
             with self.assertRaises(BadTemplateError):
-                Node.load(new_path)
+                scol.load(Node, new_path)
 
     def test_service_load_wrong_template(self):
         Node = self.load_template('node')
@@ -96,7 +100,7 @@ class TestServiceTemplate(unittest.TestCase):
             path = srv.save(tmpdir)
             with self.assertRaises(BadTemplateError):
                 # Try to load with the wrong template class
-                Vm.load(path)
+                scol.load(Vm, path)
 
     def test_service_add_task(self):
         Node = self.load_template('node')
