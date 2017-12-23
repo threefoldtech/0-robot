@@ -7,6 +7,7 @@ It is the class every template should inherits from.
 import inspect
 import logging
 import os
+import shutil
 import time
 from logging.handlers import RotatingFileHandler
 from uuid import uuid4
@@ -90,6 +91,7 @@ class TemplateBase:
         self.guid = guid or str(uuid4())
         self.name = name
         self.parent = None
+        self._datadir = None
 
         self.api = ZeroRobotAPI()
 
@@ -118,6 +120,7 @@ class TemplateBase:
             parent = parent.parent
 
         path = os.path.join(path, self.name)
+        self._datadir = path
 
         os.makedirs(path, exist_ok=True)
 
@@ -207,6 +210,18 @@ class TemplateBase:
         self._gl_mgr.add("recurring_" + action, gl)
 
     def delete(self):
+        # stop all recurring action
+        self._gl_mgr.stop_all()
+
+        # close ressources of logging handlers
+        for h in self.logger.handlers:
+            if hasattr(h, 'close'):
+                h.close()
+
+        # remove data from disk
+        if self._datadir and os.path.exists(self._datadir):
+            shutil.rmtree(self._datadir)
+        # remove from memory
         scol.delete(self)
 
 

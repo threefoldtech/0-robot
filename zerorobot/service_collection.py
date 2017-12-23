@@ -83,7 +83,7 @@ def load(template, base_path):
     srv.state.load(os.path.join(base_path, 'state.yaml'))
     srv.data.load(os.path.join(base_path, 'data.yaml'))
     srv.task_list.load(os.path.join(base_path, 'tasks.yaml'), srv)
-
+    srv._datadir = base_path
     add(srv)
     return srv
 

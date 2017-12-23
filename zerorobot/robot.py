@@ -93,7 +93,8 @@ class Robot:
         self._sig_handler.append(gevent.signal(signal.SIGINT, self.stop))
 
         # configure logger
-        app.logger_name = logger.name
+        app._logger = logger
+        # app.logger_name = logger.name
 
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)

@@ -97,7 +97,7 @@ def DeleteService(service_guid):
 
     try:
         service = scol.get_by_guid(service_guid)
-        scol.delete(service)
+        service.delete()
     except KeyError:
         pass
 

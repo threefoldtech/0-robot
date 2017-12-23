@@ -39,7 +39,7 @@ class TestServiceTemplate(unittest.TestCase):
         self.assertIsNotNone(srv.task_list, "service task_list should not be None")
         self.assertIsNotNone(srv._gl_mgr, "service greenlet manager should not be None")
 
-    def test_service_save(self):
+    def test_service_save_delete(self):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -52,6 +52,11 @@ class TestServiceTemplate(unittest.TestCase):
             service_info = j.data.serializer.yaml.load(os.path.join(srv_dir, 'service.yaml'))
             for k in ['template', 'guid', 'name', 'version']:
                 self.assertTrue(k in service_info, "%s should be present in service.yaml" % k)
+
+            srv.delete()
+            self.assertFalse(os.path.exists(srv_dir), "directory of the saved service not should exists anymore")
+            with self.assertRaises(KeyError, message='service should not be found in memory anymore'):
+                scol.get_by_guid(srv.guid)
 
     def test_service_load(self):
         Node = self.load_template('node')
