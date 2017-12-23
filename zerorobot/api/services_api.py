@@ -139,7 +139,7 @@ def getTaskList(service_guid):
     if all_task is not None:
         all_task = j.data.types.bool.fromString(all_task)
 
-    tasks = [task_view(t) for t in service.task_list.list_tasks(all=all_task)]
+    tasks = [task_view(t, service) for t in service.task_list.list_tasks(all=all_task)]
 
     return JSON.dumps(tasks), 200, {"Content-type": 'application/json'}
 
@@ -173,7 +173,7 @@ def AddTaskToList(service_guid):
         return JSON.dumps({'code': 400, 'message': "the argument passed in the requests, doesn't match the signature of the action"}), \
             400, {"Content-type": 'application/json'}
 
-    return JSON.dumps(task_view(task)), 201, {"Content-type": 'application/json'}
+    return JSON.dumps(task_view(task, service)), 201, {"Content-type": 'application/json'}
 
 
 @services_api.route('/services/<service_guid>/task_list/<task_guid>', methods=['GET'])
@@ -195,7 +195,7 @@ def GetTask(task_guid, service_guid):
         return JSON.dumps({'code': 404, 'message': "task with guid '%s' not found" % task_guid}), \
             404, {"Content-type": 'application/json'}
 
-    return JSON.dumps(task_view(task)), 200, {"Content-type": 'application/json'}
+    return JSON.dumps(task_view(task, service)), 200, {"Content-type": 'application/json'}
 
 
 def service_view(service):
@@ -222,11 +222,11 @@ def state_view(state):
     return out
 
 
-def task_view(task):
+def task_view(task, service):
     return {
-        'template_name': task.service.template_name,
-        'service_name': task.service.name,
-        'service_guid': task.service.guid,
+        'template_name': service.template_name,
+        'service_name': service.name,
+        'service_guid': service.guid,
         'action_name': task.action_name,
         'state': task.state,
         'guid': task.guid,

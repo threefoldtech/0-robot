@@ -8,8 +8,22 @@ class FakeService:
     def __init__(self, name):
         self.name = name
 
+    def foo(self):
+        pass
+
+    def bar(self):
+        pass
+
 
 class TestTaskList(unittest.TestCase):
+
+    def _get_tasks(self, nr):
+        tasks = []
+        for i in range(nr):
+            s = FakeService("s%d" % i)
+            t = Task(s.foo, {})
+            tasks.append(t)
+        return tasks
 
     def test_create_list(self):
         tl = TaskList()
@@ -23,7 +37,8 @@ class TestTaskList(unittest.TestCase):
             tl.put('string')
 
         self.assertTrue(tl.empty())
-        t = Task(FakeService("s1"), "foo", {})
+        srv = FakeService('s1')
+        t = Task(srv.foo, {})
         tl.put(t)
         self.assertFalse(tl.empty())
         t2 = tl.get()
@@ -33,29 +48,23 @@ class TestTaskList(unittest.TestCase):
     def test_get(self):
         tl = TaskList()
 
-        t1 = Task(FakeService("s1"), "foo", {})
-        t2 = Task(FakeService("s2"), "bar", {})
-        t3 = Task(FakeService("s3"), "bar", {})
+        tasks = self._get_tasks(3)
+        for t in tasks:
+            tl.put(t)
 
-        tl.put(t1)
-        tl.put(t2)
-        tl.put(t3)
-
-        tasks = []
+        returned_tasks = []
         while not tl.empty():
-            tasks.append(tl.get())
-        self.assertEqual(tasks, [t1, t2, t3])
+            returned_tasks.append(tl.get())
+        self.assertEqual(returned_tasks, tasks)
 
     def test_get_by_guid(self):
         tl = TaskList()
 
-        t1 = Task(FakeService("s1"), "foo", {})
-        t2 = Task(FakeService("s2"), "bar", {})
-        t3 = Task(FakeService("s3"), "bar", {})
+        tasks = self._get_tasks(3)
+        for t in tasks:
+            tl.put(t)
 
-        tl.put(t1)
-        tl.put(t2)
-        tl.put(t3)
+        t1 = tasks[0]
 
         task = tl.get_task_by_guid(t1.guid)
         self.assertEqual(task, t1)
@@ -64,27 +73,31 @@ class TestTaskList(unittest.TestCase):
 
     def test_list(self):
         tl = TaskList()
-        t1 = Task(FakeService("s1"), "foo", {})
-        t2 = Task(FakeService("s2"), "bar", {})
-        tl.put(t1)
-        tl.put(t2)
 
-        tasks = tl.list_tasks()
-        self.assertEqual(tasks, [t1, t2], "listing of tasks should return all enqueued tasks")
+        tasks = self._get_tasks(2)
+        for t in tasks:
+            tl.put(t)
+
+        returned_tasks = tl.list_tasks()
+        self.assertEqual(returned_tasks, tasks, "listing of tasks should return all enqueued tasks")
 
         _ = tl.get()
-        tasks = tl.list_tasks()
-        self.assertEqual(tasks, [t2], "listing of tasks should return all enqueued tasks")
+        returned_tasks = tl.list_tasks()
+        self.assertEqual(returned_tasks, tasks[1:], "listing of tasks should return all enqueued tasks")
 
         all_tasks = tl.list_tasks(all=True)
-        self.assertEqual(all_tasks, [t2, t1], "listing of all tasks should return all enqueued tasks and all done tasks")
+        self.assertEqual(all_tasks, list(reversed(tasks)), "listing of all tasks should return all enqueued tasks and all done tasks")
 
     def test_priority(self):
         tl = TaskList()
 
-        t1 = Task(FakeService("s1"), "foo", {})
-        t2 = Task(FakeService("s2"), "bar", {})
-        t3 = Task(FakeService("s3"), "foo", {})
+        s1 = FakeService("s1")
+        s2 = FakeService("s2")
+        s3 = FakeService("s3")
+
+        t1 = Task(s1.foo, {})
+        t2 = Task(s1.foo, {})
+        t3 = Task(s1.foo, {})
 
         tl.put(t1, priority=PRIORITY_NORMAL)
         tl.put(t2, priority=PRIORITY_NORMAL)

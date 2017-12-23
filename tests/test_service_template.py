@@ -106,7 +106,6 @@ class TestServiceTemplate(unittest.TestCase):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')
         task = srv.schedule_action('start')
-        self.assertEqual(task.service, srv, "service in the task should be the same")
         self.assertEqual(task.action_name, 'start', "action name should be start")
         self.assertIsNotNone(task.guid, "task guid should not be None")
 

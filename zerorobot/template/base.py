@@ -176,7 +176,7 @@ class TemplateBase:
             if len(diff) > 0:
                 raise BadActionArgumentError('arguments "%s" are not present in the signature of the action' % ','.join(args_keys))
 
-        task = Task(self, action, args, resp_q)
+        task = Task(method, args, resp_q)
         self.task_list.put(task, priority=priority)
         return task
 

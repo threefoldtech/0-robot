@@ -5,14 +5,12 @@ This class is used to provide a local proxy to a remote service for a ZeroRobot.
 When a service or robot ask the creation of a service to another robot, a proxy class is created locally
 so the robot see the service as if it as local to him while in reality the service is managed by another robot.
 """
-import time
 
-import gevent
 from requests.exceptions import HTTPError
 
 from js9 import j
-from zerorobot.task import (Task, TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
-                            TASK_STATE_RUNNING)
+from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
+                            TASK_STATE_RUNNING, Task)
 from zerorobot.template.state import ServiceState
 
 
@@ -126,7 +124,9 @@ class TaskProxy(Task):
     """
 
     def __init__(self, guid, service, action_name, args, created):
-        super().__init__(service=service, action_name=action_name, args=args)
+        super().__init__(func=None, args=args)
+        self.action_name = action_name
+        self.service = service
         self.guid = guid
         self._created = created
 

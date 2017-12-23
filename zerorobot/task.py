@@ -27,7 +27,7 @@ logger = j.logger.get('zerorobot')
 
 class Task:
 
-    def __init__(self, service, action_name, args, resp_q=None):
+    def __init__(self, func, args, resp_q=None):
         """
         @param service: is the service object that own the action to be executed
         @param action_name: is the method name of the action that this task need to execute
@@ -35,8 +35,8 @@ class Task:
         @param resp_q: is the response queue on which the result of the action need to be put
         """
         self.guid = j.data.idgenerator.generateGUID()
-        self.service = service
-        self.action_name = action_name
+        self.func = func
+        self.action_name = func.__name__ if func else None
         self._resp_q = resp_q
         self._args = args
         self._created = time.time()
@@ -59,9 +59,9 @@ class Task:
 
         try:
             if self._args is not None:
-                result = eval('self.service.%s(**self._args)' % self.action_name)
+                result = self.func(**self._args)
             else:
-                result = eval('self.service.%s()' % self.action_name)
+                result = self.func()
             self.state = TASK_STATE_OK
         except Exception as err:
             self.state = TASK_STATE_ERROR
@@ -217,7 +217,8 @@ class TaskList:
         @param service: the service object to which this task list belongs
         """
         def instantiate_task(task):
-            t = Task(service, task['action_name'], task['args'], resp_q=None)
+            func = getattr(service, task['action_name'])
+            t = Task(func, task['args'], resp_q=None)
             if task['state'] in [TASK_STATE_RUNNING, TASK_STATE_NEW]:
                 t.state = TASK_STATE_NEW
             else:
