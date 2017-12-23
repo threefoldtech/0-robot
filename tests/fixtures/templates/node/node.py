@@ -1,4 +1,5 @@
 from zerorobot.template.base import TemplateBase
+from zerorobot.template.decorator import profile
 
 
 class Node(TemplateBase):
@@ -9,6 +10,7 @@ class Node(TemplateBase):
     def __init__(self, name, guid=None):
         super().__init__(name=name, guid=guid)
 
+    @profile()
     def start(self):
         print('started')
 

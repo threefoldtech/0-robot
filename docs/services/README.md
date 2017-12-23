@@ -115,6 +115,25 @@ Arguments of the decorator:
 - backoff: Backoff multiplier (e.g. value of 2 will double the delay each retry). 
 - logger: Logger to use. If None, print.
 
+```python
+from zerorobot.template.decorator import retry
+
+class Node(TemplateBase):
+
+    version = '0.0.1'
+    template_name = "node"
+
+    def __init__(self, name, guid=None):
+        super().__init__(name=name, guid=guid)
+
+    # retry the method when the exception is RuntimeError or KeyError
+    # it will wait 3, 6, 12, 16 seconds before raising the exception
+    def retry((RuntimeError, KeyError), tries=4, delay=3, backoff=2, logger=None):
+    def foo(self):
+        # some code
+
+```
+
 
 #### Timeout decorator
 This decorator allow to set a maximum execution time for an action. It will raise a `TimeoutError` if the wrapped action takes more time then the timeout value to execute.
@@ -122,6 +141,25 @@ This decorator allow to set a maximum execution time for an action. It will rais
 Arguments of the decorator:
 - seconds: timeout time in seconds 
 - error_message: message to pass to the TimeoutError exception raised
+
+```python
+from zerorobot.template.decorator import timeout
+
+class Node(TemplateBase):
+
+    version = '0.0.1'
+    template_name = "node"
+
+    def __init__(self, name, guid=None):
+        super().__init__(name=name, guid=guid)
+
+    # set the timeout of the method to 60 second.
+    # and set a custom error message
+    @timeout(60, error_message='Function call timed out'):
+    def foo(self):
+        # some code
+
+```
 
 ### Recurring actions
 It is also possible to have some action be recurring. Which means these action are going to be scheduled every X seconds.
@@ -151,6 +189,34 @@ class Node(TemplateBase):
 
     def foo(self):
         # code of the recurring action goes here.
+        # ...
+
+```
+
+### Profile decoration
+During the development of your services, you might want to profile some action 
+to analyse how they performs. This decorator allow you gather profiling information about a method.  
+It uses cProfile under the hood. By default the result of the profile are stored on your filesystem at `/tmp/zrobot_profile/{service_guid}/{function_name}-{time}.prof`, 
+but you can overwrite the destination with the `output` parameter of the decorator
+
+Example:
+```python
+class Node(TemplateBase):
+
+    version = '0.0.1'
+    template_name = "node"
+
+    def __init__(self, name, guid=None):
+        super().__init__(name=name, guid=guid)
+        # using the reference to the method
+        self.recurring_action(self.foo, 10)
+        # using the name of the method
+        self.recurring_action("foo", 10)
+
+    # enable profiling for method foo and store result in /tmp/profile1
+    @profile(output='/tmp/profile1')
+    def foo(self):
+        # some performance sensitive code
         # ...
 
 ```

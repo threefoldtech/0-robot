@@ -1,8 +1,11 @@
 import logging
+import os
 import time
 import unittest
 
-from zerorobot.template.decorator import retry, timeout
+from js9 import j
+from zerorobot.template.decorator import profile, retry, timeout
+from zerorobot.template_collection import _load_template
 
 
 class RetryableError(Exception):
@@ -182,3 +185,35 @@ class TestRetryTimout(unittest.TestCase):
         r = fails_once()
         self.assertEqual(r, 'success')
         self.assertEqual(self.counter, 2)
+
+
+class TestProfile(unittest.TestCase):
+
+    def _load_template(self, name):
+        """
+        name of the template to load from the
+        fixtures/templates folder
+        """
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        tmpl = _load_template("https://github.com/jumpscale/0-robot",
+                              os.path.join(dir_path, 'fixtures', 'templates', name))
+        return tmpl
+
+    def test_profile(self):
+        Node = self._load_template('node')
+        srv = Node('node1')
+
+        srv.start()
+
+        path = os.path.join(j.dirs.TMPDIR, 'zrobot_profile', srv.guid)
+        found = j.sal.fs.listFilesInDir(path, recursive=False, filter="*.prof")
+        self.assertEqual(len(found), 1, "should have found a profile in %s" % path)
+
+    def test_only_one_service_method(self):
+
+        @profile()
+        def foo():
+            pass
+
+        with self.assertRaises(TypeError, message="should raise when applied on not service method"):
+            foo()
