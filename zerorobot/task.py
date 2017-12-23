@@ -12,7 +12,6 @@ import time
 import gevent
 from gevent.lock import Semaphore
 from gevent.queue import PriorityQueue
-
 from js9 import j
 
 # Task state constant
@@ -109,6 +108,7 @@ class Task:
 
     def __lt__(self, other):
         return self._created < other._created
+
 
 # has the highest priority, usually used by the robot when it needs a service to execute something
 PRIORITY_SYSTEM = 0

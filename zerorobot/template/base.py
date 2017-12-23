@@ -5,8 +5,10 @@ It is the class every template should inherits from.
 
 
 import inspect
+import logging
 import os
 import time
+from logging.handlers import RotatingFileHandler
 from uuid import uuid4
 
 import gevent
@@ -16,6 +18,8 @@ from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.task import PRIORITY_NORMAL, PRIORITY_SYSTEM, Task, TaskList
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
+
+logger = j.logger.get('zerorobot')
 
 
 class BadActionArgumentError(Exception):
@@ -96,6 +100,8 @@ class TemplateBase:
         # start the greenlets of this service
         self._gl_mgr = GreenletsMgr()
         self._gl_mgr.add('executor', gevent.Greenlet(self._run))
+
+        self.logger = _configure_logger(self.guid)
 
     def save(self, base_path):
         """
@@ -227,3 +233,28 @@ def _recurring_action(service, action, period):
             elapsed = int(time.time()) - task.created
         except gevent.GreenletExit:
             break
+
+
+_LOGGER_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)d - %(levelname)s - %(message)s'
+
+
+def _configure_logger(guid):
+    log_dir = os.path.join(j.dirs.LOGDIR, 'zrobot')
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    l = logging.getLogger('service-%s' % guid)
+    l.parent.handlers = []
+    rfh = RotatingFileHandler(os.path.join(log_dir, guid),
+                              mode='a',
+                              maxBytes=5 * 1024 * 1024,  # 5MiB
+                              backupCount=10,  # 10 * 5Mib = 50Mib of logs max
+                              encoding=None,
+                              delay=True)
+    rfh.setLevel(logging.DEBUG)
+    rfh.setFormatter(logging.Formatter(_LOGGER_FORMAT))
+    l.addHandler(rfh)
+    for h in logger.parent.handlers:
+        l.addHandler(h)
+    l.setLevel(logging.DEBUG)
+    return l
