@@ -1,5 +1,5 @@
 # 0-Robot
-[![Build Status](https://travis-ci.org/Jumpscale/zerorobot.svg?branch=master)](https://travis-ci.org/Jumpscale/zerorobot)
+[![Build Status](https://travis-ci.org/Jumpscale/0-robot.svg?branch=master)](https://travis-ci.org/Jumpscale/0-robot)
 [![codecov](https://codecov.io/gh/Jumpscale/zerorobot/branch/master/graph/badge.svg)](https://codecov.io/gh/Jumpscale/zerorobot)
 
 The goal of this project is to create a distributed live cycle management system.
