@@ -5,7 +5,7 @@ sudo chown $USER:$USER /opt/
 sudo chown -R $USER:$USER /usr/local
 
 # settings
-export BRANCH="master"
+export BRANCH="development"
 
 mkdir -p /opt/code/github/jumpscale
 pushd /opt/code/github/jumpscale
