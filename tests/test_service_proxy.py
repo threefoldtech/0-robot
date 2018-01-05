@@ -4,9 +4,10 @@ import unittest
 import uuid
 
 from gevent import monkey
+from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot.dsl.ZeroRobotClient import ZeroRobotClient
+from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
 
@@ -31,7 +32,9 @@ monkey.patch_all(
 class TestServiceProxy(unittest.TestCase):
 
     def setUp(self):
-        self.cl = ZeroRobotClient('http://localhost:6600')
+        # make sure this test instance client exists
+        j.clients.zrobot.get('test', {'url': 'http://localhost:6600'})
+        self.cl = ZeroRobotManager('test')
         self.robot = Robot()
         self.robot.set_data_repo('http://github.com/jumpscale/0-robot')
         self.robot.add_template_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
@@ -40,11 +43,12 @@ class TestServiceProxy(unittest.TestCase):
         # make sure we don't have any service loaded
         scol._guid_index = {}
         scol._name_index = {}
-        self.robot.start(block=False)
+        self.robot.start(listen='127.0.0.1:6600', block=False)
 
     def tearDown(self):
         self.robot.stop()
         shutil.rmtree(self.robot._data_dir)
+        j.clients.zrobot.delete('test')
 
     def _create_proxy(self):
         template = 'github.com/jumpscale/0-robot/node/0.0.1'

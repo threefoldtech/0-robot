@@ -7,7 +7,7 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 
 from requests.exceptions import HTTPError
 
-from zerorobot.client import Client
+from js9 import j
 from zerorobot.service_proxy import ServiceProxy
 from zerorobot.service_collection import ServiceConflictError
 
@@ -126,9 +126,9 @@ class TemplatesMgr:
         return {t.uid: t for t in resp.data}
 
 
-class ZeroRobotClient:
+class ZeroRobotManager:
 
-    def __init__(self, base_url):
-        self._client = Client(base_url)
+    def __init__(self, instance='main'):
+        self._client = j.clients.zrobot.get(instance)
         self.services = ServicesMgr(self)
         self.templates = TemplatesMgr(self)

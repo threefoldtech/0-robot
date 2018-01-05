@@ -34,7 +34,6 @@ e.g: `0.0.0.0:8080`
 - `--data-repo`: The URL of a git repository where the data of your services will be stored. When starting, the robot also loads all the services present in this repository.
 This parameter is required for the robot to starts.
 - `--temlate-repo` The URL of a repository that contains templates. You can give multiple template repository by give multiple time the parameter.
-- `--robots` The URL of any other robots that needs to be reachable from this robot. You can give multiple robot URL by give multiple time the parameter.
 
 ### example:
 ```bash

@@ -2,7 +2,7 @@ import sys
 
 import click
 from zerorobot.cli import utils
-from zerorobot.dsl.ZeroRobotClient import ZeroRobotClient
+from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 
 
 def sorted_by_uid(templates):

@@ -33,11 +33,11 @@ monkey.patch_all(
     signal=True)
 
 
-class TestZRobotClient(unittest.TestCase):
+class TestZRobotAPI(unittest.TestCase):
 
-    def _register_robot(self, addr):
-        cl = j.clients.zrobot.get(addr)
-        j.clients.zrobot.set(addr, cl)
+    def __init__(self, methodName='runTest'):
+        super().__init__(methodName=methodName)
+        self.api = None
 
     def _start_robot(self, id, with_tmpl=False):
         def new(id, with_tmpl):
@@ -50,19 +50,27 @@ class TestZRobotClient(unittest.TestCase):
             addr = "http://%s" % listen
             robot.start(listen=listen)
             # return robot
+
+        addr = "http://localhost:660%d" % int(id)
         p = Process(target=new, args=(id, with_tmpl))
-        self._register_robot(addr="http://localhost:660%d" % int(id))
         p.start()
-        return p
+        return p, addr
 
     def setUp(self):
+        self.api = ZeroRobotAPI()
         self.ps = []
-        self.ps.append(self._start_robot(1, with_tmpl=True))
-        self.ps.append(self._start_robot(2, with_tmpl=False))
+        self.instances = []
+
+        # start 2 robots
+        for i in range(2):
+            p, addr = self._start_robot(i, with_tmpl=True)
+            self.ps.append(p)
+            instance = j.data.hash.md5_string(addr)
+            self.api._config_mgr.set(instance, addr)
+            self.instances.append(instance)
 
         # give time to the robot to starts TODO: find better then sleep
         time.sleep(1)
-        self.api = ZeroRobotAPI()
 
         # make sure we don't have any service loaded
         scol._guid_index = {}
@@ -74,6 +82,9 @@ class TestZRobotClient(unittest.TestCase):
         for p in self.ps:
             p.terminate()
             p.join()
+
+        for instance in self.instances:
+            self.api._config_mgr.delete(instance)
         # TODO: cleanup data_dir of each robots
 
         # make sure we don't have any service loaded
@@ -83,8 +94,8 @@ class TestZRobotClient(unittest.TestCase):
         tcol._templates = {}
 
     def test_robots_discovery(self):
-        self.assertEqual(len(self.api.robots), 2, "should have discovered the 2 robots")
-        for addr in ("http://localhost:6601", "http://localhost:6602"):
+        self.assertGreaterEqual(len(self.api.robots), 2, "should have discovered at least the 2 robots that are running for the test")
+        for addr in self.instances:
             self.assertIn(addr, self.api.robots.keys())
 
     def test_service_create(self):

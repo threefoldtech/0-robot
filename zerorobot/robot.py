@@ -7,19 +7,16 @@ It is the class responsible to start and managed the robot as well as the REST A
 import logging
 import os
 import signal
-import tempfile
 
 import gevent
 from gevent import GreenletExit
 from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
 from js9 import j
-from JumpScale9.core.State import ClientConfig
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.api.app import app
-from zerorobot.task import PRIORITY_SYSTEM, Task
-
+from zerorobot.task import PRIORITY_SYSTEM
 
 # create logger
 logger = j.logger.get('zerorobot')
@@ -64,15 +61,6 @@ class Robot:
 
     def add_template_repo(self, url, branch='master', directory='templates'):
         tcol.add_repo(url=url, branch=branch, directory=directory)
-
-    def add_remote_robot(self, addr):
-        """
-        configure a remote robot that should be know by this robot.abs
-        :param addr: HTTP URL of the other Robot API
-        :type addr: string
-        """
-        cl = j.clients.zrobot.get(addr)
-        j.clients.zrobot.set(addr, cl)
 
     def start(self, listen=":6600", log_level=logging.DEBUG, block=True):
         """

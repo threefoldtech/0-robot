@@ -3,7 +3,7 @@ import sys
 import click
 from zerorobot.cli import utils
 from zerorobot.cli.task import task
-from zerorobot.dsl.ZeroRobotClient import ZeroRobotClient
+from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 from zerorobot.service_collection import ServiceConflictError
 
 

@@ -5,9 +5,10 @@ It provie ways to create and list services from a group of ZeroRobots in a unifi
 """
 
 from js9 import j
+
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot.dsl.ZeroRobotClient import ZeroRobotClient
+from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 
 
 class TemplateNotFoundError(Exception):
@@ -26,8 +27,8 @@ class ServicesMgr:
     @property
     def names(self):
         """
-        Return a dictionnary that contains all the service present on
-        the ZeroRobot
+        Return a dictionnary that contains all the service present on all
+        the accessible ZeroRobots
 
         key is the name of the service
         value is a Service or ServiceProxy object
@@ -40,8 +41,8 @@ class ServicesMgr:
     @property
     def guids(self):
         """
-        Return a dictionnary that contains all the service present on
-        the ZeroRobot
+        Return a dictionnary that contains all the service present on all
+        the accessible ZeroRobot
 
         key is the guid of the service
         value is a Service or ServiceProxy object
@@ -85,23 +86,21 @@ class ZeroRobotAPI:
     # TODO: find better name
 
     def __init__(self):
-        self._cache = {}
+        self._config_mgr = ConfigMgr()
         self.services = ServicesMgr(self)
 
     @property
     def robots(self):
         """
-        list all the ZeroRobot client loaded in memory
+        list all the ZeroRobot accessible
         return a dictionary with
-        key = base_url of the API of the robot
+        key = url of the API of the robot
         value: ZeroRobotClient object
         """
-        for cfg in j.core.state.clientConfigList('zerorobot'):
-            base_url = cfg.data['base_url']
-            if base_url not in self._cache:
-                cl = self._get(cfg.data['base_url'])
-                self._cache[cfg.data['base_url']] = cl
-        return self._cache
+        robots = {}
+        for instance in self._config_mgr.list():
+            robots[instance] = ZeroRobotManager(instance)
+        return robots
 
     def get_robot(self, template_uid):
         """
@@ -115,12 +114,43 @@ class ZeroRobotAPI:
                 return robot
         raise KeyError("no robot that managed %s found" % template_uid)
 
-    def _get(self, base_url):
+
+class ConfigMgr():
+    """
+    Small class that abstract configmanager
+    """
+
+    location = 'j.clients.zrobot'
+
+    def __init__(self):
+        j.tools.configmanager.interactive = False
+
+    def list(self):
         """
-        Get a ZeroRobot client for base_url.
-        if it exists a client for this base_url loaded in memory, return it.
-        otherwise, create a new client, put it in the cache and then return it
+        list all the available zerorobot client configured
+
+        @return: a list of instance name
         """
-        if base_url not in self._cache:
-            self._cache[base_url] = ZeroRobotClient(base_url)
-        return self._cache[base_url]
+        return j.tools.configmanager.list(self.location)
+
+    def set(self, instance, base_url):
+        """
+        create a new config
+
+        @param instance: instance name
+        @param base_url: base_url of the client
+        """
+        config = {'url': base_url}
+        cfg = j.tools.configmanager.js9_obj_get(self.location, instance, data=config).config
+        # make sure it exists on disk
+        cfg.save()
+        return cfg
+
+    def delete(self, instance):
+        """
+        deletes a config
+        @param instance: instance name
+        """
+        if instance not in self.list():
+            return
+        j.clients.zrobot.delete(instance)

@@ -6,7 +6,7 @@ import uuid
 
 from gevent import monkey
 from zerorobot import service_collection as scol
-from zerorobot.dsl.ZeroRobotClient import ZeroRobotClient, TemplateNotFoundError
+from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager, TemplateNotFoundError
 from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
 
@@ -27,11 +27,14 @@ monkey.patch_all(
     builtins=True,
     signal=True)
 
+from js9 import j
+
 
 class TestZRobotClient(unittest.TestCase):
 
     def setUp(self):
-        self.cl = ZeroRobotClient('http://localhost:6600')
+        j.clients.zrobot.get('test', {'url': 'http://localhost:6600'})
+        self.cl = ZeroRobotManager('test')
         self.robot = Robot()
         self.robot.set_data_repo('http://github.com/jumpscale/0-robot')
         self.robot.add_template_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
@@ -40,7 +43,7 @@ class TestZRobotClient(unittest.TestCase):
         # make sure we don't have any service loaded
         scol._guid_index = {}
         scol._name_index = {}
-        self.robot.start(block=False)
+        self.robot.start(listen='127.0.0.1:6600', block=False)
 
     def tearDown(self):
         self.robot.stop()
@@ -48,6 +51,7 @@ class TestZRobotClient(unittest.TestCase):
         # make sure we don't have any service loaded
         scol._guid_index = {}
         scol._name_index = {}
+        j.clients.zrobot.delete('test')
 
     def test_list_templates(self):
         uids = self.cl.templates.uids
