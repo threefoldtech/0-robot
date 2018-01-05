@@ -11,6 +11,7 @@ install:
   - ./utils/scripts/jumpscale_install.sh
 
 script:
+  - ./tests/prepare_env.sh
   - make test
 
 after_success:
