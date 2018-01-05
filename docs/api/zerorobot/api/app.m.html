@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.dsl API documentation</title>
-    <meta name="description" content="This package contains class that present a hight level API that are meant to be use by end-user and ..." />
+    <title>zerorobot.api.app API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1040,15 +1040,25 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.api.app.app">app</a></li>
+    <li class="mono"><a href="#zerorobot.api.app.dir_path">dir_path</a></li>
+  </ul>
 
-
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></li>
-        <li class="mono"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></li>
-      </ul>
     </li>
+
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.api.app.home">home</a></li>
+    <li class="mono"><a href="#zerorobot.api.app.send_js">send_js</a></li>
+  </ul>
+
+    </li>
+
+
     </ul>
   </div>
 
@@ -1060,14 +1070,39 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.dsl</span> module</h1>
-  <p>This package contains class that present a hight level API that are meant to be use by end-user and service developer</p>
+  <h1 class="title"><span class="name">zerorobot.api.app</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This package contains class that present a hight level API that are meant to be use by end-user and service developer</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.app', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.api.app" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">send_file</span><span class="p">,</span> <span class="n">send_from_directory</span>
+
+<span class="kn">from</span> <span class="nn">.blueprints_api</span> <span class="kn">import</span> <span class="n">blueprints_api</span>
+<span class="kn">from</span> <span class="nn">.services_api</span> <span class="kn">import</span> <span class="n">services_api</span>
+<span class="kn">from</span> <span class="nn">.templates_api</span> <span class="kn">import</span> <span class="n">templates_api</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">blueprints_api</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">services_api</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">templates_api</span><span class="p">)</span>
+
+<span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/apidocs/&lt;path:path&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">send_js</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">send_from_directory</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/apidocs&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">home</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">send_file</span><span class="p">(</span><span class="s1">&#39;index.html&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1075,27 +1110,71 @@ table {
   </header>
 
   <section id="section-items">
-
-
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+    <h2 class="section-title" id="header-variables">Module variables</h2>
       <div class="item">
-      <p class="name"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></p>
+      <p id="zerorobot.api.app.app" class="name">var <span class="ident">app</span></p>
       
   
-    <div class="desc"><p>This module expose the high level API that is meant to be used by service developer in the template actions.</p>
-<p>It provie ways to create and list services from a group of ZeroRobots in a unified way.</p></div>
+  <div class="source_cont">
+</div>
 
       </div>
       <div class="item">
-      <p class="name"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></p>
+      <p id="zerorobot.api.app.dir_path" class="name">var <span class="ident">dir_path</span></p>
       
   
-    <div class="desc"><p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
-<p>Jumpscale provie a factory that return a instance of the class defined in this module
-We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p></div>
+  <div class="source_cont">
+</div>
 
       </div>
+
+    <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.api.app.home">
+    <p>def <span class="ident">home</span>(</p><p>)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.app.home', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.api.app.home" class="source">
+    <div class="codehilite"><pre><span></span><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">home</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">send_file</span><span class="p">(</span><span class="s1">&#39;index.html&#39;</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.api.app.send_js">
+    <p>def <span class="ident">send_js</span>(</p><p>path)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.app.send_js', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.api.app.send_js" class="source">
+    <div class="codehilite"><pre><span></span><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/apidocs/&lt;path:path&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">send_js</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">send_from_directory</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/apidocs&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+
+
   </section>
 
     </article>

@@ -1044,6 +1044,7 @@ table {
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
+    <li class="mono"><a href="#zerorobot.template.decorator.profile">profile</a></li>
     <li class="mono"><a href="#zerorobot.template.decorator.retry">retry</a></li>
     <li class="mono"><a href="#zerorobot.template.decorator.timeout">timeout</a></li>
   </ul>
@@ -1067,9 +1068,15 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.decorator', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.decorator" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">signal</span>
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">cProfile</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">signal</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">TemplateBase</span>
 
 
 <span class="k">def</span> <span class="nf">retry</span><span class="p">(</span><span class="n">exceptions</span><span class="p">,</span> <span class="n">tries</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -1134,6 +1141,55 @@ table {
         <span class="k">return</span> <span class="n">f_timeout</span>
 
     <span class="k">return</span> <span class="n">deco_timout</span>
+
+
+<span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable python cProfile for the decorated function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        service: service object</span>
+<span class="sd">        output: if specified, give the path where the profile will be saved.</span>
+<span class="sd">                if None the profile is generated into {tempdir}/zrobot_profile/{service_guid}/{function_name}-{time}.prof`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">deco_profile</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">f_profile</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">TemplateBase</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;profile decorator can only </span><span class="se">\</span>
+<span class="s2">be used on the method of a instance of zerorobot.template.base.TemplateBase&quot;</span><span class="p">)</span>
+
+            <span class="n">service_ref</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">pr</span> <span class="o">=</span> <span class="n">cProfile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+            <span class="n">pr</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">create_stats</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                    <span class="n">profile_path</span> <span class="o">=</span> <span class="n">output</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">profile_path</span> <span class="o">=</span> <span class="n">_temp_profile_location</span><span class="p">(</span><span class="n">service_ref</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="n">f_profile</span>
+
+    <span class="k">return</span> <span class="n">deco_profile</span>
+
+
+<span class="k">def</span> <span class="nf">_temp_profile_location</span><span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;{action}-{time}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
+        <span class="n">time</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+    <span class="p">)</span>
+    <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">TMPDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot_profile&#39;</span><span class="p">,</span> <span class="n">guid</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.prof&#39;</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1143,6 +1199,67 @@ table {
   <section id="section-items">
 
     <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.template.decorator.profile">
+    <p>def <span class="ident">profile</span>(</p><p>output=None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Enable python cProfile for the decorated function.</p>
+<p>Args:
+    service: service object
+    output: if specified, give the path where the profile will be saved.
+            if None the profile is generated into {tempdir}/zrobot_profile/{service_guid}/{function_name}-{time}.prof`</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.decorator.profile', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.decorator.profile" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable python cProfile for the decorated function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        service: service object</span>
+<span class="sd">        output: if specified, give the path where the profile will be saved.</span>
+<span class="sd">                if None the profile is generated into {tempdir}/zrobot_profile/{service_guid}/{function_name}-{time}.prof`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">deco_profile</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">f_profile</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">TemplateBase</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;profile decorator can only </span><span class="se">\</span>
+<span class="s2">be used on the method of a instance of zerorobot.template.base.TemplateBase&quot;</span><span class="p">)</span>
+
+            <span class="n">service_ref</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">pr</span> <span class="o">=</span> <span class="n">cProfile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+            <span class="n">pr</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">create_stats</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+                    <span class="n">profile_path</span> <span class="o">=</span> <span class="n">output</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">profile_path</span> <span class="o">=</span> <span class="n">_temp_profile_location</span><span class="p">(</span><span class="n">service_ref</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="n">f_profile</span>
+
+    <span class="k">return</span> <span class="n">deco_profile</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
       
   <div class="item">
     <div class="name def" id="zerorobot.template.decorator.retry">

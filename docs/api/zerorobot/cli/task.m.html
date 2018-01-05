@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.dsl API documentation</title>
-    <meta name="description" content="This package contains class that present a hight level API that are meant to be use by end-user and ..." />
+    <title>zerorobot.cli.task API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1041,14 +1041,16 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.cli.task.print_task">print_task</a></li>
+    <li class="mono"><a href="#zerorobot.cli.task.sort_by_created">sort_by_created</a></li>
+  </ul>
 
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></li>
-        <li class="mono"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></li>
-      </ul>
     </li>
+
+
     </ul>
   </div>
 
@@ -1060,14 +1062,113 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.dsl</span> module</h1>
-  <p>This package contains class that present a hight level API that are meant to be use by end-user and service developer</p>
+  <h1 class="title"><span class="name">zerorobot.cli.task</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This package contains class that present a hight level API that are meant to be use by end-user and service developer</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.task', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.task" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">zerorobot.cli</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="k">def</span> <span class="nf">print_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{created} - {guid} - {action} - {state}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">created</span><span class="o">=</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">epoch2HRDateTime</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">),</span>
+        <span class="n">guid</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
+        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">tb</span> <span class="ow">and</span> <span class="n">state</span> <span class="o">==</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">sort_by_created</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
+
+
+<span class="nd">@click.group</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">task</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    group of command to manage task list of a service</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@task.command</span><span class="p">()</span>
+<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;guid&#39;</span><span class="p">)</span>
+<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">)</span>
+<span class="c1"># @click.option(&#39;data&#39;, help) TODO: find a way to pass data from CLI</span>
+<span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    schedule an action on a service</span>
+<span class="sd">    and prints the guid of the task created</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">guid</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service guid specified&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">action</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no action specified&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;task created - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+
+
+<span class="nd">@task.command</span><span class="p">()</span>
+<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;guid&#39;</span><span class="p">)</span>
+<span class="nd">@click.option</span><span class="p">(</span><span class="s1">&#39;--all&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;also return task already executed tasks&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="nb">all</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    list all task of a service</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">guid</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service guid specified&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="nb">all</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">sort_by_created</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{created} - {guid} - {action} - {state}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">created</span><span class="o">=</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">epoch2HRDateTime</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">),</span>
+            <span class="n">guid</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">))</span>
+
+
+<span class="nd">@task.command</span><span class="p">()</span>
+<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;guid&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;task&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nd">@click.option</span><span class="p">(</span><span class="s1">&#39;--tb&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;print traceback in case state is error&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">tb</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    print the detail of a task</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">guid</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service guid specified&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">task</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no task guid specified&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get_task_by_guid</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no task with guid </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">task</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">print_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">tb</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1076,26 +1177,59 @@ table {
 
   <section id="section-items">
 
-
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></p>
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
-  
-    <div class="desc"><p>This module expose the high level API that is meant to be used by service developer in the template actions.</p>
-<p>It provie ways to create and list services from a group of ZeroRobots in a unified way.</p></div>
+  <div class="item">
+    <div class="name def" id="zerorobot.cli.task.print_task">
+    <p>def <span class="ident">print_task</span>(</p><p>task, tb=False)</p>
+    </div>
+    
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></p>
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.task.print_task', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.task.print_task" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">print_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{created} - {guid} - {action} - {state}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">created</span><span class="o">=</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">epoch2HRDateTime</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">),</span>
+        <span class="n">guid</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
+        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">tb</span> <span class="ow">and</span> <span class="n">state</span> <span class="o">==</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
       
-  
-    <div class="desc"><p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
-<p>Jumpscale provie a factory that return a instance of the class defined in this module
-We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p></div>
+  <div class="item">
+    <div class="name def" id="zerorobot.cli.task.sort_by_created">
+    <p>def <span class="ident">sort_by_created</span>(</p><p>tasks)</p>
+    </div>
+    
 
-      </div>
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.task.sort_by_created', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.task.sort_by_created" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">sort_by_created</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+
+
   </section>
 
     </article>

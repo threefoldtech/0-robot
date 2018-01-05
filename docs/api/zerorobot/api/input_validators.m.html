@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.dsl API documentation</title>
-    <meta name="description" content="This package contains class that present a hight level API that are meant to be use by end-user and ..." />
+    <title>zerorobot.api.input_validators API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1041,14 +1041,15 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.api.input_validators.multiple_of">multiple_of</a></li>
+  </ul>
 
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></li>
-        <li class="mono"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></li>
-      </ul>
     </li>
+
+
     </ul>
   </div>
 
@@ -1060,14 +1061,19 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.dsl</span> module</h1>
-  <p>This package contains class that present a hight level API that are meant to be use by end-user and service developer</p>
+  <h1 class="title"><span class="name">zerorobot.api.input_validators</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This package contains class that present a hight level API that are meant to be use by end-user and service developer</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.input_validators', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.api.input_validators" class="source">
+    <div class="codehilite"><pre><span></span><span class="n">rom</span> <span class="n">wtforms</span><span class="o">.</span><span class="n">validators</span> <span class="kn">import</span> <span class="nn">ValidationError</span>
+<span class="n">ef</span> <span class="n">multiple_of</span><span class="p">(</span><span class="n">mult</span><span class="p">):</span>
+   <span class="sd">&#39;&#39;&#39; check if value is multipe of mult&#39;&#39;&#39;</span>
+   <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Must be multiple of </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mult</span><span class="p">)</span>
+   <span class="k">def</span> <span class="nf">_multiple_of</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+       <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">data</span> <span class="o">%</span> <span class="n">mult</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+           <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+   <span class="k">return</span> <span class="n">_multiple_of</span>
 </pre></div>
 
   </div>
@@ -1076,26 +1082,39 @@ table {
 
   <section id="section-items">
 
-
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></p>
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
-  
-    <div class="desc"><p>This module expose the high level API that is meant to be used by service developer in the template actions.</p>
-<p>It provie ways to create and list services from a group of ZeroRobots in a unified way.</p></div>
+  <div class="item">
+    <div class="name def" id="zerorobot.api.input_validators.multiple_of">
+    <p>def <span class="ident">multiple_of</span>(</p><p>mult)</p>
+    </div>
+    
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></p>
-      
+    
   
-    <div class="desc"><p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
-<p>Jumpscale provie a factory that return a instance of the class defined in this module
-We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p></div>
+    <div class="desc"><p>check if value is multipe of mult</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.input_validators.multiple_of', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.api.input_validators.multiple_of" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">multiple_of</span><span class="p">(</span><span class="n">mult</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; check if value is multipe of mult&#39;&#39;&#39;</span>
 
-      </div>
+    <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Must be multiple of </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mult</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_multiple_of</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">data</span> <span class="o">%</span> <span class="n">mult</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_multiple_of</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+
+
   </section>
 
     </article>

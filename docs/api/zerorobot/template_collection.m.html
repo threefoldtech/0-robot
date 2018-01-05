@@ -1041,6 +1041,13 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.template_collection.logger">logger</a></li>
+  </ul>
+
+    </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
@@ -1102,6 +1109,8 @@ other services and class need to use this module method to load/access the templ
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
 <span class="n">_templates</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1171,6 +1180,7 @@ other services and class need to use this module method to load/access the templ
 
     <span class="n">class_</span><span class="o">.</span><span class="n">template_dir</span> <span class="o">=</span> <span class="n">template_dir</span>
     <span class="n">_templates</span><span class="p">[</span><span class="n">class_</span><span class="o">.</span><span class="n">template_uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">class_</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add template </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">class_</span><span class="o">.</span><span class="n">template_uid</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_templates</span><span class="p">[</span><span class="n">class_</span><span class="o">.</span><span class="n">template_uid</span><span class="p">]</span>
 
 
@@ -1282,6 +1292,15 @@ other services and class need to use this module method to load/access the templ
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.template_collection.logger" class="name">var <span class="ident">logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
       

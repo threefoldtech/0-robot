@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.dsl API documentation</title>
-    <meta name="description" content="This package contains class that present a hight level API that are meant to be use by end-user and ..." />
+    <title>zerorobot.cli.server API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1043,12 +1043,6 @@ table {
 
 
 
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></li>
-        <li class="mono"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></li>
-      </ul>
-    </li>
     </ul>
   </div>
 
@@ -1060,14 +1054,37 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.dsl</span> module</h1>
-  <p>This package contains class that present a hight level API that are meant to be use by end-user and service developer</p>
+  <h1 class="title"><span class="name">zerorobot.cli.server</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This package contains class that present a hight level API that are meant to be use by end-user and service developer</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.server', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.server" class="source">
+    <div class="codehilite"><pre><span></span><span class="n">rom</span> <span class="n">gevent</span> <span class="kn">import</span> <span class="nn">monkey</span>
+ <span class="n">need</span> <span class="n">to</span> <span class="n">patch</span> <span class="n">sockets</span> <span class="n">to</span> <span class="n">make</span> <span class="n">requests</span> <span class="n">async</span>
+<span class="n">onkey</span><span class="o">.</span><span class="n">patch_all</span><span class="p">()</span>
+<span class="n">mport</span> <span class="n">click</span>
+<span class="n">rom</span> <span class="n">js9</span> <span class="kn">import</span> <span class="nn">j</span>
+<span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">robot</span> <span class="kn">import</span> <span class="nn">Robot</span>
+<span class="n">click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="n">ef</span> <span class="n">server</span><span class="p">():</span>
+   <span class="k">pass</span>
+<span class="n">server</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--listen&#39;</span><span class="p">,</span> <span class="s1">&#39;-L&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;listen address (default :6600)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;:6600&#39;</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--data-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;URL of the git repository where to save the data of the zero robot&#39;</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--template-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-T&#39;</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;list of template repository URL&#39;</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;enable debug logging&#39;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">ef</span> <span class="n">start</span><span class="p">(</span><span class="n">listen</span><span class="p">,</span> <span class="n">data_repo</span><span class="p">,</span> <span class="n">template_repo</span><span class="p">,</span> <span class="n">debug</span><span class="p">):</span>
+   <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">   start the 0-robot daemon.</span>
+<span class="sd">   this will start the REST API on address and port specified by --listen and block</span>
+<span class="sd">   &quot;&quot;&quot;</span>
+   <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+       <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">set_level</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span>
+   <span class="n">robot</span> <span class="o">=</span> <span class="n">Robot</span><span class="p">()</span>
+   <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">template_repo</span><span class="p">:</span>
+       <span class="n">robot</span><span class="o">.</span><span class="n">add_template_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+   <span class="n">robot</span><span class="o">.</span><span class="n">set_data_repo</span><span class="p">(</span><span class="n">data_repo</span><span class="p">)</span>
+   <span class="n">robot</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">listen</span><span class="o">=</span><span class="n">listen</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1078,24 +1095,6 @@ table {
 
 
 
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></p>
-      
-  
-    <div class="desc"><p>This module expose the high level API that is meant to be used by service developer in the template actions.</p>
-<p>It provie ways to create and list services from a group of ZeroRobots in a unified way.</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></p>
-      
-  
-    <div class="desc"><p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
-<p>Jumpscale provie a factory that return a instance of the class defined in this module
-We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p></div>
-
-      </div>
   </section>
 
     </article>

@@ -1041,6 +1041,13 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.service_collection.logger">logger</a></li>
+  </ul>
+
+    </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
@@ -1050,12 +1057,17 @@ table {
     <li class="mono"><a href="#zerorobot.service_collection.get_by_guid">get_by_guid</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.get_by_name">get_by_name</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.list_services">list_services</a></li>
+    <li class="mono"><a href="#zerorobot.service_collection.load">load</a></li>
   </ul>
 
     </li>
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.service_collection.BadTemplateError">BadTemplateError</a></span>
+        
+        </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.service_collection.ServiceConflictError">ServiceConflictError</a></span>
         
@@ -1084,6 +1096,13 @@ other services and class need to use this module method to create, access, list 
 <span class="sd">this module is the only place where the service will be kept in memory.</span>
 <span class="sd">other services and class need to use this module method to create, access, list and search the services</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+
+<span class="kn">from</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
 <span class="n">_name_index</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="n">_guid_index</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1099,6 +1118,8 @@ other services and class need to use this module method to create, access, list 
         <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="s2">&quot;a service with guid=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add service </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">get_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -1124,8 +1145,51 @@ other services and class need to use this module method to create, access, list 
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;guid&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
         <span class="k">del</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span>
 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete service </span><span class="si">%s</span><span class="s2"> from collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    load the service from it&#39;s file system serialized format</span>
+
+<span class="sd">    @param template: the template class to use to instantiate the service</span>
+<span class="sd">    @param base_path: path of the directory where</span>
+<span class="sd">                        to load the service state and data from</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from </span><span class="si">%s</span><span class="s2">, but directory doesn&#39;t exists&quot;</span> <span class="o">%</span> <span class="n">base_path</span><span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span>
+    <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">))</span>
+    <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">template_uid</span> <span class="o">!=</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2">&quot;</span>
+                               <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from folder </span><span class="si">%s</span><span class="s2">, but name of the service is </span><span class="si">%s</span><span class="s2">&quot;</span>
+                               <span class="o">%</span> <span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span>
+
+    <span class="n">srv</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]:</span>
+        <span class="n">srv</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">])</span>
+
+    <span class="n">srv</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
+    <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
+    <span class="n">srv</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">),</span> <span class="n">srv</span><span class="p">)</span>
+    <span class="n">srv</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="n">base_path</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">srv</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">srv</span>
+
 
 <span class="k">class</span> <span class="nc">ServiceConflictError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">BadTemplateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Error raised when trying to load a service with a wrong template class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </pre></div>
 
@@ -1134,6 +1198,15 @@ other services and class need to use this module method to create, access, list 
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.service_collection.logger" class="name">var <span class="ident">logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
       
@@ -1158,6 +1231,8 @@ other services and class need to use this module method to create, access, list 
         <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="s2">&quot;a service with guid=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add service </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1183,6 +1258,8 @@ other services and class need to use this module method to create, access, list 
 
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;guid&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
         <span class="k">del</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete service </span><span class="si">%s</span><span class="s2"> from collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1257,8 +1334,104 @@ other services and class need to use this module method to create, access, list 
 
   </div>
   
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.service_collection.load">
+    <p>def <span class="ident">load</span>(</p><p>template, base_path)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>load the service from it's file system serialized format</p>
+<p>@param template: the template class to use to instantiate the service
+@param base_path: path of the directory where
+                    to load the service state and data from</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.load', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.service_collection.load" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    load the service from it&#39;s file system serialized format</span>
+
+<span class="sd">    @param template: the template class to use to instantiate the service</span>
+<span class="sd">    @param base_path: path of the directory where</span>
+<span class="sd">                        to load the service state and data from</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from </span><span class="si">%s</span><span class="s2">, but directory doesn&#39;t exists&quot;</span> <span class="o">%</span> <span class="n">base_path</span><span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span>
+    <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">))</span>
+    <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">template_uid</span> <span class="o">!=</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2">&quot;</span>
+                               <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from folder </span><span class="si">%s</span><span class="s2">, but name of the service is </span><span class="si">%s</span><span class="s2">&quot;</span>
+                               <span class="o">%</span> <span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span>
+
+    <span class="n">srv</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]:</span>
+        <span class="n">srv</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">])</span>
+
+    <span class="n">srv</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
+    <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
+    <span class="n">srv</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">),</span> <span class="n">srv</span><span class="p">)</span>
+    <span class="n">srv</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="n">base_path</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">srv</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">srv</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
 
     <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="zerorobot.service_collection.BadTemplateError" class="name">class <span class="ident">BadTemplateError</span></p>
+      
+  
+    <div class="desc"><p>Error raised when trying to load a service with a wrong template class</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.BadTemplateError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.service_collection.BadTemplateError" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BadTemplateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Error raised when trying to load a service with a wrong template class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.service_collection.BadTemplateError">BadTemplateError</a></li>
+          <li>builtins.Exception</li>
+          <li>builtins.BaseException</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="zerorobot.service_collection.BadTemplateError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
       
       <div class="item">
       <p id="zerorobot.service_collection.ServiceConflictError" class="name">class <span class="ident">ServiceConflictError</span></p>

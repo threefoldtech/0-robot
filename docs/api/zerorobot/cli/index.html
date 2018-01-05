@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.dsl API documentation</title>
-    <meta name="description" content="This package contains class that present a hight level API that are meant to be use by end-user and ..." />
+    <title>zerorobot.cli API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1045,8 +1045,12 @@ table {
 
     <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
       <ul>
-        <li class="mono"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></li>
-        <li class="mono"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></li>
+        <li class="mono"><a href="robot.m.html">zerorobot.cli.robot</a></li>
+        <li class="mono"><a href="server.m.html">zerorobot.cli.server</a></li>
+        <li class="mono"><a href="service.m.html">zerorobot.cli.service</a></li>
+        <li class="mono"><a href="task.m.html">zerorobot.cli.task</a></li>
+        <li class="mono"><a href="template.m.html">zerorobot.cli.template</a></li>
+        <li class="mono"><a href="utils.m.html">zerorobot.cli.utils</a></li>
       </ul>
     </li>
     </ul>
@@ -1060,17 +1064,9 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.dsl</span> module</h1>
-  <p>This package contains class that present a hight level API that are meant to be use by end-user and service developer</p>
+  <h1 class="title"><span class="name">zerorobot.cli</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This package contains class that present a hight level API that are meant to be use by end-user and service developer</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-
-  </div>
+  
 
   </header>
 
@@ -1080,20 +1076,39 @@ table {
 
     <h2 class="section-title" id="header-submodules">Sub-modules</h2>
       <div class="item">
-      <p class="name"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></p>
+      <p class="name"><a href="robot.m.html">zerorobot.cli.robot</a></p>
       
   
-    <div class="desc"><p>This module expose the high level API that is meant to be used by service developer in the template actions.</p>
-<p>It provie ways to create and list services from a group of ZeroRobots in a unified way.</p></div>
 
       </div>
       <div class="item">
-      <p class="name"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></p>
+      <p class="name"><a href="server.m.html">zerorobot.cli.server</a></p>
       
   
-    <div class="desc"><p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
-<p>Jumpscale provie a factory that return a instance of the class defined in this module
-We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p></div>
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="service.m.html">zerorobot.cli.service</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="task.m.html">zerorobot.cli.task</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="template.m.html">zerorobot.cli.template</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="utils.m.html">zerorobot.cli.utils</a></p>
+      
+  
 
       </div>
   </section>

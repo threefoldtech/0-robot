@@ -1041,6 +1041,15 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.template.base.PRIORITY_NORMAL">PRIORITY_NORMAL</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.logger">logger</a></li>
+  </ul>
+
+    </li>
 
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
@@ -1054,8 +1063,17 @@ table {
         
         </li>
         <li class="mono">
-        <span class="class_name"><a href="#zerorobot.template.base.BadTemplateError">BadTemplateError</a></span>
+        <span class="class_name"><a href="#zerorobot.template.base.GreenletsMgr">GreenletsMgr</a></span>
         
+          
+  <ul>
+    <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.add">add</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.get">get</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.stop">stop</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.stop_all">stop_all</a></li>
+  </ul>
+
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template.base.TemplateBase">TemplateBase</a></span>
@@ -1064,9 +1082,9 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.delete">delete</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.TemplateBase.recurring_action">recurring_action</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.save">save</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.schedule_action">schedule_action</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.TemplateBase.load">load</a></li>
   </ul>
 
         </li>
@@ -1096,19 +1114,23 @@ It is the class every template should inherits from.</p>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">_empty</span><span class="p">,</span> <span class="n">signature</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">logging.handlers</span> <span class="kn">import</span> <span class="n">RotatingFileHandler</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 
-<span class="kn">from</span> <span class="nn">gevent.greenlet</span> <span class="kn">import</span> <span class="n">Greenlet</span><span class="p">,</span> <span class="n">GreenletExit</span>
-
+<span class="kn">import</span> <span class="nn">gevent</span>
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot.dsl.ZeroRobotAPI</span> <span class="kn">import</span> <span class="n">ZeroRobotAPI</span>
-<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TaskList</span>
+<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">PRIORITY_NORMAL</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TaskList</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.data</span> <span class="kn">import</span> <span class="n">ServiceData</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.state</span> <span class="kn">import</span> <span class="n">ServiceState</span>
-<span class="kn">from</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">BadActionArgumentError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1126,11 +1148,39 @@ It is the class every template should inherits from.</p>
     <span class="k">pass</span>
 
 
-<span class="k">class</span> <span class="nc">BadTemplateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">GreenletsMgr</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Error raised when trying to load a service with a wrong template class</span>
+<span class="sd">    GreenletsMgr is a tools that lets you</span>
+<span class="sd">    manage a group of greenlets</span>
+
+<span class="sd">    it gives basic primitives to keep a reference of a greenlets and start/stop/get them</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gls</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">gl</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gl</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;gl should be a Greenlet not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">gl</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gl</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">gl</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">stop_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">gl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
 
 
 <span class="k">class</span> <span class="nc">TemplateBase</span><span class="p">:</span>
@@ -1151,6 +1201,7 @@ It is the class every template should inherits from.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">ZeroRobotAPI</span><span class="p">()</span>
 
@@ -1158,41 +1209,11 @@ It is the class every template should inherits from.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">()</span>
 
-        <span class="c1"># start the greenlet of this service</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl</span> <span class="o">=</span> <span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="c1"># start the greenlets of this service</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        load the service from it&#39;s file system serialized format</span>
-
-<span class="sd">        @param base_path: path of the directory where</span>
-<span class="sd">                          to load the service state and data from</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_path</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from </span><span class="si">%s</span><span class="s2">, but directory doesn&#39;t exists&quot;</span> <span class="o">%</span> <span class="n">base_path</span><span class="p">)</span>
-
-        <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span>
-        <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">))</span>
-        <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">template_uid</span> <span class="o">!=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2">&quot;</span>
-                                   <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
-
-        <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from folder </span><span class="si">%s</span><span class="s2">, but name of the service is </span><span class="si">%s</span><span class="s2">&quot;</span>
-                                   <span class="o">%</span> <span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span>
-
-        <span class="n">srv</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]:</span>
-            <span class="n">srv</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">])</span>
-
-        <span class="n">srv</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
-        <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-        <span class="n">srv</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">),</span> <span class="n">srv</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">srv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1209,6 +1230,7 @@ It is the class every template should inherits from.</p>
             <span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
 
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="n">path</span>
 
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
@@ -1233,9 +1255,9 @@ It is the class every template should inherits from.</p>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
                 <span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-            <span class="k">except</span> <span class="n">GreenletExit</span><span class="p">:</span>
+            <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
                 <span class="c1"># TODO: gracefull shutdown</span>
-                <span class="k">pass</span>
+                <span class="k">break</span>
 
     <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1248,6 +1270,9 @@ It is the class every template should inherits from.</p>
 <span class="sd">        @param args: dictionnary of the argument to pass to the action</span>
 <span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;sel </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
 
@@ -1256,9 +1281,11 @@ It is the class every template should inherits from.</p>
             <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a function&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">)</span>
 
         <span class="c1"># make sure the argument we pass are correct</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">_empty</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">_empty</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s2">&quot;parameter </span><span class="si">%s</span><span class="s2"> is mandatory but not passed to in args&quot;</span> <span class="o">%</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
@@ -1268,12 +1295,94 @@ It is the class every template should inherits from.</p>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s1">&#39;arguments &quot;</span><span class="si">%s</span><span class="s1">&quot; are not present in the signature of the action&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_keys</span><span class="p">))</span>
 
-        <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span>
 
+    <span class="k">def</span> <span class="nf">recurring_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        configure an action to be executed every period second</span>
+
+<span class="sd">        It will ensure that the action from service is schedule at best every period second.</span>
+
+<span class="sd">        Since we dont&#39; have control over how long other task from the task list take.</span>
+<span class="sd">        we can only ensure that the action is never going to be schedule faster then every period second</span>
+
+<span class="sd">        That means that it can be a longer time then period second during which the action is not executed</span>
+
+<span class="sd">        @param action: a method or string that match the name of the method we want to make recurring</span>
+<span class="sd">        @param period: minimum number of seconds between 2 scheduling of the action</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">action</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># stop all recurring action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
+
+        <span class="c1"># close ressources of logging handlers</span>
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">):</span>
+                <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># remove data from disk</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span><span class="p">)</span>
+        <span class="c1"># remove from memory</span>
         <span class="n">scol</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_recurring_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    this function is intended to be run in a greenlet.</span>
+<span class="sd">    It will ensure that the action from service is schedule at best every period second.</span>
+
+<span class="sd">    Since we dont&#39; have controle over how long other task from the task list take.</span>
+<span class="sd">    we can only ensure that the action is never going to be schedule faster then every period second</span>
+
+<span class="sd">    That means that it can be a longer time then period second during which the action is not executed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">last</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">last</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">period</span><span class="p">:</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
+                <span class="n">task</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+            <span class="n">elapsed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">-</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span>
+        <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
+            <span class="k">break</span>
+
+
+<span class="n">_LOGGER_FORMAT</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(pathname)s</span><span class="s1">:</span><span class="si">%(lineno)d</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">_configure_logger</span><span class="p">(</span><span class="n">guid</span><span class="p">):</span>
+    <span class="n">log_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">LOGDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">log_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_dir</span><span class="p">)</span>
+
+    <span class="n">l</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;service-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
+    <span class="n">l</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">rfh</span> <span class="o">=</span> <span class="n">RotatingFileHandler</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">guid</span><span class="p">),</span>
+                              <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+                              <span class="n">maxBytes</span><span class="o">=</span><span class="mi">5</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 5MiB</span>
+                              <span class="n">backupCount</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># 10 * 5Mib = 50Mib of logs max</span>
+                              <span class="n">encoding</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                              <span class="n">delay</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">rfh</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+    <span class="n">rfh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="n">_LOGGER_FORMAT</span><span class="p">))</span>
+    <span class="n">l</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">rfh</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">logger</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+        <span class="n">l</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+    <span class="n">l</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">l</span>
 </pre></div>
 
   </div>
@@ -1281,6 +1390,31 @@ It is the class every template should inherits from.</p>
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.template.base.PRIORITY_NORMAL" class="name">var <span class="ident">PRIORITY_NORMAL</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.template.base.PRIORITY_SYSTEM" class="name">var <span class="ident">PRIORITY_SYSTEM</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.template.base.logger" class="name">var <span class="ident">logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1370,18 +1504,48 @@ doesn't match with the method signature</p></div>
       </div>
       
       <div class="item">
-      <p id="zerorobot.template.base.BadTemplateError" class="name">class <span class="ident">BadTemplateError</span></p>
+      <p id="zerorobot.template.base.GreenletsMgr" class="name">class <span class="ident">GreenletsMgr</span></p>
       
   
-    <div class="desc"><p>Error raised when trying to load a service with a wrong template class</p></div>
+    <div class="desc"><p>GreenletsMgr is a tools that lets you
+manage a group of greenlets</p>
+<p>it gives basic primitives to keep a reference of a greenlets and start/stop/get them</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.BadTemplateError', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.BadTemplateError" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BadTemplateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.GreenletsMgr', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.GreenletsMgr" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">GreenletsMgr</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Error raised when trying to load a service with a wrong template class</span>
+<span class="sd">    GreenletsMgr is a tools that lets you</span>
+<span class="sd">    manage a group of greenlets</span>
+
+<span class="sd">    it gives basic primitives to keep a reference of a greenlets and start/stop/get them</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gls</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">gl</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gl</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;gl should be a Greenlet not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">gl</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gl</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">gl</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">stop_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">gl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1391,14 +1555,128 @@ doesn't match with the method signature</p></div>
       <div class="class">
           <h3>Ancestors (in MRO)</h3>
           <ul class="class_list">
-          <li><a href="#zerorobot.template.base.BadTemplateError">BadTemplateError</a></li>
-          <li>builtins.Exception</li>
-          <li>builtins.BaseException</li>
+          <li><a href="#zerorobot.template.base.GreenletsMgr">GreenletsMgr</a></li>
           <li>builtins.object</li>
           </ul>
-          <h3>Class variables</h3>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.base.GreenletsMgr.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.GreenletsMgr.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.GreenletsMgr.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">gls</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.base.GreenletsMgr.add">
+    <p>def <span class="ident">add</span>(</p><p>self, key, gl)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.GreenletsMgr.add', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.GreenletsMgr.add" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">gl</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gl</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;gl should be a Greenlet not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">gl</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">gl</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">gl</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.base.GreenletsMgr.get">
+    <p>def <span class="ident">get</span>(</p><p>self, key)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.GreenletsMgr.get', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.GreenletsMgr.get" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.base.GreenletsMgr.stop">
+    <p>def <span class="ident">stop</span>(</p><p>self, key)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.GreenletsMgr.stop', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.GreenletsMgr.stop" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">gl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">pass</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.base.GreenletsMgr.stop_all">
+    <p>def <span class="ident">stop_all</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.GreenletsMgr.stop_all', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.GreenletsMgr.stop_all" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">stop_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">gl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+          <h3>Instance variables</h3>
             <div class="item">
-            <p id="zerorobot.template.base.BadTemplateError.args" class="name">var <span class="ident">args</span></p>
+            <p id="zerorobot.template.base.GreenletsMgr.gls" class="name">var <span class="ident">gls</span></p>
             
 
             
@@ -1437,6 +1715,7 @@ doesn't match with the method signature</p></div>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">ZeroRobotAPI</span><span class="p">()</span>
 
@@ -1444,41 +1723,11 @@ doesn't match with the method signature</p></div>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">()</span>
 
-        <span class="c1"># start the greenlet of this service</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl</span> <span class="o">=</span> <span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="c1"># start the greenlets of this service</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        load the service from it&#39;s file system serialized format</span>
-
-<span class="sd">        @param base_path: path of the directory where</span>
-<span class="sd">                          to load the service state and data from</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_path</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from </span><span class="si">%s</span><span class="s2">, but directory doesn&#39;t exists&quot;</span> <span class="o">%</span> <span class="n">base_path</span><span class="p">)</span>
-
-        <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span>
-        <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">))</span>
-        <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">template_uid</span> <span class="o">!=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2">&quot;</span>
-                                   <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
-
-        <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from folder </span><span class="si">%s</span><span class="s2">, but name of the service is </span><span class="si">%s</span><span class="s2">&quot;</span>
-                                   <span class="o">%</span> <span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span>
-
-        <span class="n">srv</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]:</span>
-            <span class="n">srv</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">])</span>
-
-        <span class="n">srv</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
-        <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-        <span class="n">srv</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">),</span> <span class="n">srv</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">srv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1495,6 +1744,7 @@ doesn't match with the method signature</p></div>
             <span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
 
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="n">path</span>
 
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
@@ -1519,9 +1769,9 @@ doesn't match with the method signature</p></div>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
                 <span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-            <span class="k">except</span> <span class="n">GreenletExit</span><span class="p">:</span>
+            <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
                 <span class="c1"># TODO: gracefull shutdown</span>
-                <span class="k">pass</span>
+                <span class="k">break</span>
 
     <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1534,6 +1784,9 @@ doesn't match with the method signature</p></div>
 <span class="sd">        @param args: dictionnary of the argument to pass to the action</span>
 <span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;sel </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
 
@@ -1542,9 +1795,11 @@ doesn't match with the method signature</p></div>
             <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a function&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">)</span>
 
         <span class="c1"># make sure the argument we pass are correct</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">_empty</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">_empty</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s2">&quot;parameter </span><span class="si">%s</span><span class="s2"> is mandatory but not passed to in args&quot;</span> <span class="o">%</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
@@ -1554,11 +1809,43 @@ doesn't match with the method signature</p></div>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s1">&#39;arguments &quot;</span><span class="si">%s</span><span class="s1">&quot; are not present in the signature of the action&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_keys</span><span class="p">))</span>
 
-        <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span>
 
+    <span class="k">def</span> <span class="nf">recurring_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        configure an action to be executed every period second</span>
+
+<span class="sd">        It will ensure that the action from service is schedule at best every period second.</span>
+
+<span class="sd">        Since we dont&#39; have control over how long other task from the task list take.</span>
+<span class="sd">        we can only ensure that the action is never going to be schedule faster then every period second</span>
+
+<span class="sd">        That means that it can be a longer time then period second during which the action is not executed</span>
+
+<span class="sd">        @param action: a method or string that match the name of the method we want to make recurring</span>
+<span class="sd">        @param period: minimum number of seconds between 2 scheduling of the action</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">action</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># stop all recurring action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
+
+        <span class="c1"># close ressources of logging handlers</span>
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">):</span>
+                <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># remove data from disk</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span><span class="p">)</span>
+        <span class="c1"># remove from memory</span>
         <span class="n">scol</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
@@ -1621,13 +1908,15 @@ doesn't match with the method signature</p></div>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">ZeroRobotAPI</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ServiceData</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">()</span>
-    <span class="c1"># start the greenlet of this service</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_gl</span> <span class="o">=</span> <span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="c1"># start the greenlets of this service</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1648,7 +1937,57 @@ doesn't match with the method signature</p></div>
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.delete', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.TemplateBase.delete" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># stop all recurring action</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
+    <span class="c1"># close ressources of logging handlers</span>
+    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">):</span>
+            <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="c1"># remove data from disk</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span><span class="p">)</span>
+    <span class="c1"># remove from memory</span>
     <span class="n">scol</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.base.TemplateBase.recurring_action">
+    <p>def <span class="ident">recurring_action</span>(</p><p>self, action, period)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>configure an action to be executed every period second</p>
+<p>It will ensure that the action from service is schedule at best every period second.</p>
+<p>Since we dont' have control over how long other task from the task list take.
+we can only ensure that the action is never going to be schedule faster then every period second</p>
+<p>That means that it can be a longer time then period second during which the action is not executed</p>
+<p>@param action: a method or string that match the name of the method we want to make recurring
+@param period: minimum number of seconds between 2 scheduling of the action</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.recurring_action', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.TemplateBase.recurring_action" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">recurring_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    configure an action to be executed every period second</span>
+<span class="sd">    It will ensure that the action from service is schedule at best every period second.</span>
+<span class="sd">    Since we dont&#39; have control over how long other task from the task list take.</span>
+<span class="sd">    we can only ensure that the action is never going to be schedule faster then every period second</span>
+<span class="sd">    That means that it can be a longer time then period second during which the action is not executed</span>
+<span class="sd">    @param action: a method or string that match the name of the method we want to make recurring</span>
+<span class="sd">    @param period: minimum number of seconds between 2 scheduling of the action</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">action</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1685,6 +2024,7 @@ return the path where the service is saved</p></div>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="n">path</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">),</span> <span class="p">{</span>
         <span class="s1">&#39;template&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
@@ -1733,25 +2073,7 @@ Or from a local service or from a remote service trough RPC</p>
 <span class="sd">    @param args: dictionnary of the argument to pass to the action</span>
 <span class="sd">    @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;sel </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
-    <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a function&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">)</span>
-    <span class="c1"># make sure the argument we pass are correct</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">_empty</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s2">&quot;parameter </span><span class="si">%s</span><span class="s2"> is mandatory but not passed to in args&quot;</span> <span class="o">%</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">signature_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="n">args_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="n">diff</span> <span class="o">=</span> <span class="n">args_keys</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">signature_keys</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s1">&#39;arguments &quot;</span><span class="si">%s</span><span class="s1">&quot; are not present in the signature of the action&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_keys</span><span class="p">))</span>
-    <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">task</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1782,6 +2104,16 @@ Or from a local service or from a remote service trough RPC</p>
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.guid" class="name">var <span class="ident">guid</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.template.base.TemplateBase.logger" class="name">var <span class="ident">logger</span></p>
             
 
             
@@ -1830,54 +2162,6 @@ Or from a local service or from a remote service trough RPC</p>
 </div>
 
             </div>
-          <h3>Methods</h3>
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.base.TemplateBase.load">
-    <p>def <span class="ident">load</span>(</p><p>cls, base_path)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>load the service from it's file system serialized format</p>
-<p>@param base_path: path of the directory where
-                  to load the service state and data from</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.load', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.base.TemplateBase.load" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@classmethod</span>
-<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    load the service from it&#39;s file system serialized format</span>
-<span class="sd">    @param base_path: path of the directory where</span>
-<span class="sd">                      to load the service state and data from</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_path</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from </span><span class="si">%s</span><span class="s2">, but directory doesn&#39;t exists&quot;</span> <span class="o">%</span> <span class="n">base_path</span><span class="p">)</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span>
-    <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">))</span>
-    <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">template_uid</span> <span class="o">!=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2">&quot;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
-    <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from folder </span><span class="si">%s</span><span class="s2">, but name of the service is </span><span class="si">%s</span><span class="s2">&quot;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span>
-    <span class="n">srv</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]:</span>
-        <span class="n">srv</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">])</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">),</span> <span class="n">srv</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">srv</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
       </div>
       </div>
 

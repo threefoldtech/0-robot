@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.dsl API documentation</title>
-    <meta name="description" content="This package contains class that present a hight level API that are meant to be use by end-user and ..." />
+    <title>zerorobot.cli.robot API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1043,12 +1043,6 @@ table {
 
 
 
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></li>
-        <li class="mono"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></li>
-      </ul>
-    </li>
     </ul>
   </div>
 
@@ -1060,14 +1054,76 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.dsl</span> module</h1>
-  <p>This package contains class that present a hight level API that are meant to be use by end-user and service developer</p>
+  <h1 class="title"><span class="name">zerorobot.cli.robot</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This package contains class that present a hight level API that are meant to be use by end-user and service developer</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.robot', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.robot" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">zerorobot.cli</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">_location</span> <span class="o">=</span> <span class="s1">&#39;j.clients.zrobot&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">_list</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    list all instance of 0-robot register in the configmanager</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">_location</span><span class="p">)</span>
+
+
+<span class="nd">@click.group</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">robot</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@robot.command</span><span class="p">()</span>
+<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;instance&#39;</span><span class="p">)</span>
+<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;addr&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    configure the zrobot CLI to work against the 0-robot named --instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">instance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_list</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">addr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;instance &#39;</span><span class="si">%s</span><span class="s2">&#39; not found. Use &#39;zrobot robot connect instance addr` to configure a new connection to a 0-robot&quot;</span> <span class="o">%</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># create new configuration for this instance-addr</span>
+            <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">addr</span><span class="p">})</span>
+
+    <span class="n">connected</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">connected</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;service running at </span><span class="si">%s</span><span class="s2"> doesn&#39;t seems to be a valid 0-robot&quot;</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">cfg_file_path</span><span class="p">,</span> <span class="p">{</span><span class="n">utils</span><span class="o">.</span><span class="n">cfg_key</span><span class="p">:</span> <span class="n">instance</span><span class="p">})</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Connection to </span><span class="si">%s</span><span class="s2"> saved&quot;</span> <span class="o">%</span> <span class="n">instance</span><span class="p">)</span>
+
+
+<span class="nd">@robot.command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">list</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    print all the instance of the 0-robot configured on the system</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">_list</span><span class="p">():</span>
+        <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> @ </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]))</span>
+
+
+<span class="nd">@robot.command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">current</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    print the address of the 0-robot configured</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">instance</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> @ </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">addr</span><span class="p">))</span>
 </pre></div>
 
   </div>
@@ -1078,24 +1134,6 @@ table {
 
 
 
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></p>
-      
-  
-    <div class="desc"><p>This module expose the high level API that is meant to be used by service developer in the template actions.</p>
-<p>It provie ways to create and list services from a group of ZeroRobots in a unified way.</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></p>
-      
-  
-    <div class="desc"><p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
-<p>Jumpscale provie a factory that return a instance of the class defined in this module
-We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p></div>
-
-      </div>
   </section>
 
     </article>

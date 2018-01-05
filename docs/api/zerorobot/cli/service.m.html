@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.dsl API documentation</title>
-    <meta name="description" content="This package contains class that present a hight level API that are meant to be use by end-user and ..." />
+    <title>zerorobot.cli.service API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1041,14 +1041,15 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.cli.service.print_service">print_service</a></li>
+  </ul>
 
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></li>
-        <li class="mono"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></li>
-      </ul>
     </li>
+
+
     </ul>
   </div>
 
@@ -1060,14 +1061,87 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.dsl</span> module</h1>
-  <p>This package contains class that present a hight level API that are meant to be use by end-user and service developer</p>
+  <h1 class="title"><span class="name">zerorobot.cli.service</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This package contains class that present a hight level API that are meant to be use by end-user and service developer</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.service', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.service" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">from</span> <span class="nn">zerorobot.cli</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">zerorobot.cli.task</span> <span class="kn">import</span> <span class="n">task</span>
+<span class="kn">from</span> <span class="nn">zerorobot.dsl.ZeroRobotManager</span> <span class="kn">import</span> <span class="n">ZeroRobotManager</span>
+<span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceConflictError</span>
+
+
+<span class="k">def</span> <span class="nf">_sort_by_template</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">template_uid</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">print_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{template} - {guid} - {name}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span>
+    <span class="p">))</span>
+
+
+<span class="nd">@click.group</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">service</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    group of command to manage services</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@service.command</span><span class="p">()</span>
+<span class="nd">@click.option</span><span class="p">(</span><span class="s1">&#39;--template&#39;</span><span class="p">,</span> <span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;template UID&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="nd">@click.option</span><span class="p">(</span><span class="s1">&#39;--name&#39;</span><span class="p">,</span> <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;service name&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="nd">@click.option</span><span class="p">(</span><span class="s1">&#39;--data&#39;</span><span class="p">,</span> <span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;service schema data&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    create a new service</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ServiceConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;service created&quot;</span><span class="p">)</span>
+    <span class="n">print_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+
+<span class="nd">@service.command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">list</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    list all the services</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_sort_by_template</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
+        <span class="n">print_service</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+<span class="nd">@service.command</span><span class="p">()</span>
+<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;guid&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">guid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    delete a service</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">guid</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;not guid specified&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+        <span class="n">service</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span>
 </pre></div>
 
   </div>
@@ -1076,26 +1150,34 @@ table {
 
   <section id="section-items">
 
-
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotAPI.m.html">zerorobot.dsl.ZeroRobotAPI</a></p>
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
-  
-    <div class="desc"><p>This module expose the high level API that is meant to be used by service developer in the template actions.</p>
-<p>It provie ways to create and list services from a group of ZeroRobots in a unified way.</p></div>
+  <div class="item">
+    <div class="name def" id="zerorobot.cli.service.print_service">
+    <p>def <span class="ident">print_service</span>(</p><p>service)</p>
+    </div>
+    
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="ZeroRobotManager.m.html">zerorobot.dsl.ZeroRobotManager</a></p>
-      
+    
   
-    <div class="desc"><p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
-<p>Jumpscale provie a factory that return a instance of the class defined in this module
-We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.service.print_service', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.service.print_service" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">print_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{template} - {guid} - {name}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span>
+    <span class="p">))</span>
+</pre></div>
 
-      </div>
+  </div>
+</div>
+
+  </div>
+  
+
+
   </section>
 
     </article>

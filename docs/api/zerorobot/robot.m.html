@@ -1042,6 +1042,14 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.robot.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
+    <li class="mono"><a href="#zerorobot.robot.logger">logger</a></li>
+  </ul>
+
+    </li>
 
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
@@ -1052,7 +1060,6 @@ table {
           
   <ul>
     <li class="mono"><a href="#zerorobot.robot.Robot.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.robot.Robot.add_remote_robot">add_remote_robot</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.add_template_repo">add_template_repo</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.set_data_repo">set_data_repo</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.start">start</a></li>
@@ -1089,17 +1096,19 @@ table {
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">signal</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
 
 <span class="kn">import</span> <span class="nn">gevent</span>
+<span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">GreenletExit</span>
 <span class="kn">from</span> <span class="nn">gevent.pool</span> <span class="kn">import</span> <span class="n">Pool</span>
 <span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
-
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-<span class="kn">from</span> <span class="nn">JumpScale9.core.State</span> <span class="kn">import</span> <span class="n">ClientConfig</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 <span class="kn">from</span> <span class="nn">zerorobot.api.app</span> <span class="kn">import</span> <span class="n">app</span>
+<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">PRIORITY_SYSTEM</span>
+
+<span class="c1"># create logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Robot</span><span class="p">:</span>
@@ -1113,11 +1122,13 @@ table {
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_started</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1140,33 +1151,27 @@ table {
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_remote_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        configure a remote robot that should be know by this robot.abs</span>
-<span class="sd">        :param addr: HTTP URL of the other Robot API</span>
-<span class="sd">        :type addr: string</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_save_services</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
 
         <span class="c1"># load services from data repo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGQUIT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
 
         <span class="c1"># configure logger</span>
-        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
-        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">consoleHandler</span><span class="p">)</span>
-        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">fileRotateHandler</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="c1"># app.logger_name = logger.name</span>
 
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
@@ -1177,6 +1182,12 @@ table {
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+
+            <span class="c1"># this is executed when self.stop is called.</span>
+            <span class="c1"># stop autosave greenlet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="c1"># here no more requests are comming in, we can safely save all services</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
@@ -1186,7 +1197,7 @@ table {
 <span class="sd">        gracefully stop all the services</span>
 <span class="sd">        serialize all services state to disk</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># prevent the signal handler to be called again is</span>
+        <span class="c1"># prevent the signal handler to be called again if</span>
         <span class="c1"># more signal are received</span>
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="p">:</span>
             <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
@@ -1195,9 +1206,14 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="c1"># here no more requests are comming in</span>
-        <span class="c1"># all services should have received kill signal</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
+        <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>
+        <span class="c1"># cause we&#39;re not in a sig handler</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+
+             <span class="c1"># stop autosave greenlet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="c1"># here no more requests are comming in, we can safely save all services</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_load_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">):</span>
@@ -1207,15 +1223,33 @@ table {
             <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">))</span>
             <span class="c1"># TODO: template should be url+name</span>
             <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="n">tmplClass</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">)</span>
-            <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">srv</span><span class="p">)</span>
+            <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">srv_dir</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_save_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        serialize all the services on disk</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+            <span class="c1"># stop all the greenlets attached to the services</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
             <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_auto_save_services</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    this method runs in a greenlet during the lifetime of the robot</span>
+<span class="sd">    it ask the services to saves themself every minutes</span>
+
+<span class="sd">    The save method is added as a task with high priority on the services, so we don&#39;t create race conditions</span>
+<span class="sd">    with other tasks</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;base_path&#39;</span><span class="p">:</span> <span class="n">data_dir</span><span class="p">},</span> <span class="bp">None</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">GreenletExit</span><span class="p">:</span>
+            <span class="k">break</span>
 
 
 <span class="k">def</span> <span class="nf">_split_hostport</span><span class="p">(</span><span class="n">hostport</span><span class="p">):</span>
@@ -1235,6 +1269,23 @@ table {
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.robot.PRIORITY_SYSTEM" class="name">var <span class="ident">PRIORITY_SYSTEM</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.robot.logger" class="name">var <span class="ident">logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1262,11 +1313,13 @@ It is responsible to:
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_started</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1289,33 +1342,27 @@ It is responsible to:
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_remote_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        configure a remote robot that should be know by this robot.abs</span>
-<span class="sd">        :param addr: HTTP URL of the other Robot API</span>
-<span class="sd">        :type addr: string</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_save_services</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
 
         <span class="c1"># load services from data repo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGQUIT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
 
         <span class="c1"># configure logger</span>
-        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
-        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">consoleHandler</span><span class="p">)</span>
-        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">fileRotateHandler</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="c1"># app.logger_name = logger.name</span>
 
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
@@ -1326,6 +1373,12 @@ It is responsible to:
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+
+            <span class="c1"># this is executed when self.stop is called.</span>
+            <span class="c1"># stop autosave greenlet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="c1"># here no more requests are comming in, we can safely save all services</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
@@ -1335,7 +1388,7 @@ It is responsible to:
 <span class="sd">        gracefully stop all the services</span>
 <span class="sd">        serialize all services state to disk</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># prevent the signal handler to be called again is</span>
+        <span class="c1"># prevent the signal handler to be called again if</span>
         <span class="c1"># more signal are received</span>
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="p">:</span>
             <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
@@ -1344,9 +1397,14 @@ It is responsible to:
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="c1"># here no more requests are comming in</span>
-        <span class="c1"># all services should have received kill signal</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
+        <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>
+        <span class="c1"># cause we&#39;re not in a sig handler</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+
+             <span class="c1"># stop autosave greenlet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="c1"># here no more requests are comming in, we can safely save all services</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_load_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">):</span>
@@ -1356,14 +1414,15 @@ It is responsible to:
             <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">))</span>
             <span class="c1"># TODO: template should be url+name</span>
             <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="n">tmplClass</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">)</span>
-            <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">srv</span><span class="p">)</span>
+            <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">srv_dir</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_save_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        serialize all the services on disk</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+            <span class="c1"># stop all the greenlets attached to the services</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
             <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
 </pre></div>
 
@@ -1393,41 +1452,13 @@ It is responsible to:
   <div id="source-zerorobot.robot.Robot.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_started</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="bp">True</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.robot.Robot.add_remote_robot">
-    <p>def <span class="ident">add_remote_robot</span>(</p><p>self, addr)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>configure a remote robot that should be know by this robot.abs
-:param addr: HTTP URL of the other Robot API
-:type addr: string</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.add_remote_robot', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.Robot.add_remote_robot" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_remote_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    configure a remote robot that should be know by this robot.abs</span>
-<span class="sd">    :param addr: HTTP URL of the other Robot API</span>
-<span class="sd">    :type addr: string</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">cl</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="bp">None</span>
 </pre></div>
 
   </div>
@@ -1508,14 +1539,14 @@ load the services from the local git repository</p></div>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_save_services</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
     <span class="c1"># load services from data repo</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGQUIT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
     <span class="c1"># configure logger</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">consoleHandler</span><span class="p">)</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">fileRotateHandler</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+    <span class="c1"># app.logger_name = logger.name</span>
     <span class="c1"># using a pool allow to kill the request when stopping the server</span>
     <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
     <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
@@ -1523,6 +1554,11 @@ load the services from the local git repository</p></div>
     <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+        <span class="c1"># this is executed when self.stop is called.</span>
+        <span class="c1"># stop autosave greenlet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+        <span class="c1"># here no more requests are comming in, we can safely save all services</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
@@ -1553,16 +1589,20 @@ serialize all services state to disk</p></div>
 <span class="sd">    gracefully stop all the services</span>
 <span class="sd">    serialize all services state to disk</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># prevent the signal handler to be called again is</span>
+    <span class="c1"># prevent the signal handler to be called again if</span>
     <span class="c1"># more signal are received</span>
     <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="p">:</span>
         <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="c1"># here no more requests are comming in</span>
-    <span class="c1"># all services should have received kill signal</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
+    <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>
+    <span class="c1"># cause we&#39;re not in a sig handler</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+         <span class="c1"># stop autosave greenlet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+        <span class="c1"># here no more requests are comming in, we can safely save all services</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
 </pre></div>
 
   </div>
