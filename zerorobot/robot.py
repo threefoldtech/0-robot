@@ -71,6 +71,11 @@ class Robot:
         if self._data_dir is None:
             raise RuntimeError("Not data repository set. Robot doesn't know where to save data.")
 
+        logger.info("data directory: %s" % self._data_dir)
+
+        # will raise if not config repo is found
+        j.tools.configmanager.path_configrepo
+
         self._block = block
 
         self._autosave_gl = gevent.spawn(_auto_save_services, data_dir=self._data_dir)
@@ -82,14 +87,13 @@ class Robot:
 
         # configure logger
         app._logger = logger
-        # app.logger_name = logger.name
 
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)
         hostport = _split_hostport(listen)
         self._http = WSGIServer(hostport, app, spawn=pool, log=app.logger, error_log=app.logger)
 
-        app.logger.info("robot running at %s:%s" % hostport)
+        logger.info("robot running at %s:%s" % hostport)
 
         if block:
             self._http.serve_forever()
@@ -113,7 +117,7 @@ class Robot:
         for h in self._sig_handler:
             h.cancel()
 
-        print('stopping robot')
+        logger.info('stopping robot')
         self._http.stop()
         self._http = None
 
