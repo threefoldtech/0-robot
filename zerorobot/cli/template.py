@@ -1,5 +1,7 @@
 import sys
 
+from js9 import j
+j.tools.prefab.local.bash.locale_check()
 import click
 from zerorobot.cli import utils
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager

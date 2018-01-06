@@ -2,6 +2,9 @@ import sys
 
 import click
 from js9 import j
+j.tools.prefab.local.bash.locale_check()
+
+
 from zerorobot.cli import utils
 
 
