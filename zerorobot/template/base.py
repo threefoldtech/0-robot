@@ -87,7 +87,7 @@ class TemplateBase:
     # path of the template on disk. This is set during template loading
     template_dir = None
 
-    def __init__(self, name, guid=None):
+    def __init__(self, name, guid=None, data=None):
         self.guid = guid or str(uuid4())
         self.name = name
         self.parent = None
@@ -96,6 +96,8 @@ class TemplateBase:
         self.api = ZeroRobotAPI()
 
         self.data = ServiceData(self)
+        if data:
+            self.data.update(data)
         self.state = ServiceState()
         self.task_list = TaskList()
 

@@ -89,9 +89,7 @@ def instantiate_service(template, name, data=None):
     if isinstance(template, str):
         template = get(template)
 
-    service = template(name)
-    if data is not None:
-        service.data.update(data)
+    service = template(name, data=data)
 
     scol.add(service)
     return service

@@ -67,6 +67,8 @@ def load(template, base_path):
 
     name = os.path.basename(base_path)
     service_info = j.data.serializer.yaml.load(os.path.join(base_path, 'service.yaml'))
+    service_data = j.data.serializer.yaml.load(os.path.join(base_path, 'data.yaml'))
+
     template_uid = TemplateUID.parse(service_info['template'])
     if template_uid != template.template_uid:
         raise BadTemplateError("Trying to load service %s with template %s, while it requires %s"
@@ -76,7 +78,7 @@ def load(template, base_path):
         raise BadTemplateError("Trying to load service from folder %s, but name of the service is %s"
                                % (base_path, service_info['name']))
 
-    srv = template(service_info['name'], service_info['guid'])
+    srv = template(service_info['name'], service_info['guid'], data=service_data)
     if service_info['parent']:
         srv.parent = get_by_guid(service_info['parent'])
 
