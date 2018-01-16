@@ -226,6 +226,18 @@ class TemplateBase:
         # remove from memory
         scol.delete(self)
 
+    def update_data(self, data):
+        """
+        This method needs to be implement by child class
+        when you want to control the update of the schema data
+
+        This method is called everytime the schema data is changed
+        by a blueprint.
+
+        @param data: is a dict with the new schema data
+        """
+        self.data.update(data)
+
 
 def _recurring_action(service, action, period):
     """

@@ -37,14 +37,13 @@ def ExecuteBlueprintHandler():
     for service in services:
         srv = None
         try:
-            srv = create_service(service['template'], service['service'], service['data'])
+            srv = tcol.instantiate_service(service['template'], service['service'], service['data'])
         except KeyError:
             return JSON.dumps({'code': 404, 'message': "template '%s' not found" % service['template']}), \
                 404, {"Content-type": 'application/json'}
         except ServiceConflictError:
-            # TODO: update service data
-            # srv = scol.get_by_name(service['service'])
-            pass
+            srv = scol.get_by_name(service['service'])
+            srv.data.update_secure(service.get('data', {}))
 
     for action in actions:
         try:
@@ -54,13 +53,6 @@ def ExecuteBlueprintHandler():
                 404, {"Content-type": 'application/json'}
 
     return "", 204, {"Content-type": 'application/json'}
-
-
-def create_service(template, name, data):
-    TemplateClass = tcol.get(template)
-    service = TemplateClass(name)
-    scol.add(service)
-    return service
 
 
 def schedule_action(service, action):

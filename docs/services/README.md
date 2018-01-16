@@ -33,8 +33,8 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None):
-        super().__init__(name=name, guid=guid)
+    def __init__(self, name, guid=None, data=None):
+        super().__init__(name=name, guid=guid, data=data)
 
     def foo(self):
         # access the data of the service
@@ -43,6 +43,37 @@ class Node(TemplateBase):
         self.data['version'] = "1.1.1"
         # this line will raise
         self.data['randomkey'] = 'value'
+```
+
+### Update data from blueprint
+When you send a blueprint that contains the definition of service that already exists. 
+The data from the blueprint will be proposed to the service. The service can then decide what to do with the new data.
+The writer of the service template must implement the method `update_data`:
+
+example:
+```python
+class Node(TemplateBase):
+
+    version = '0.0.1'
+    template_name = "node"
+
+    def __init__(self, name, guid=None, data=None):
+        super().__init__(name=name, guid=guid, data=data)
+
+     def update_data(self, d):
+        # foo is a field that can't be updated
+        # so we remove it from the proposed data
+        if 'foo' in d:
+            del ['foo']
+        
+        # then merge the rest of the data
+        self.data.update(d)
+        
+        # you can also add logic according
+        # to the data you update
+        self.reconnect_client()
+        # you probably want to save this state now
+        self.save()
 ```
 
 ## Service state
@@ -76,8 +107,8 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None):
-        super().__init__(name=name, guid=guid)
+    def __init__(self, name, guid=None, data=None):
+        super().__init__(name=name, guid=guid, data=data)
 
     def foo(self):
         try:
@@ -123,8 +154,8 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None):
-        super().__init__(name=name, guid=guid)
+    def __init__(self, name, guid=None, data=None):
+        super().__init__(name=name, guid=guid, data=data)
 
     # retry the method when the exception is RuntimeError or KeyError
     # it will wait 3, 6, 12, 16 seconds before raising the exception
@@ -150,8 +181,8 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None):
-        super().__init__(name=name, guid=guid)
+    def __init__(self, name, guid=None, data=None):
+        super().__init__(name=name, guid=guid, data=data)
 
     # set the timeout of the method to 60 second.
     # and set a custom error message
@@ -180,8 +211,8 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None):
-        super().__init__(name=name, guid=guid)
+    def __init__(self, name, guid=None, data=None):
+        super().__init__(name=name, guid=guid, data=data)
         # using the reference to the method
         self.recurring_action(self.foo, 10)
         # using the name of the method
@@ -206,8 +237,8 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None):
-        super().__init__(name=name, guid=guid)
+    def __init__(self, name, guid=None, data=None):
+        super().__init__(name=name, guid=guid, data=data)
         # using the reference to the method
         self.recurring_action(self.foo, 10)
         # using the name of the method
