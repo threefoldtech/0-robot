@@ -1040,6 +1040,13 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.template.data.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
+  </ul>
+
+    </li>
 
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
@@ -1052,6 +1059,7 @@ table {
     <li class="mono"><a href="#zerorobot.template.data.ServiceData.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.template.data.ServiceData.load">load</a></li>
     <li class="mono"><a href="#zerorobot.template.data.ServiceData.save">save</a></li>
+    <li class="mono"><a href="#zerorobot.template.data.ServiceData.update_secure">update_secure</a></li>
   </ul>
 
         </li>
@@ -1076,6 +1084,7 @@ table {
   <div id="source-zerorobot.template.data" class="source">
     <div class="codehilite"><pre><span></span><span class="n">mport</span> <span class="n">os</span>
 <span class="n">rom</span> <span class="n">js9</span> <span class="kn">import</span> <span class="nn">j</span>
+<span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">task</span> <span class="kn">import</span> <span class="nn">PRIORITY_SYSTEM</span>
 <span class="n">lass</span> <span class="n">ServiceData</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">   Small wrapper around dict object to make</span>
@@ -1085,11 +1094,24 @@ table {
        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       @param schema_path: path to the</span>
 <span class="sd">       &quot;&quot;&quot;</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
            <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
            <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+   <span class="k">def</span> <span class="nf">update_secure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+       <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       @param d: dict of data to be merge with current one</span>
+<span class="sd">       this method call update_data on the service</span>
+<span class="sd">       update_data can be overwritten by the creator of the service</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+       <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+           <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;argument should be a dict not </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+       <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="p">{}:</span>
+           <span class="k">return</span>
+       <span class="c1"># schedule the update of the data. This is required to serialize data access</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="s1">&#39;update_data&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">},</span> <span class="bp">None</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       Serialize the data into a file</span>
@@ -1109,6 +1131,15 @@ table {
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.template.data.PRIORITY_SYSTEM" class="name">var <span class="ident">PRIORITY_SYSTEM</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1132,11 +1163,27 @@ access to capnp object easy for the service</p></div>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        @param schema_path: path to the</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">update_secure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        @param d: dict of data to be merge with current one</span>
+
+<span class="sd">        this method call update_data on the service</span>
+<span class="sd">        update_data can be overwritten by the creator of the service</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;argument should be a dict not </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="p">{}:</span>
+            <span class="k">return</span>
+        <span class="c1"># schedule the update of the data. This is required to serialize data access</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="s1">&#39;update_data&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">},</span> <span class="bp">None</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1184,6 +1231,7 @@ access to capnp object easy for the service</p></div>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    @param schema_path: path to the</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
         <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -1243,6 +1291,40 @@ access to capnp object easy for the service</p></div>
 <span class="sd">    @param path: file path where to save the data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.data.ServiceData.update_secure">
+    <p>def <span class="ident">update_secure</span>(</p><p>self, d)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>@param d: dict of data to be merge with current one</p>
+<p>this method call update_data on the service
+update_data can be overwritten by the creator of the service</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data.ServiceData.update_secure', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.data.ServiceData.update_secure" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">update_secure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    @param d: dict of data to be merge with current one</span>
+<span class="sd">    this method call update_data on the service</span>
+<span class="sd">    update_data can be overwritten by the creator of the service</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;argument should be a dict not </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="p">{}:</span>
+        <span class="k">return</span>
+    <span class="c1"># schedule the update of the data. This is required to serialize data access</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="s1">&#39;update_data&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">},</span> <span class="bp">None</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
 </pre></div>
 
   </div>

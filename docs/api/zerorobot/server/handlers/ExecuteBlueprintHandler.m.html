@@ -1055,7 +1055,6 @@ table {
       
   <ul>
     <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.ExecuteBlueprintHandler">ExecuteBlueprintHandler</a></li>
-    <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.create_service">create_service</a></li>
     <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.schedule_action">schedule_action</a></li>
   </ul>
 
@@ -1117,14 +1116,13 @@ table {
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
         <span class="n">srv</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="n">create_service</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+            <span class="n">srv</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]}),</span> \
                 <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
         <span class="k">except</span> <span class="n">ServiceConflictError</span><span class="p">:</span>
-            <span class="c1"># TODO: update service data</span>
-            <span class="c1"># srv = scol.get_by_name(service[&#39;service&#39;])</span>
-            <span class="k">pass</span>
+            <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">])</span>
+            <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update_secure</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
 
     <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1134,13 +1132,6 @@ table {
                 <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-
-
-<span class="k">def</span> <span class="nf">create_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-    <span class="n">TemplateClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">TemplateClass</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">service</span>
 
 
 <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
@@ -1221,14 +1212,13 @@ It is handler for POST /blueprints</p></div>
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
         <span class="n">srv</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="n">create_service</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+            <span class="n">srv</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]}),</span> \
                 <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
         <span class="k">except</span> <span class="n">ServiceConflictError</span><span class="p">:</span>
-            <span class="c1"># TODO: update service data</span>
-            <span class="c1"># srv = scol.get_by_name(service[&#39;service&#39;])</span>
-            <span class="k">pass</span>
+            <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">])</span>
+            <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update_secure</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
 
     <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1238,30 +1228,6 @@ It is handler for POST /blueprints</p></div>
                 <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="zerorobot.server.handlers.ExecuteBlueprintHandler.create_service">
-    <p>def <span class="ident">create_service</span>(</p><p>template, name, data)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ExecuteBlueprintHandler.create_service', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.server.handlers.ExecuteBlueprintHandler.create_service" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-    <span class="n">TemplateClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">TemplateClass</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">service</span>
 </pre></div>
 
   </div>

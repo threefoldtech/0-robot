@@ -1063,6 +1063,7 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create">create</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.search">search</a></li>
   </ul>
 
         </li>
@@ -1107,10 +1108,10 @@ table {
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 <span class="kn">from</span> <span class="nn">zerorobot.dsl.ZeroRobotManager</span> <span class="kn">import</span> <span class="n">ZeroRobotManager</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
 
 
 <span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1151,10 +1152,29 @@ table {
 <span class="sd">        key is the guid of the service</span>
 <span class="sd">        value is a Service or ServiceProxy object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">)</span>
+        <span class="c1"># TODO: handle guid conflict between robots</span>
+        <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">services</span>
+
+    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">template_uid</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+            <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">services</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1491,10 +1511,29 @@ table {
 <span class="sd">        key is the guid of the service</span>
 <span class="sd">        value is a Service or ServiceProxy object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">)</span>
+        <span class="c1"># TODO: handle guid conflict between robots</span>
+        <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">services</span>
+
+    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">template_uid</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+            <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">services</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1603,6 +1642,38 @@ If not, it looks for a remote robot to create the service onto.</p>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.search">
+    <p>def <span class="ident">search</span>(</p><p>self, template_uid, parent=None)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.search', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.search" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">template_uid</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">services</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 </pre></div>
 
   </div>

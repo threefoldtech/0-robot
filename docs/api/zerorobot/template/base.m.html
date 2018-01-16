@@ -1085,6 +1085,7 @@ table {
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.recurring_action">recurring_action</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.save">save</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.schedule_action">schedule_action</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.TemplateBase.update_data">update_data</a></li>
   </ul>
 
         </li>
@@ -1335,6 +1336,18 @@ It is the class every template should inherits from.</p>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span><span class="p">)</span>
         <span class="c1"># remove from memory</span>
         <span class="n">scol</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method needs to be implement by child class</span>
+<span class="sd">        when you want to control the update of the schema data</span>
+
+<span class="sd">        This method is called everytime the schema data is changed</span>
+<span class="sd">        by a blueprint.</span>
+
+<span class="sd">        @param data: is a dict with the new schema data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_recurring_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
@@ -1851,6 +1864,18 @@ manage a group of greenlets</p>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datadir</span><span class="p">)</span>
         <span class="c1"># remove from memory</span>
         <span class="n">scol</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method needs to be implement by child class</span>
+<span class="sd">        when you want to control the update of the schema data</span>
+
+<span class="sd">        This method is called everytime the schema data is changed</span>
+<span class="sd">        by a blueprint.</span>
+
+<span class="sd">        @param data: is a dict with the new schema data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -2080,6 +2105,39 @@ Or from a local service or from a remote service trough RPC</p>
 <span class="sd">    @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.base.TemplateBase.update_data">
+    <p>def <span class="ident">update_data</span>(</p><p>self, data)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>This method needs to be implement by child class
+when you want to control the update of the schema data</p>
+<p>This method is called everytime the schema data is changed
+by a blueprint.</p>
+<p>@param data: is a dict with the new schema data</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.update_data', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.TemplateBase.update_data" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">update_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method needs to be implement by child class</span>
+<span class="sd">    when you want to control the update of the schema data</span>
+<span class="sd">    This method is called everytime the schema data is changed</span>
+<span class="sd">    by a blueprint.</span>
+<span class="sd">    @param data: is a dict with the new schema data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 
   </div>

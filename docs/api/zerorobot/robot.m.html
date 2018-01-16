@@ -1101,7 +1101,6 @@ table {
 <span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">GreenletExit</span>
 <span class="kn">from</span> <span class="nn">gevent.pool</span> <span class="kn">import</span> <span class="n">Pool</span>
 <span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
-
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
@@ -1142,7 +1141,7 @@ table {
 <span class="sd">        Set the url of the git repository to be used to serialize services state.</span>
 <span class="sd">        It can be the same of one of the template repository used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">getContentPathFromURLorPath</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">_git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
             <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
@@ -1251,8 +1250,9 @@ table {
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;schedule autosave </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
                 <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;base_path&#39;</span><span class="p">:</span> <span class="n">data_dir</span><span class="p">},</span> <span class="bp">None</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
-            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">GreenletExit</span><span class="p">:</span>
             <span class="k">break</span>
 
@@ -1337,7 +1337,7 @@ It is responsible to:
 <span class="sd">        Set the url of the git repository to be used to serialize services state.</span>
 <span class="sd">        It can be the same of one of the template repository used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">getContentPathFromURLorPath</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">_git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
             <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
@@ -1515,7 +1515,7 @@ It can be the same of one of the template repository used.</p></div>
 <span class="sd">    Set the url of the git repository to be used to serialize services state.</span>
 <span class="sd">    It can be the same of one of the template repository used.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">getContentPathFromURLorPath</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">_git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
         <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>

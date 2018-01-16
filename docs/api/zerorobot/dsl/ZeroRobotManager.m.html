@@ -1120,8 +1120,9 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 <span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-<span class="kn">from</span> <span class="nn">zerorobot.service_proxy</span> <span class="kn">import</span> <span class="n">ServiceProxy</span>
 <span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceConflictError</span>
+<span class="kn">from</span> <span class="nn">zerorobot.service_proxy</span> <span class="kn">import</span> <span class="n">ServiceProxy</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
 
 
 <span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1150,7 +1151,7 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 
     <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">srv</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="n">srv</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">template</span>
+        <span class="n">srv</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">template</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
             <span class="n">srv</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">srv</span>
@@ -1362,7 +1363,7 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 
     <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">srv</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="n">srv</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">template</span>
+        <span class="n">srv</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">template</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
             <span class="n">srv</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">srv</span>
