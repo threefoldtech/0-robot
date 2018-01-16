@@ -5,6 +5,7 @@ other services and class need to use this module method to load/access the templ
 
 import importlib.util
 import os
+import re
 import sys
 
 from js9 import j
@@ -12,6 +13,11 @@ from zerorobot import service_collection as scol
 from zerorobot.template_uid import TemplateUID
 
 logger = j.logger.get('zerorobot')
+
+_url_pattern_ssh = re.compile('^(git@)(.*?):(.*?)/(.*?)/?$')
+_url_pattern_ssh2 = re.compile('^(git@)(.*?)/(.*?)/(.*?)/?$')
+_url_pattern_http = re.compile('^(https?://)(.*?)/(.*?)/(.*?)/?$')
+
 
 _templates = {}
 
@@ -23,7 +29,7 @@ def add_repo(url, branch='master', directory='templates'):
     directory: the path to the directory where the templates are located in the repository
     """
     new_templates = []
-    dir_path = j.clients.git.getContentPathFromURLorPath(url)
+    dir_path = _git_path(url)
     if not os.path.exists(dir_path):
         dir_path = j.clients.git.pullGitRepo(url)
     for path in j.sal.fs.listDirsInDir(j.sal.fs.joinPaths(dir_path, directory)):
@@ -51,6 +57,43 @@ def list_templates():
     return list(_templates.values())
 
 
+def _parse_git_url(url):
+    """
+    return (protocol, repository_host, repository_account, repository_name)
+    """
+    sshmatch = _url_pattern_ssh.match(url)
+    sshmatch2 = _url_pattern_ssh2.match(url)
+    httpmatch = _url_pattern_http.match(url)
+    if sshmatch:
+        match = sshmatch
+    elif sshmatch2:
+        match = sshmatch2
+    elif httpmatch:
+        match = httpmatch
+    else:
+        raise RuntimeError(
+            "Url is invalid. Must be in the form of 'http(s)://hostname/account/repo' or 'git@hostname:account/repo'\nnow:\n%s" % url)
+
+    protocol, repository_host, repository_account, repository_name = match.groups()
+    repository_name = repository_name.split('.git')[0]
+    return (protocol, repository_host, repository_account, repository_name)
+
+
+def _git_path(url):
+    """
+    return the location on the filesystem where a git repo would be cloned
+    """
+    _, host, account, name = _parse_git_url(url)
+    host = host.split('.')[0]
+    dest = '%(codedir)s/%(type)s/%(account)s/%(repo_name)s' % {
+        'codedir': j.dirs.CODEDIR,
+        'type': host.lower(),
+        'account': account.lower(),
+        'repo_name': name,
+    }
+    return dest.split('.git')[0]
+
+
 def _load_template(url, template_dir):
     """
     load a template in memory from a file
@@ -75,7 +118,7 @@ def _load_template(url, template_dir):
 
     class_ = eval('module.%s' % class_name)
 
-    _, host, account, repo, _, _ = j.clients.git.rewriteGitRepoUrl(url)
+    _, host, account, repo = _parse_git_url(url)
 
     class_.template_uid = TemplateUID.parse("%s/%s/%s/%s/%s" % (host, account, repo, template_name, class_.version))
 

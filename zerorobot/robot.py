@@ -52,7 +52,7 @@ class Robot:
         Set the url of the git repository to be used to serialize services state.
         It can be the same of one of the template repository used.
         """
-        location = j.clients.git.getContentPathFromURLorPath(url)
+        location = tcol._git_path(url)
         if not os.path.exists(location):
             location = j.clients.git.pullGitRepo(url)
 
