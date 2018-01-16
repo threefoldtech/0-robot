@@ -4,9 +4,7 @@ from gevent import monkey
 # need to patch sockets to make requests async
 monkey.patch_all()
 
-
 from js9 import j
-j.tools.prefab.local.bash.locale_check()
 import click
 from zerorobot.robot import Robot
 

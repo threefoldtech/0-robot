@@ -3,10 +3,10 @@ from os import path
 from pathlib import Path
 
 import requests
-from js9 import j
-j.tools.prefab.local.bash.locale_check()
-import click
 
+from js9 import j
+
+import click
 from zerorobot.cli import utils
 
 _location = 'j.clients.zrobot'
