@@ -33,9 +33,11 @@ class ServicesMgr:
         key is the name of the service
         value is a Service or ServiceProxy object
         """
-        services = scol._name_index
+        services = {}
         for robot in self._base.robots.values():
             services.update(robot.services.names)
+        # TODO: handle naming conflict between robots
+        services.update(scol._name_index)
         return services
 
     @property
