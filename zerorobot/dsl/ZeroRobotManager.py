@@ -8,8 +8,9 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 from requests.exceptions import HTTPError
 
 from js9 import j
-from zerorobot.service_proxy import ServiceProxy
 from zerorobot.service_collection import ServiceConflictError
+from zerorobot.service_proxy import ServiceProxy
+from zerorobot.template_uid import TemplateUID
 
 
 class TemplateNotFoundError(Exception):
@@ -38,7 +39,7 @@ class ServicesMgr:
 
     def _instantiate(self, data):
         srv = ServiceProxy(data.name, data.guid, self._client)
-        srv.template_uid = data.template
+        srv.template_uid = TemplateUID.parse(data.template)
         if data.parent:
             srv.parent = self._get(data.parent)
         return srv

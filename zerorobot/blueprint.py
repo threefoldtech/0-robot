@@ -10,7 +10,7 @@ import re
 import yaml
 
 from js9 import j
-from zerorobot.template_collection import TemplateUID
+from zerorobot.template_uid import TemplateUID
 
 
 def parse(content):

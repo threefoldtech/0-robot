@@ -118,3 +118,14 @@ class TestZRobotAPI(unittest.TestCase):
         # the api should get all services from both local and remote robots
         self.assertEqual(len(self.api.services.names), 2)
         self.assertEqual(len(self.api.services.guids), 2)
+
+    def test_service_search(self):
+        node1 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
+        node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
+        vm1 = self.api.services.create("github.com/jumpscale/0-robot/vm/0.0.1", 'vm1')
+
+        results = self.api.services.search("github.com/jumpscale/0-robot/node/0.0.1")
+        self.assertEqual(len(results), 2)
+        guids = [node1.guid, node2.guid]
+        for s in results:
+            self.assertIn(s.guid, guids)

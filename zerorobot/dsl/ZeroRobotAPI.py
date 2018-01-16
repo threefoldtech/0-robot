@@ -5,10 +5,10 @@ It provie ways to create and list services from a group of ZeroRobots in a unifi
 """
 
 from js9 import j
-
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
+from zerorobot.template_uid import TemplateUID
 
 
 class TemplateNotFoundError(Exception):
@@ -49,10 +49,29 @@ class ServicesMgr:
         key is the guid of the service
         value is a Service or ServiceProxy object
         """
-        services = scol._guid_index
+        services = {}
         for robot in self._base.robots.values():
             services.update(robot.services.guids)
+        # TODO: handle guid conflict between robots
+        services.update(scol._guid_index)
         return services
+
+    def search(self, template_uid, parent=None):
+        if isinstance(template_uid, str):
+            template_uid = TemplateUID.parse(template_uid)
+
+        services = {}
+        for robot in self._base.robots.values():
+            for service in robot.services.guids.values():
+                if service.template_uid == template_uid:
+                    if parent and (service.parent is None or service.parent.guid != parent.guid):
+                        continue
+                    services[service.guid] = service
+
+        for service in scol.search(template_uid, parent):
+            services[service.guid] = service
+
+        return list(services.values())
 
     def create(self, template_uid, service_name, data=None):
         """

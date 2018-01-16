@@ -1,6 +1,7 @@
 import unittest
 
 from zerorobot import service_collection as scol
+from zerorobot.template_uid import TemplateUID
 
 
 class FakeService:
@@ -8,6 +9,17 @@ class FakeService:
     def __init__(self, guid, name):
         self.name = name
         self.guid = guid
+        self.parent = None
+        self.template_uid = TemplateUID.parse('github.com/jumpscale/0-robot/fakeservice/0.0.1')
+
+
+class FakeService2:
+
+    def __init__(self, guid, name):
+        self.name = name
+        self.guid = guid
+        self.parent = None
+        self.template_uid = TemplateUID.parse('github.com/jumpscale/0-robot/other/0.0.1')
 
 
 class TestServiceCollection(unittest.TestCase):
@@ -55,3 +67,22 @@ class TestServiceCollection(unittest.TestCase):
         self.assertIn(s1, services, 'service s1 should be in the returned service list')
         self.assertIn(s2, services, 'service s2 should be in the returned service list')
         self.assertNotIn(s3, services, 'service s3 should not be in the returned service list')
+
+    def test_search_services(self):
+        s1 = FakeService('1111', 's1')
+        s2 = FakeService('2222', 's2')
+        s3 = FakeService2('3333', 's3')
+        s2.parent = s1
+        scol.add(s1)
+        scol.add(s2)
+        scol.add(s3)
+
+        results = scol.search('github.com/jumpscale/0-robot/fakeservice/0.0.1')
+        self.assertEqual(len(results), 2)
+        guids = [s1.guid, s2.guid]
+        for s in results:
+            self.assertIn(s.guid, guids)
+
+        results = scol.search('github.com/jumpscale/0-robot/fakeservice/0.0.1', parent=s1)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].guid, s2.guid)

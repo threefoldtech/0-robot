@@ -5,8 +5,7 @@ other services and class need to use this module method to create, access, list 
 import os
 
 from js9 import j
-
-from zerorobot.template_collection import TemplateUID
+from zerorobot.template_uid import TemplateUID
 
 logger = j.logger.get('zerorobot')
 
@@ -42,6 +41,18 @@ def get_by_guid(guid):
 
 def list_services():
     return list(_guid_index.values())
+
+
+def search(template_uid, parent=None):
+    if isinstance(template_uid, str):
+        template_uid = TemplateUID.parse(template_uid)
+    result = set()
+    for s in list_services():
+        if s.template_uid == template_uid:
+            if parent and (s.parent is None or s.parent.guid != parent.guid):
+                continue
+            result.add(s)
+    return list(result)
 
 
 def delete(service):
