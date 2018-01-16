@@ -69,6 +69,9 @@ def createService():
         service = None
         return JSON.dumps({'code': 409, 'message': "a service with name '%s' already exists" % inputs['name']}), \
             409, {"Content-type": 'application/json'}
+    except Exception as err:
+        service = None
+        return JSON.dumps({'code': 500, 'message': str(err)}), 500, {"Content-type": 'application/json'}
 
     return JSON.dumps(service_view(service)), 201, {"Content-type": 'application/json'}
 

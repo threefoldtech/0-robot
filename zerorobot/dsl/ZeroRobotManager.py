@@ -20,6 +20,16 @@ class TemplateNotFoundError(Exception):
     pass
 
 
+class ServiceCreateError(Exception):
+    """
+    Exception raised when service fail to create
+    """
+
+    def __init__(self, msg, original_exception):
+        super().__init__(msg + (": %s" % original_exception))
+        self.original_exception = original_exception
+
+
 class ServicesMgr:
 
     def __init__(self, robot):
@@ -36,6 +46,9 @@ class ServicesMgr:
     def _get(self, guid=None):
         resp = self._client.api.services.GetService(guid)
         return self._instantiate(resp.data)
+
+    def get(self, template_uid, name):
+        self._client.api.services.GetService()
 
     @property
     def names(self):
@@ -93,8 +106,8 @@ class ServicesMgr:
         except HTTPError as err:
             if err.response.status_code == 409:
                 raise ServiceConflictError(err.response.json()['message'])
-            # print(err.response.json())
-            raise err
+            e = err.response.json()
+            raise ServiceCreateError(e['message'], err)
 
         service = ServiceProxy(service_name, resp.data.guid, self._client)
         return service
