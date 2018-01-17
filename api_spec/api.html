@@ -1,4 +1,18 @@
-<!DOCTYPE HTML><html><head><title>ZeroRobot API documentation</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="generator" content="https://github.com/raml2html/raml2html 6.4.2"><link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css"><script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script><script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script><script type="text/javascript">
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>ZeroRobot API documentation</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="generator" content="https://github.com/raml2html/raml2html 6.4.2">
+
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
+
+    <script type="text/javascript">
       $(document).ready(function() {
         $('.page-header pre code, .top-resource-description pre code, .modal-body pre code').each(function(i, block) {
           hljs.highlightBlock(block);
@@ -34,7 +48,9 @@
           } catch(e) {}
         });
       });
-    </script><style>
+    </script>
+
+    <style>
       .hljs {
         background: transparent;
       }
@@ -166,7 +182,198 @@
       .resource-modal li > ul {
         margin-bottom: 1em;
       }
-    </style></head><body data-spy="scroll" data-target="#sidebar"><div class="container"><div class="row"><div class="col-md-9" role="main"><div class="page-header"><h1>ZeroRobot API documentation <small>version 0.0.1</small></h1><p></p><p>API of the ZeroRobot, used for management and communication between ZeroRobots</p><h3 id="extended_documentation"><a href="#extended_documentation">Extended documentation</a></h3><p><a href="https://github.com/Jumpscale/zerorobot/tree/first_draft/docs">https://github.com/Jumpscale/zerorobot/tree/first_draft/docs</a></p></div><div class="panel panel-default"><div class="panel-heading"><h3 id="blueprints" class="panel-title">/blueprints</h3></div><div class="panel-body"><div class="top-resource-description"><p>A blueprint is a description of which service you want to create and what action you want to add to a task list.</p></div><div class="panel-group"><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_blueprints"><span class="parent"></span>/blueprints</a> <span class="methods"><a href="#blueprints_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_blueprints" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#blueprints_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Execute a blueprint on the ZeroRobot</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="blueprints_post"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent"></span>/blueprints</h4></div><div class="modal-body"><div class="alert alert-info"><p>Execute a blueprint on the ZeroRobot</p></div><ul class="nav nav-tabs"><li class="active"><a href="#blueprints_post_request" data-toggle="tab">Request</a></li><li><a href="#blueprints_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="blueprints_post_request"><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>content</strong>: <em>required (object)</em><ul></ul></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+    </style>
+  </head>
+
+  <body data-spy="scroll" data-target="#sidebar">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-9" role="main">
+          <div class="page-header">
+            <h1>ZeroRobot API documentation <small>version 0.0.1</small></h1>
+            <p></p>
+
+            
+              <p>API of the ZeroRobot, used for management and communication between ZeroRobots</p>
+            
+
+            
+
+            
+              <h3 id="extended_documentation"><a href="#extended_documentation">Extended documentation</a></h3>
+<p><a href="https://github.com/Jumpscale/0-robot/tree/first_draft/docs">https://github.com/Jumpscale/0-robot/tree/first_draft/docs</a></p>
+
+            
+          </div>
+
+          
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 id="blueprints" class="panel-title">/blueprints</h3>
+              </div>
+
+              <div class="panel-body">
+                
+                  <div class="top-resource-description">
+<p>A blueprint is a description of which service you want to create
+and what action you want to add to a task list.</p>
+
+                  </div>
+                
+
+                <div class="panel-group">
+                  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_blueprints">
+          <span class="parent"></span>/blueprints
+        </a>
+
+        <span class="methods">
+          
+            <a href="#blueprints_post"><!-- modal shown by hashchange event -->
+              <span class="badge badge_post">post</span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_blueprints" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#blueprints_post'" class="list-group-item">
+              <span class="badge badge_post">post</span>
+              <div class="method_description">
+<p>Execute a blueprint on the ZeroRobot</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="blueprints_post">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_post">post</span>
+                <span class="parent"></span>/blueprints
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Execute a blueprint on the ZeroRobot</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#blueprints_post_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#blueprints_post_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="blueprints_post_request">
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                      <h3>Body</h3>
+                      
+                        <p><strong>Media type</strong>: application/json</p>
+
+                        
+                          
+                            
+                              <p><strong>Type</strong>: object</p>
+                            
+                          
+                        
+
+                        
+
+                        
+
+                        
+                          <strong>Properties</strong>
+                          <ul>
+                            
+                              <li>
+  <strong>content</strong>:
+
+    
+      <em>required (object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                          </ul>
+                        
+
+                        
+                        
+                        
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
   "content": {
     "node__node1": {
       "ip": "192.168.1.10",
@@ -178,48 +385,1734 @@
       "action": "start"
     }
   }
-}</code></pre></div></div><div class="tab-pane" id="blueprints_post_response"><h2>HTTP status code <a href="http://httpstatus.es/204" target="_blank">204</a></h2><p>Blueprint executed successfully Which mean all the service have been created and all actions added to the task list</p></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="templates" class="panel-title">/templates</h3></div><div class="panel-body"><div class="top-resource-description"><p>Templates are the source of the services. A service is just an instance of a template. To be able to create services, you need to first make some template available to the ZeroRobot by cloning a git repository that contains template. Once the templates are available, you can send blueprint with the description of which service to create.</p></div><div class="panel-group"><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_templates"><span class="parent"></span>/templates</a> <span class="methods"><a href="#templates_get"><span class="badge badge_get">get</span></a> <a href="#templates_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_templates" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#templates_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List all the templates available to the ZeroRobot</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#templates_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Clone a template repository and make the templates available to the ZeroRobot</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="templates_get"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent"></span>/templates</h4></div><div class="modal-body"><div class="alert alert-info"><p>List all the templates available to the ZeroRobot</p></div><ul class="nav nav-tabs"><li class="active"><a href="#templates_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="templates_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: array of Template</p><p><strong>Items</strong>: Template</p><div class="items"><ul><li><strong>version</strong>: <em>required (string)</em></li><li><strong>name</strong>: <em>required (string)</em></li></ul></div></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="templates_post"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent"></span>/templates</h4></div><div class="modal-body"><div class="alert alert-info"><p>Clone a template repository and make the templates available to the ZeroRobot</p></div><ul class="nav nav-tabs"><li class="active"><a href="#templates_post_request" data-toggle="tab">Request</a></li><li><a href="#templates_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="templates_post_request"><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>url</strong>: <em>required (string)</em><p>URL of the git repository to clone. Need to be under one of these format</p><ul><li>git@github.com:account/repository.git</li><li><a href="https://github.com/account/repository.git">https://github.com/account/repository.git</a></li></ul></li><li><strong>branch</strong>: <em>(string - default: master)</em><p>branch of the repository to clone. If not specified, default to master</p></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+}</code></pre>
+        
+    </div>
+
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="blueprints_post_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/204" target="_blank">204</a></h2>
+<p>Blueprint executed successfully
+Which mean all the service have been created and all actions added to the task list</p>
+
+
+                      
+
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+
+                </div>
+              </div>
+            </div>
+          
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 id="templates" class="panel-title">/templates</h3>
+              </div>
+
+              <div class="panel-body">
+                
+                  <div class="top-resource-description">
+<p>Templates are the source of the services. A service is just an instance of a template.
+To be able to create services, you need to first make some template available to the ZeroRobot by cloning
+a git repository that contains template.
+Once the templates are available, you can send blueprint with the description of which service to create.</p>
+
+                  </div>
+                
+
+                <div class="panel-group">
+                  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_templates">
+          <span class="parent"></span>/templates
+        </a>
+
+        <span class="methods">
+          
+            <a href="#templates_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get</span>
+            </a>
+          
+            <a href="#templates_post"><!-- modal shown by hashchange event -->
+              <span class="badge badge_post">post</span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_templates" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#templates_get'" class="list-group-item">
+              <span class="badge badge_get">get</span>
+              <div class="method_description">
+<p>List all the templates available to the ZeroRobot</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+            <div onclick="window.location.href = '#templates_post'" class="list-group-item">
+              <span class="badge badge_post">post</span>
+              <div class="method_description">
+<p>Clone a template repository and make the templates available to the ZeroRobot</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="templates_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get</span>
+                <span class="parent"></span>/templates
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>List all the templates available to the ZeroRobot</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+
+                
+                  <li class="active">
+                    <a href="#templates_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+
+                
+                  <div class="tab-pane active" id="templates_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: array of Template</p>
+                              
+                            
+                          
+
+                          
+
+                          
+                            
+
+                            
+                              <p><strong>Items</strong>: Template</p>
+
+                              
+                                <div class="items">
+                                  
+                                    <ul>
+                                      
+                                        <li>
+  <strong>uid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>This is the unique identifier of a template.
+A tempate UID is identify by the url fo the git repository from where it comes from.
+There are different informations extracted from</p>
+<ul>
+<li>the host</li>
+<li>the account</li>
+<li>the repository name</li>
+<li>the name of the template itself</li>
+<li>a version</li>
+</ul>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>host</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>account</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>repository</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>version</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                    </ul>
+                                  
+
+                                  
+                                  
+                                  
+                                </div>
+                              
+                            
+                          
+
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="modal fade" tabindex="0" id="templates_post">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_post">post</span>
+                <span class="parent"></span>/templates
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Clone a template repository and make the templates available to the ZeroRobot</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#templates_post_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#templates_post_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="templates_post_request">
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                      <h3>Body</h3>
+                      
+                        <p><strong>Media type</strong>: application/json</p>
+
+                        
+                          
+                            
+                              <p><strong>Type</strong>: object</p>
+                            
+                          
+                        
+
+                        
+
+                        
+
+                        
+                          <strong>Properties</strong>
+                          <ul>
+                            
+                              <li>
+  <strong>url</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>URL of the git repository to clone.
+Need to be under one of these format</p>
+<ul>
+<li>git@github.com:account/repository.git</li>
+<li><a href="https://github.com/account/repository.git">https://github.com/account/repository.git</a></li>
+</ul>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                              <li>
+  <strong>branch</strong>:
+
+    
+      <em>(string - default: master)
+      </em>
+    
+  
+
+<p>branch of the repository to clone. If not specified, default to master</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                          </ul>
+                        
+
+                        
+                        
+                        
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
   "url": "https://github.com/account/repository.git",
   "branch": "master"
-}</code></pre></div></div><div class="tab-pane" id="templates_post_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><p>Template successfully added</p><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: array of Template</p><p><strong>Items</strong>: Template</p><div class="items"><ul><li><strong>version</strong>: <em>required (string)</em></li><li><strong>name</strong>: <em>required (string)</em></li></ul></div></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="services" class="panel-title">/services</h3></div><div class="panel-body"><div class="top-resource-description"><p>Services are the core of the ZeroRobot. It is the services that hold state, data and execute actions.</p></div><div class="panel-group"><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_services"><span class="parent"></span>/services</a> <span class="methods"><a href="#services_get"><span class="badge badge_get">get</span></a> <a href="#services_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_services" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#services_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List all the services known by the ZeroRobot.</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#services_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>create a new service</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="services_get"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent"></span>/services</h4></div><div class="modal-body"><div class="alert alert-info"><p>List all the services known by the ZeroRobot.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#services_get_request" data-toggle="tab">Request</a></li></ul><div class="tab-content"><div class="tab-pane active" id="services_get_request"><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: array of Service</p><p><strong>Items</strong>: Service</p><div class="items"><ul><li><strong>template</strong>: <em>required (string)</em><p>This is the full qualified name of a template using the URL from it&#39;s repository</p></li><li><strong>version</strong>: <em>required (string)</em></li><li><strong>guid</strong>: <em>required (string)</em></li><li><strong>name</strong>: <em>required (string)</em></li><li><strong>state</strong>: <em>required (array of ServiceState)</em><p><strong>Items</strong>: ServiceState</p><div class="items"><ul><li><strong>category</strong>: <em>required (string)</em></li><li><strong>tag</strong>: <em>required (string)</em></li><li><strong>state</strong>: <em>required (one of ok, error)</em></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+}</code></pre>
+        
+    </div>
+
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="templates_post_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2>
+<p>Template successfully added</p>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: array of Template</p>
+                              
+                            
+                          
+
+                          
+
+                          
+                            
+
+                            
+                              <p><strong>Items</strong>: Template</p>
+
+                              
+                                <div class="items">
+                                  
+                                    <ul>
+                                      
+                                        <li>
+  <strong>uid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>This is the unique identifier of a template.
+A tempate UID is identify by the url fo the git repository from where it comes from.
+There are different informations extracted from</p>
+<ul>
+<li>the host</li>
+<li>the account</li>
+<li>the repository name</li>
+<li>the name of the template itself</li>
+<li>a version</li>
+</ul>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>host</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>account</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>repository</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>version</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                    </ul>
+                                  
+
+                                  
+                                  
+                                  
+                                </div>
+                              
+                            
+                          
+
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+
+                </div>
+              </div>
+            </div>
+          
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 id="services" class="panel-title">/services</h3>
+              </div>
+
+              <div class="panel-body">
+                
+                  <div class="top-resource-description">
+<p>Services are the core of the ZeroRobot. It is the services that hold state, data and execute actions.</p>
+
+                  </div>
+                
+
+                <div class="panel-group">
+                  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_services">
+          <span class="parent"></span>/services
+        </a>
+
+        <span class="methods">
+          
+            <a href="#services_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get</span>
+            </a>
+          
+            <a href="#services_post"><!-- modal shown by hashchange event -->
+              <span class="badge badge_post">post</span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_services" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#services_get'" class="list-group-item">
+              <span class="badge badge_get">get</span>
+              <div class="method_description">
+<p>List all the services known by the ZeroRobot.</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+            <div onclick="window.location.href = '#services_post'" class="list-group-item">
+              <span class="badge badge_post">post</span>
+              <div class="method_description">
+<p>create a new service</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="services_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get</span>
+                <span class="parent"></span>/services
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>List all the services known by the ZeroRobot.</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+
+                
+                  <li class="active">
+                    <a href="#services_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+
+                
+                  <div class="tab-pane active" id="services_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: array of Service</p>
+                              
+                            
+                          
+
+                          
+
+                          
+                            
+
+                            
+                              <p><strong>Items</strong>: Service</p>
+
+                              
+                                <div class="items">
+                                  
+                                    <ul>
+                                      
+                                        <li>
+  <strong>template</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>This is the UID of a template</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>version</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>state</strong>:
+
+    
+      <em>required (array of ServiceState)
+      </em>
+    
+  
+
+
+
+  
+
+  
+    
+
+    
+      <p><strong>Items</strong>: ServiceState</p>
+
+      
+        <div class="items">
+          
+            <ul>
+              
+                <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>tag</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of ok, error)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+            </ul>
+          
+
+          
+          
+          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
   "category": "network",
   "tag": "local-tcp-443",
   "state": "ok"
-}</code></pre></div></div></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
-  "template": "github.com/account/repository/master/node.zero-os",
-  "version": "1.0.1",
-  "name": "node1",
-  "state": [
-    {
-      "category": "network",
-      "tag": "local-tcp-6379",
-      "state": "ok"
-    },
-    {
-      "category": "network",
-      "tag": "local-http-80",
-      "state": "ok"
-    },
-    {
-      "category": "data",
-      "tag": "db",
-      "state": "ok"
-    }
-  ]
-}</code></pre></div></div></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="services_post"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent"></span>/services</h4></div><div class="modal-body"><div class="alert alert-info"><p>create a new service</p></div><ul class="nav nav-tabs"><li class="active"><a href="#services_post_request" data-toggle="tab">Request</a></li><li><a href="#services_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="services_post_request"><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>template</strong>: <em>required (string)</em><p>This is the full qualified name of a template using the URL from it&#39;s repository</p></li><li><strong>version</strong>: <em>required (string)</em></li><li><strong>name</strong>: <em>required (string)</em></li><li><strong>data</strong>: <em>(object)</em><p>Instance data used to create the service</p><ul></ul></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
-  "template": "github.com/account/repository/master/node.zero-os",
-  "version": "1.0.1",
-  "name": "node1",
+}</code></pre>
+        
+    </div>
+
+        </div>
+      
+    
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>parent</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>guid of the parent service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                    </ul>
+                                  
+
+                                  
+                                  
+                                  
+                                </div>
+                              
+                            
+                          
+
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="modal fade" tabindex="0" id="services_post">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_post">post</span>
+                <span class="parent"></span>/services
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>create a new service</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services_post_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services_post_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services_post_request">
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                      <h3>Body</h3>
+                      
+                        <p><strong>Media type</strong>: application/json</p>
+
+                        
+                          
+                            
+                              <p><strong>Type</strong>: object</p>
+                            
+                          
+                        
+
+                        
+
+                        
+
+                        
+                          <strong>Properties</strong>
+                          <ul>
+                            
+                              <li>
+  <strong>template</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>This is UID of a template</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                              <li>
+  <strong>name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                              <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>Instance data used to create the service</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                          </ul>
+                        
+
+                        
+                        
+                        
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "template": "github.com/jumpscale/0-robot/node/1.0.1",
+  "name": "vm1",
   "data": {
-    "ip_addr": "192.168.1.10",
-    "port": 6379
+    "cpu_nr": 2,
+    "memory": 1024
   }
-}</code></pre></div></div><div class="tab-pane" id="services_post_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><p>Service created successfully</p><h3>Headers</h3><ul><li><strong>Location</strong>: <em>required (string)</em><p>URL to the created service resource</p></li></ul><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>template</strong>: <em>required (string)</em><p>This is the full qualified name of a template using the URL from it&#39;s repository</p></li><li><strong>version</strong>: <em>required (string)</em></li><li><strong>guid</strong>: <em>required (string)</em></li><li><strong>name</strong>: <em>required (string)</em></li><li><strong>state</strong>: <em>required (array of ServiceState)</em><p><strong>Items</strong>: ServiceState</p><div class="items"><ul><li><strong>category</strong>: <em>required (string)</em></li><li><strong>tag</strong>: <em>required (string)</em></li><li><strong>state</strong>: <em>required (one of ok, error)</em></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+}</code></pre>
+        
+    </div>
+
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services_post_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2>
+<p>Service created successfully</p>
+
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Location</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>URL to the created service resource</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>template</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>This is the UID of a template</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>version</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (array of ServiceState)
+      </em>
+    
+  
+
+
+
+  
+
+  
+    
+
+    
+      <p><strong>Items</strong>: ServiceState</p>
+
+      
+        <div class="items">
+          
+            <ul>
+              
+                <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>tag</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of ok, error)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+            </ul>
+          
+
+          
+          
+          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
   "category": "network",
   "tag": "local-tcp-443",
   "state": "ok"
-}</code></pre></div></div></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
-  "template": "github.com/account/repository/master/node.zero-os",
+}</code></pre>
+        
+    </div>
+
+        </div>
+      
+    
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>parent</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>guid of the parent service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "guid": "7040fda3-08e1-4109-829c-925a907809f9",
+  "template": "github.com/jumpscale/0-robot/node/0.0.1",
   "version": "1.0.1",
   "name": "node1",
   "state": [
@@ -239,12 +2132,510 @@
       "state": "ok"
     }
   ]
-}</code></pre></div><h2>HTTP status code <a href="http://httpstatus.es/400" target="_blank">400</a></h2><p>Bad request. Could be because the template asked doesn&#39;t exist or the request is not properly formatted body: type: Error</p><h2>HTTP status code <a href="http://httpstatus.es/409" target="_blank">409</a></h2><p>Conflict, a service with this name already exists in this ZeroRobot.</p></div></div></div></div></div></div></div><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid_"><span class="parent">/services</span>/{service_guid}</a> <span class="methods"><a href="#services__service_guid__get"><span class="badge badge_get">get</span></a> <a href="#services__service_guid__delete"><span class="badge badge_delete">delete</span></a></span></h4></div><div id="panel_services__service_guid_" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#services__service_guid__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Get the detail of a service</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#services__service_guid__delete'" class="list-group-item"><span class="badge badge_delete">delete</span><div class="method_description"><p>Delete a service</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="services__service_guid__get"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/services</span>/{service_guid}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Get the detail of a service</p></div><ul class="nav nav-tabs"><li class="active"><a href="#services__service_guid__get_request" data-toggle="tab">Request</a></li><li><a href="#services__service_guid__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="services__service_guid__get_request"><h3>URI Parameters</h3><ul><li><strong>service_guid</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="services__service_guid__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>template</strong>: <em>required (string)</em><p>This is the full qualified name of a template using the URL from it&#39;s repository</p></li><li><strong>version</strong>: <em>required (string)</em></li><li><strong>guid</strong>: <em>required (string)</em></li><li><strong>name</strong>: <em>required (string)</em></li><li><strong>state</strong>: <em>required (array of ServiceState)</em><p><strong>Items</strong>: ServiceState</p><div class="items"><ul><li><strong>category</strong>: <em>required (string)</em></li><li><strong>tag</strong>: <em>required (string)</em></li><li><strong>state</strong>: <em>required (one of ok, error)</em></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+}</code></pre>
+        
+    </div>
+
+                        
+                      
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/400" target="_blank">400</a></h2>
+<p>Bad request.
+Could be because the template asked doesn&#39;t exist
+or the request is not properly formatted
+body:
+  type: Error</p>
+
+
+                      
+
+                      
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/409" target="_blank">409</a></h2>
+<p>Conflict, a service with this name already exists in this ZeroRobot.</p>
+
+
+                      
+
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid_">
+          <span class="parent">/services</span>/{service_guid}
+        </a>
+
+        <span class="methods">
+          
+            <a href="#services__service_guid__get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get</span>
+            </a>
+          
+            <a href="#services__service_guid__put"><!-- modal shown by hashchange event -->
+              <span class="badge badge_put">put</span>
+            </a>
+          
+            <a href="#services__service_guid__delete"><!-- modal shown by hashchange event -->
+              <span class="badge badge_delete">delete</span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_services__service_guid_" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#services__service_guid__get'" class="list-group-item">
+              <span class="badge badge_get">get</span>
+              <div class="method_description">
+<p>Get the detail of a service</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+            <div onclick="window.location.href = '#services__service_guid__put'" class="list-group-item">
+              <span class="badge badge_put">put</span>
+              <div class="method_description">
+<p>Upgrade a service from one version to another</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+            <div onclick="window.location.href = '#services__service_guid__delete'" class="list-group-item">
+              <span class="badge badge_delete">delete</span>
+              <div class="method_description">
+<p>Delete a service</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="services__service_guid__get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get</span>
+                <span class="parent">/services</span>/{service_guid}
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Get the detail of a service</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services__service_guid__get_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services__service_guid__get_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>template</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>This is the UID of a template</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>version</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (array of ServiceState)
+      </em>
+    
+  
+
+
+
+  
+
+  
+    
+
+    
+      <p><strong>Items</strong>: ServiceState</p>
+
+      
+        <div class="items">
+          
+            <ul>
+              
+                <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>tag</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of ok, error)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+            </ul>
+          
+
+          
+          
+          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
   "category": "network",
   "tag": "local-tcp-443",
   "state": "ok"
-}</code></pre></div></div></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
-  "template": "github.com/account/repository/master/node.zero-os",
+}</code></pre>
+        
+    </div>
+
+        </div>
+      
+    
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>parent</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>guid of the parent service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "guid": "7040fda3-08e1-4109-829c-925a907809f9",
+  "template": "github.com/jumpscale/0-robot/node/0.0.1",
   "version": "1.0.1",
   "name": "node1",
   "state": [
@@ -264,7 +2655,3423 @@
       "state": "ok"
     }
   ]
-}</code></pre></div><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>Service with this guid not found</p><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>code</strong>: <em>required (integer)</em><p>error code</p></li><li><strong>message</strong>: <em>required (string)</em><p>Human friendly error message</p></li><li><strong>stack_trace</strong>: <em>(string)</em><p>optional stack_trace attached with the error.</p></li></ul></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="services__service_guid__delete"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_delete">delete</span> <span class="parent">/services</span>/{service_guid}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Delete a service</p></div><ul class="nav nav-tabs"><li class="active"><a href="#services__service_guid__delete_request" data-toggle="tab">Request</a></li><li><a href="#services__service_guid__delete_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="services__service_guid__delete_request"><h3>URI Parameters</h3><ul><li><strong>service_guid</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="services__service_guid__delete_response"><h2>HTTP status code <a href="http://httpstatus.es/204" target="_blank">204</a></h2><p>Service deleted successfully</p></div></div></div></div></div></div></div><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid__actions"><span class="parent">/services/{service_guid}</span>/actions</a> <span class="methods"><a href="#services__service_guid__actions_get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_services__service_guid__actions" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#services__service_guid__actions_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List all the possible action a service can do.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="services__service_guid__actions_get"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/services/{service_guid}</span>/actions</h4></div><div class="modal-body"><div class="alert alert-info"><p>List all the possible action a service can do.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#services__service_guid__actions_get_request" data-toggle="tab">Request</a></li><li><a href="#services__service_guid__actions_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="services__service_guid__actions_get_request"><h3>URI Parameters</h3><ul><li><strong>service_guid</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="services__service_guid__actions_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: array of Action</p><p><strong>Items</strong>: Action</p><div class="items"><ul><li><strong>name</strong>: <em>required (string)</em></li><li><strong>arguments</strong>: <em>(array of )</em></li></ul></div></div></div></div></div></div></div></div><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid__task_list"><span class="parent">/services/{service_guid}</span>/task_list</a> <span class="methods"><a href="#services__service_guid__task_list_get"><span class="badge badge_get">get</span></a> <a href="#services__service_guid__task_list_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_services__service_guid__task_list" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>A task list is all the actions that are scheduled for a service</p></div><div class="list-group"><div onclick="window.location.href = '#services__service_guid__task_list_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Return all the action in the task list</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#services__service_guid__task_list_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Add a task to the task list</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="services__service_guid__task_list_get"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/services/{service_guid}</span>/task_list</h4></div><div class="modal-body"><div class="alert alert-info"><p>Return all the action in the task list</p></div><ul class="nav nav-tabs"><li class="active"><a href="#services__service_guid__task_list_get_request" data-toggle="tab">Request</a></li></ul><div class="tab-content"><div class="tab-pane active" id="services__service_guid__task_list_get_request"><h3>URI Parameters</h3><ul><li><strong>service_guid</strong>: <em>required (string)</em></li></ul><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: array of Task</p><p><strong>Items</strong>: Task</p><div class="items"><ul><li><strong>action_name</strong>: <em>required (string)</em></li><li><strong>args</strong>: <em>(object)</em><ul></ul></li><li><strong>template_name</strong>: <em>required (string)</em></li><li><strong>service_name</strong>: <em>required (string)</em></li><li><strong>service_guid</strong>: <em>required (string)</em></li><li><strong>guid</strong>: <em>required (string)</em><p>unique ID of the task</p></li><li><strong>state</strong>: <em>required (one of new, error)</em><p>a task that is waiting to be executed is in state new. a task that failed to execute and is being retried is in state error.</p></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+}</code></pre>
+        
+    </div>
+
+                        
+                      
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2>
+<p>Service with this guid not found</p>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>code</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+<p>error code</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>message</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>Human friendly error message</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>stack_trace</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>optional stack_trace attached with the error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="modal fade" tabindex="0" id="services__service_guid__put">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_put">put</span>
+                <span class="parent">/services</span>/{service_guid}
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Upgrade a service from one version to another</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services__service_guid__put_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__put_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services__service_guid__put_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                      <h3>Body</h3>
+                      
+                        <p><strong>Media type</strong>: application/json</p>
+
+                        
+                          
+                            
+                              <p><strong>Type</strong>: object</p>
+                            
+                          
+                        
+
+                        
+
+                        
+
+                        
+                          <strong>Properties</strong>
+                          <ul>
+                            
+                              <li>
+  <strong>template</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>UID of a template of the new version</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                          </ul>
+                        
+
+                        
+                        
+                        
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "template": "github.com/jumpscale/0-robot/node/0.0.2"
+}</code></pre>
+        
+    </div>
+
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__put_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+<p>Service upgraded successfully</p>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>template</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>This is the UID of a template</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>version</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (array of ServiceState)
+      </em>
+    
+  
+
+
+
+  
+
+  
+    
+
+    
+      <p><strong>Items</strong>: ServiceState</p>
+
+      
+        <div class="items">
+          
+            <ul>
+              
+                <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>tag</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of ok, error)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+            </ul>
+          
+
+          
+          
+          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "category": "network",
+  "tag": "local-tcp-443",
+  "state": "ok"
+}</code></pre>
+        
+    </div>
+
+        </div>
+      
+    
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>parent</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>guid of the parent service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "guid": "7040fda3-08e1-4109-829c-925a907809f9",
+  "template": "github.com/jumpscale/0-robot/node/0.0.1",
+  "version": "1.0.1",
+  "name": "node1",
+  "state": [
+    {
+      "category": "network",
+      "tag": "local-tcp-6379",
+      "state": "ok"
+    },
+    {
+      "category": "network",
+      "tag": "local-http-80",
+      "state": "ok"
+    },
+    {
+      "category": "data",
+      "tag": "db",
+      "state": "ok"
+    }
+  ]
+}</code></pre>
+        
+    </div>
+
+                        
+                      
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2>
+<p>Service with this guid not found or template version not found</p>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>code</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+<p>error code</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>message</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>Human friendly error message</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>stack_trace</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>optional stack_trace attached with the error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="modal fade" tabindex="0" id="services__service_guid__delete">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_delete">delete</span>
+                <span class="parent">/services</span>/{service_guid}
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Delete a service</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services__service_guid__delete_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__delete_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services__service_guid__delete_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__delete_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/204" target="_blank">204</a></h2>
+<p>Service deleted successfully</p>
+
+
+                      
+
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid__actions">
+          <span class="parent">/services/{service_guid}</span>/actions
+        </a>
+
+        <span class="methods">
+          
+            <a href="#services__service_guid__actions_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get</span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_services__service_guid__actions" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#services__service_guid__actions_get'" class="list-group-item">
+              <span class="badge badge_get">get</span>
+              <div class="method_description">
+<p>List all the possible action a service can do.</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="services__service_guid__actions_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get</span>
+                <span class="parent">/services/{service_guid}</span>/actions
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>List all the possible action a service can do.</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services__service_guid__actions_get_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__actions_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services__service_guid__actions_get_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__actions_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: array of Action</p>
+                              
+                            
+                          
+
+                          
+
+                          
+                            
+
+                            
+                              <p><strong>Items</strong>: Action</p>
+
+                              
+                                <div class="items">
+                                  
+                                    <ul>
+                                      
+                                        <li>
+  <strong>name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>arguments</strong>:
+
+    
+      <em>(array of )
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                    </ul>
+                                  
+
+                                  
+                                  
+                                  
+                                </div>
+                              
+                            
+                          
+
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid__task_list">
+          <span class="parent">/services/{service_guid}</span>/task_list
+        </a>
+
+        <span class="methods">
+          
+            <a href="#services__service_guid__task_list_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get</span>
+            </a>
+          
+            <a href="#services__service_guid__task_list_post"><!-- modal shown by hashchange event -->
+              <span class="badge badge_post">post</span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_services__service_guid__task_list" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+            <div class="resource-description">
+<p>A task list is all the actions that are scheduled for a service</p>
+
+            </div>
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#services__service_guid__task_list_get'" class="list-group-item">
+              <span class="badge badge_get">get</span>
+              <div class="method_description">
+<p>Return all the action in the task list</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+            <div onclick="window.location.href = '#services__service_guid__task_list_post'" class="list-group-item">
+              <span class="badge badge_post">post</span>
+              <div class="method_description">
+<p>Add a task to the task list</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="services__service_guid__task_list_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get</span>
+                <span class="parent">/services/{service_guid}</span>/task_list
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Return all the action in the task list</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services__service_guid__task_list_get_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__task_list_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services__service_guid__task_list_get_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                      <h3>Query Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>all</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>If specified, return also the tasks that are done.
+If not specified, only return the task waiting to be executed
+type:        bool
+required:    false
+default: false</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__task_list_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: array of Task</p>
+                              
+                            
+                          
+
+                          
+
+                          
+                            
+
+                            
+                              <p><strong>Items</strong>: Task</p>
+
+                              
+                                <div class="items">
+                                  
+                                    <ul>
+                                      
+                                        <li>
+  <strong>action_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>args</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>template_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>service_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>created</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+<p>timestamp at the time the task was created</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>eco</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>In case the task failed with an exception, description of the exception</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>appname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>epoch</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessagePub</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>type</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>state</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcfilename</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                    </ul>
+                                  
+
+                                  
+                                  
+                                  
+                                </div>
+                              
+                            
+                          
+
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="modal fade" tabindex="0" id="services__service_guid__task_list_post">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_post">post</span>
+                <span class="parent">/services/{service_guid}</span>/task_list
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Add a task to the task list</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services__service_guid__task_list_post_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__task_list_post_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services__service_guid__task_list_post_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                      <h3>Body</h3>
+                      
+                        <p><strong>Media type</strong>: application/json</p>
+
+                        
+                          
+                            
+                              <p><strong>Type</strong>: object</p>
+                            
+                          
+                        
+
+                        
+
+                        
+
+                        
+                          <strong>Properties</strong>
+                          <ul>
+                            
+                              <li>
+  <strong>action_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                              <li>
+  <strong>args</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                          </ul>
+                        
+
+                        
+                        
+                        
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "action_name": "start",
+  "args": {
+    "foo": "bar"
+  }
+}</code></pre>
+        
+    </div>
+
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__task_list_post_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2>
+<p>Task added to the task list successfully</p>
+
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Location</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>description URL to the created task resource</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>action_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>args</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>template_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>service_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>created</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+<p>timestamp at the time the task was created</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>eco</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>In case the task failed with an exception, description of the exception</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>appname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>epoch</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessagePub</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>type</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>state</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcfilename</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
   "template_name": "github.com/account/repository/master/node.zero-os",
   "service_name": "node1",
   "service_guid": "10b0c69f-0f72-4e41-b146-4e10997024f8",
@@ -273,13 +6080,1125 @@
   "state": "new",
   "args": {
     "foo": "bar"
-  }
-}</code></pre></div></div></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="services__service_guid__task_list_post"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/services/{service_guid}</span>/task_list</h4></div><div class="modal-body"><div class="alert alert-info"><p>Add a task to the task list</p></div><ul class="nav nav-tabs"><li class="active"><a href="#services__service_guid__task_list_post_request" data-toggle="tab">Request</a></li><li><a href="#services__service_guid__task_list_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="services__service_guid__task_list_post_request"><h3>URI Parameters</h3><ul><li><strong>service_guid</strong>: <em>required (string)</em></li></ul><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>action_name</strong>: <em>required (string)</em></li><li><strong>args</strong>: <em>(object)</em><ul></ul></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
-  "action_name": "start",
-  "args": {
-    "foo": "bar"
-  }
-}</code></pre></div></div><div class="tab-pane" id="services__service_guid__task_list_post_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><p>Task added to the task list successfully</p><h3>Headers</h3><ul><li><strong>Location</strong>: <em>required (string)</em><p>description URL to the created task resource</p></li></ul><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>action_name</strong>: <em>required (string)</em></li><li><strong>args</strong>: <em>(object)</em><ul></ul></li><li><strong>template_name</strong>: <em>required (string)</em></li><li><strong>service_name</strong>: <em>required (string)</em></li><li><strong>service_guid</strong>: <em>required (string)</em></li><li><strong>guid</strong>: <em>required (string)</em><p>unique ID of the task</p></li><li><strong>state</strong>: <em>required (one of new, error)</em><p>a task that is waiting to be executed is in state new. a task that failed to execute and is being retried is in state error.</p></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
+  },
+  "created": 1512038654
+}</code></pre>
+        
+    </div>
+
+                        
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid__task_list__task_guid_">
+          <span class="parent">/services/{service_guid}/task_list</span>/{task_guid}
+        </a>
+
+        <span class="methods">
+          
+            <a href="#services__service_guid__task_list__task_guid__get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get</span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_services__service_guid__task_list__task_guid_" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#services__service_guid__task_list__task_guid__get'" class="list-group-item">
+              <span class="badge badge_get">get</span>
+              <div class="method_description">
+<p>Retrieve the detail of a task</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="services__service_guid__task_list__task_guid__get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get</span>
+                <span class="parent">/services/{service_guid}/task_list</span>/{task_guid}
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Retrieve the detail of a task</p>
+
+                </div>
+              
+
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services__service_guid__task_list__task_guid__get_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__task_list__task_guid__get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services__service_guid__task_list__task_guid__get_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                          <li>
+  <strong>task_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__task_list__task_guid__get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>action_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>args</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>template_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>service_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>created</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+<p>timestamp at the time the task was created</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>eco</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>In case the task failed with an exception, description of the exception</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>appname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>epoch</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessagePub</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>type</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>state</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcfilename</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
   "template_name": "github.com/account/repository/master/node.zero-os",
   "service_name": "node1",
   "service_guid": "10b0c69f-0f72-4e41-b146-4e10997024f8",
@@ -288,15 +7207,173 @@
   "state": "new",
   "args": {
     "foo": "bar"
-  }
-}</code></pre></div></div></div></div></div></div></div></div><div class="panel panel-white resource-modal"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid__task_list__task_guid_"><span class="parent">/services/{service_guid}/task_list</span>/{task_guid}</a> <span class="methods"><a href="#services__service_guid__task_list__task_guid__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_services__service_guid__task_list__task_guid_" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#services__service_guid__task_list__task_guid__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Retrieve the detail of a task</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="services__service_guid__task_list__task_guid__get"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/services/{service_guid}/task_list</span>/{task_guid}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve the detail of a task</p></div><ul class="nav nav-tabs"><li class="active"><a href="#services__service_guid__task_list__task_guid__get_request" data-toggle="tab">Request</a></li><li><a href="#services__service_guid__task_list__task_guid__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="services__service_guid__task_list__task_guid__get_request"><h3>URI Parameters</h3><ul><li><strong>service_guid</strong>: <em>required (string)</em></li><li><strong>task_guid</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="services__service_guid__task_list__task_guid__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>action_name</strong>: <em>required (string)</em></li><li><strong>args</strong>: <em>(object)</em><ul></ul></li><li><strong>template_name</strong>: <em>required (string)</em></li><li><strong>service_name</strong>: <em>required (string)</em></li><li><strong>service_guid</strong>: <em>required (string)</em></li><li><strong>guid</strong>: <em>required (string)</em><p>unique ID of the task</p></li><li><strong>state</strong>: <em>required (one of new, error)</em><p>a task that is waiting to be executed is in state new. a task that failed to execute and is being retried is in state error.</p></li></ul><p><strong>Example</strong>:</p><div class="examples"><pre><code>{
-  "template_name": "github.com/account/repository/master/node.zero-os",
-  "service_name": "node1",
-  "service_guid": "10b0c69f-0f72-4e41-b146-4e10997024f8",
-  "action_name": "start",
-  "guid": "07f38c46-056b-420d-8964-6efd3f493fe5",
-  "state": "new",
-  "args": {
-    "foo": "bar"
-  }
-}</code></pre></div><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>Not task found in the task list with this guid</p><h3>Body</h3><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul><li><strong>code</strong>: <em>required (integer)</em><p>error code</p></li><li><strong>message</strong>: <em>required (string)</em><p>Human friendly error message</p></li><li><strong>stack_trace</strong>: <em>(string)</em><p>optional stack_trace attached with the error.</p></li></ul></div></div></div></div></div></div></div></div></div></div></div><div class="col-md-3"><div id="sidebar" class="hidden-print affix" role="complementary"><ul class="nav nav-pills nav-stacked"><li><a href="#blueprints">/blueprints</a></li><li><a href="#templates">/templates</a></li><li><a href="#services">/services</a></li></ul></div></div></div></div></body></html>
+  },
+  "created": 1512038654
+}</code></pre>
+        
+    </div>
+
+                        
+                      
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2>
+<p>Not task found in the task list with this guid</p>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>code</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+<p>error code</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>message</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>Human friendly error message</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>stack_trace</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>optional stack_trace attached with the error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+
+
+
+
+
+
+
+                </div>
+              </div>
+            </div>
+          
+        </div>
+
+        <div class="col-md-3">
+          <div id="sidebar" class="hidden-print affix" role="complementary">
+            <ul class="nav nav-pills nav-stacked">
+              
+                <li><a href="#blueprints">/blueprints</a></li>
+              
+                <li><a href="#templates">/templates</a></li>
+              
+                <li><a href="#services">/services</a></li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

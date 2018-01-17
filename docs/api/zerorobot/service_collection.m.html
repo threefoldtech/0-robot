@@ -1059,6 +1059,7 @@ table {
     <li class="mono"><a href="#zerorobot.service_collection.list_services">list_services</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.load">load</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.search">search</a></li>
+    <li class="mono"><a href="#zerorobot.service_collection.upgrade">upgrade</a></li>
   </ul>
 
     </li>
@@ -1191,9 +1192,30 @@ other services and class need to use this module method to create, access, list 
     <span class="n">srv</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
     <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
     <span class="n">srv</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">),</span> <span class="n">srv</span><span class="p">)</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="n">base_path</span>
+    <span class="n">srv</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">base_path</span>
     <span class="n">add</span><span class="p">(</span><span class="n">srv</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">srv</span>
+
+
+<span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
+        <span class="c1"># nothing to do</span>
+        <span class="k">return</span> <span class="n">service</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;upgrade service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">)</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span>
+    <span class="c1"># stop the services</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="c1"># remove service from memory</span>
+    <span class="n">delete</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+    <span class="c1"># create new instance of the service with updated version of the template</span>
+    <span class="c1"># we use load so it loads with the same data of previous version, but with new template</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">new_template</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">service</span>
 
 
 <span class="k">class</span> <span class="nc">ServiceConflictError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1395,7 +1417,7 @@ other services and class need to use this module method to create, access, list 
     <span class="n">srv</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
     <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
     <span class="n">srv</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">),</span> <span class="n">srv</span><span class="p">)</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">_datadir</span> <span class="o">=</span> <span class="n">base_path</span>
+    <span class="n">srv</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">base_path</span>
     <span class="n">add</span><span class="p">(</span><span class="n">srv</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">srv</span>
 </pre></div>
@@ -1427,6 +1449,44 @@ other services and class need to use this module method to create, access, list 
                 <span class="k">continue</span>
             <span class="n">result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.service_collection.upgrade">
+    <p>def <span class="ident">upgrade</span>(</p><p>service, new_template)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.upgrade', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.service_collection.upgrade" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
+        <span class="c1"># nothing to do</span>
+        <span class="k">return</span> <span class="n">service</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;upgrade service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">)</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span>
+    <span class="c1"># stop the services</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="c1"># remove service from memory</span>
+    <span class="n">delete</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+    <span class="c1"># create new instance of the service with updated version of the template</span>
+    <span class="c1"># we use load so it loads with the same data of previous version, but with new template</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">new_template</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">service</span>
 </pre></div>
 
   </div>

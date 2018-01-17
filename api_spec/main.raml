@@ -5,7 +5,7 @@ version: 0.0.1
 mediaType: application/json
 documentation:
   - title: Extended documentation
-    content: https://github.com/Jumpscale/zerorobot/tree/first_draft/docs
+    content: https://github.com/Jumpscale/0-robot/tree/first_draft/docs
 
 types:
   Blueprint:
@@ -66,10 +66,10 @@ types:
       version:
         type: string
     example:
-      uid: github.com/jumpscale/zerorobot/node/0.0.1
+      uid: github.com/jumpscale/0-robot/node/0.0.1
       host: github.com
       account: jumpscale
-      repository: zerorobot
+      repository: 0-robot
       name: node
       version: 0.0.1
 
@@ -99,7 +99,7 @@ types:
         description: Instance data used to create the service
         required: false
     example:
-      template: github.com/jumpscale/zerorobot/node/1.0.1
+      template: github.com/jumpscale/0-robot/node/1.0.1
       name: vm1
       data:
         cpu_nr: 2
@@ -124,7 +124,7 @@ types:
         required: false
     example:
       guid: 7040fda3-08e1-4109-829c-925a907809f9
-      template: github.com/jumpscale/zerorobot/node/0.0.1
+      template: github.com/jumpscale/0-robot/node/0.0.1
       version: 1.0.1
       name: node1
       state:
@@ -137,6 +137,14 @@ types:
       - category: data
         tag: db
         state: ok
+
+  ServiceUpgradeRequest:
+    properties:
+      template:
+        type: string
+        description: UID of a template of the new version
+    example:
+      template: github.com/jumpscale/0-robot/node/0.0.2
 
   Action:
     properties:
@@ -349,6 +357,20 @@ types:
             type: Service
         404:
           description: Service with this guid not found
+          body:
+            type: Error
+    put:
+      displayName: UpgradeService
+      description: Upgrade a service from one version to another
+      body:
+        type: ServiceUpgradeRequest
+      responses:
+        200:
+          description: Service upgraded successfully
+          body:
+            type: Service
+        404:
+          description: Service with this guid not found or template version not found
           body:
             type: Error
     delete:

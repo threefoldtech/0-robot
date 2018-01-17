@@ -96,9 +96,30 @@ def load(template, base_path):
     srv.state.load(os.path.join(base_path, 'state.yaml'))
     srv.data.load(os.path.join(base_path, 'data.yaml'))
     srv.task_list.load(os.path.join(base_path, 'tasks.yaml'), srv)
-    srv._datadir = base_path
+    srv._path = base_path
     add(srv)
     return srv
+
+
+def upgrade(service, new_template):
+    if service.template_uid == new_template.template_uid:
+        # nothing to do
+        return service
+
+    logger.info("upgrade service %s (%s) to %s", service.name, service.guid, new_template.template_uid)
+    service.template_uid = new_template.template_uid
+    # stop the services
+    service._gl_mgr.stop_all(wait=True)
+    service.save()
+
+    # remove service from memory
+    delete(service)
+
+    # create new instance of the service with updated version of the template
+    # we use load so it loads with the same data of previous version, but with new template
+    service = load(new_template, service._path)
+    service.save()
+    return service
 
 
 class ServiceConflictError(Exception):

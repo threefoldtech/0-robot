@@ -40,16 +40,16 @@ class ServiceProxy():
     @property
     def state(self):
         # TODO: handle exceptions
-        resp = self._zrobot_client.api.services.GetService(self.guid)
+        service, _ = self._zrobot_client.api.services.GetService(self.guid)
         s = ServiceState()
-        for state in resp.data.state:
+        for state in service.state:
             s.set(state.category, state.tag, state.state.value)
         return s
 
     @property
     def task_list(self):
-        resp = self._zrobot_client.api.services.getTaskList(service_guid=self.guid, query_params={'all': True})
-        return _task_list_proxy_from_api(resp.data, self)
+        tasks, _ = self._zrobot_client.api.services.getTaskList(service_guid=self.guid, query_params={'all': True})
+        return _task_list_proxy_from_api(tasks, self)
 
     def schedule_action(self, action, args=None, resp_q=None):
         """
@@ -66,12 +66,12 @@ class ServiceProxy():
         if args:
             req["args"] = args
         try:
-            resp = self._zrobot_client.api.services.AddTaskToList(req, service_guid=self.guid)
+            task, _ = self._zrobot_client.api.services.AddTaskToList(req, service_guid=self.guid)
         except HTTPError as err:
             print(str(err.response.json()))
             raise err
 
-        return _task_proxy_from_api(resp.data, self)
+        return _task_proxy_from_api(task, self)
 
     def delete(self):
         self._zrobot_client.api.services.DeleteService(self.guid)
@@ -135,10 +135,10 @@ class TaskProxy(Task):
 
     @property
     def state(self):
-        resp = self.service._zrobot_client.api.services.GetTask(
+        task, _ = self.service._zrobot_client.api.services.GetTask(
             task_guid=self.guid,
             service_guid=self.service.guid)
-        return resp.data.state.value
+        return task.state.value
 
     @state.setter
     def state(self, value):

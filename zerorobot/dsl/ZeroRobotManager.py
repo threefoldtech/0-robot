@@ -31,6 +31,16 @@ class ServiceCreateError(Exception):
         self.original_exception = original_exception
 
 
+class ServiceUpgradeError(Exception):
+    """
+    Exception raised when service fail to upgrade
+    """
+
+    def __init__(self, msg, original_exception):
+        super().__init__(msg + (": %s" % original_exception))
+        self.original_exception = original_exception
+
+
 class ServicesMgr:
 
     def __init__(self, robot):
@@ -45,11 +55,11 @@ class ServicesMgr:
         return srv
 
     def _get(self, guid=None):
-        resp = self._client.api.services.GetService(guid)
-        return self._instantiate(resp.data)
+        service, _ = self._client.api.services.GetService(guid)
+        return self._instantiate(service)
 
-    def get(self, template_uid, name):
-        self._client.api.services.GetService()
+    # def get(self, template_uid, name):
+    #     self._client.api.services.GetService()
 
     @property
     def names(self):
@@ -60,12 +70,12 @@ class ServicesMgr:
         key is the name of the service
         value is a ServiceProxy object
         """
-        services = {}
-        resp = self._client.api.services.listServices()
-        for service in resp.data:
+        results = {}
+        services, _ = self._client.api.services.listServices()
+        for service in services:
             srv = self._instantiate(service)
-            services[srv.name] = srv
-        return services
+            results[srv.name] = srv
+        return results
 
     @property
     def guids(self):
@@ -76,12 +86,12 @@ class ServicesMgr:
         key is the guid of the service
         value is a ServiceProxy object
         """
-        services = {}
-        resp = self._client.api.services.listServices()
-        for service in resp.data:
+        results = {}
+        services, _ = self._client.api.services.listServices()
+        for service in services:
             srv = self._instantiate(service)
-            services[srv.guid] = srv
-        return services
+            results[srv.guid] = srv
+        return results
 
     def create(self, template_uid, service_name, data=None):
         """
@@ -103,14 +113,35 @@ class ServicesMgr:
             req["data"] = data
 
         try:
-            resp = self._client.api.services.createService(req)
+            new_service, resp = self._client.api.services.createService(req)
         except HTTPError as err:
             if err.response.status_code == 409:
                 raise ServiceConflictError(err.response.json()['message'])
             e = err.response.json()
             raise ServiceCreateError(e['message'], err)
 
-        service = ServiceProxy(service_name, resp.data.guid, self._client)
+        service = ServiceProxy(new_service.name, new_service.guid, self._client)
+        return service
+
+    def upgrade(self, service_guid, new_template_uid):
+        """
+        Upgrade a service to a new version
+
+        @param service: service guid
+        @param new_template_uid: template uid to be used as new template
+        """
+        new_template_uid = str(new_template_uid)
+        if new_template_uid not in self._robot.templates.uids:
+            raise TemplateNotFoundError("template %s not found" % new_template_uid)
+
+        req = {"template": new_template_uid}
+        try:
+            new_service, resp = self._client.api.services.UpgradeService(data=req, service_guid=service_guid)
+        except HTTPError as err:
+            e = err.response.json()
+            raise ServiceUpgradeError(e['message'], err)
+
+        service = ServiceProxy(new_service.name, new_service.guid, self._client)
         return service
 
 
@@ -128,16 +159,16 @@ class TemplatesMgr:
             "url": url,
             "branch": branch,
         }
-        resp = self._client.api.templates.AddTemplateRepo(data)
-        return resp.data
+        repo, _ = self._client.api.templates.AddTemplateRepo(data)
+        return repo
 
     @property
     def uids(self):
         """
         Returns a list of template UID present on the ZeroRobot
         """
-        resp = self._client.api.templates.ListTemplates()
-        return {t.uid: t for t in resp.data}
+        templates, _ = self._client.api.templates.ListTemplates()
+        return {t.uid: t for t in templates}
 
 
 class ZeroRobotManager:

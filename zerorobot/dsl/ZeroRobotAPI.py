@@ -102,6 +102,32 @@ class ServicesMgr:
 
         return robot.services.create(template_uid, service_name, data)
 
+    def upgrade(self, service_guid, template_uid):
+        new_template = None
+
+        try:
+            # check if the new template is handle by the local robot
+            new_template = tcol.get(template_uid)
+        except KeyError:
+            # we need to look for a robot that handle this template
+            pass
+
+        try:
+            service = scol.get_by_guid(service_guid)
+            if new_template:
+                # both service and template are available locally, we can upgrade
+                return scol.upgrade(service, new_template)
+        except KeyError:
+            # service is not local, need to do an API call
+            pass
+
+        try:
+            # try to find a robot that manage the template with uid template_uid
+            robot = self._base.get_robot(template_uid)
+            return robot.services.upgrade(service_guid, template_uid)
+        except KeyError:
+            raise TemplateNotFoundError("no robot managing the template %s found" % template_uid)
+
 
 class ZeroRobotAPI:
     # TODO: find better name
@@ -131,7 +157,7 @@ class ZeroRobotAPI:
         If not known robots managed the template_uid, then KeyError is raised
         """
         for robot in self.robots.values():
-            if template_uid in robot.templates.uids:
+            if str(template_uid) in robot.templates.uids:
                 return robot
         raise KeyError("no robot that managed %s found" % template_uid)
 

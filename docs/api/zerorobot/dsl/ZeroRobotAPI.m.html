@@ -1064,6 +1064,7 @@ table {
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create">create</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.search">search</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.upgrade">upgrade</a></li>
   </ul>
 
         </li>
@@ -1205,6 +1206,32 @@ table {
 
         <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
+        <span class="n">new_template</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># check if the new template is handle by the local robot</span>
+            <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># we need to look for a robot that handle this template</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">new_template</span><span class="p">:</span>
+                <span class="c1"># both service and template are available locally, we can upgrade</span>
+                <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># service is not local, need to do an API call</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
+            <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
+
 
 <span class="k">class</span> <span class="nc">ZeroRobotAPI</span><span class="p">:</span>
     <span class="c1"># TODO: find better name</span>
@@ -1234,7 +1261,7 @@ table {
 <span class="sd">        If not known robots managed the template_uid, then KeyError is raised</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">robot</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;no robot that managed </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
 
@@ -1563,6 +1590,32 @@ table {
             <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
+        <span class="n">new_template</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># check if the new template is handle by the local robot</span>
+            <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># we need to look for a robot that handle this template</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">new_template</span><span class="p">:</span>
+                <span class="c1"># both service and template are available locally, we can upgrade</span>
+                <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># service is not local, need to do an API call</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
+            <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1681,6 +1734,47 @@ If not, it looks for a remote robot to create the service onto.</p>
 
   </div>
   
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.upgrade">
+    <p>def <span class="ident">upgrade</span>(</p><p>self, service_guid, template_uid)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.upgrade', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.upgrade" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
+    <span class="n">new_template</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># check if the new template is handle by the local robot</span>
+        <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="c1"># we need to look for a robot that handle this template</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_template</span><span class="p">:</span>
+            <span class="c1"># both service and template are available locally, we can upgrade</span>
+            <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="c1"># service is not local, need to do an API call</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
+        <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
           <h3>Instance variables</h3>
             <div class="item">
             <p id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.guids" class="name">var <span class="ident">guids</span></p>
@@ -1791,7 +1885,7 @@ from a template that doesn't exists</p></div>
 <span class="sd">        If not known robots managed the template_uid, then KeyError is raised</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">robot</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;no robot that managed </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
 </pre></div>
@@ -1852,7 +1946,7 @@ If not known robots managed the template_uid, then KeyError is raised</p></div>
 <span class="sd">    If not known robots managed the template_uid, then KeyError is raised</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">robot</span>
     <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;no robot that managed </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
 </pre></div>

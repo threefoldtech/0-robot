@@ -107,7 +107,7 @@ def _load_template(url, template_dir):
     """
     template_name = os.path.basename(template_dir).split('.')[0]
     class_name = template_name.replace('_', ' ').title().replace(' ', '')
-    class_path = j.sal.fs.joinPaths(template_dir, template_name + '.py')
+    class_path = os.path.join(template_dir, template_name + '.py')
 
     spec = importlib.util.spec_from_file_location(template_name, class_path)
     module = importlib.util.module_from_spec(spec)

@@ -1250,7 +1250,7 @@ table {
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;schedule autosave </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+                <span class="c1"># logger.debug(&quot;schedule autosave %s (%s)&quot;, service.name, service.guid)</span>
                 <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;base_path&#39;</span><span class="p">:</span> <span class="n">data_dir</span><span class="p">},</span> <span class="bp">None</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">GreenletExit</span><span class="p">:</span>

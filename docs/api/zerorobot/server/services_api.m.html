@@ -1056,6 +1056,7 @@ table {
     <li class="mono"><a href="#zerorobot.server.services_api.GetService">GetService</a></li>
     <li class="mono"><a href="#zerorobot.server.services_api.GetTask">GetTask</a></li>
     <li class="mono"><a href="#zerorobot.server.services_api.ListActions">ListActions</a></li>
+    <li class="mono"><a href="#zerorobot.server.services_api.UpgradeService">UpgradeService</a></li>
     <li class="mono"><a href="#zerorobot.server.services_api.createService">createService</a></li>
     <li class="mono"><a href="#zerorobot.server.services_api.getTaskList">getTaskList</a></li>
     <li class="mono"><a href="#zerorobot.server.services_api.listServices">listServices</a></li>
@@ -1114,6 +1115,15 @@ table {
 <span class="sd">    It is handler for GET /services/&lt;service_guid&gt;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">GetServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+
+
+<span class="nd">@services_api.route</span><span class="p">(</span><span class="s1">&#39;/services/&lt;service_guid&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PUT&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">UpgradeService</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Upgrade a service from one version to another</span>
+<span class="sd">    It is handler for PUT /services/&lt;service_guid&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">UpgradeServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
 
 
 <span class="nd">@services_api.route</span><span class="p">(</span><span class="s1">&#39;/services/&lt;service_guid&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;DELETE&#39;</span><span class="p">])</span>
@@ -1310,6 +1320,34 @@ It is handler for GET /services/<service_guid>/actions</p></div>
 <span class="sd">    It is handler for GET /services/&lt;service_guid&gt;/actions</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">ListActionsHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.server.services_api.UpgradeService">
+    <p>def <span class="ident">UpgradeService</span>(</p><p>service_guid)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Upgrade a service from one version to another
+It is handler for PUT /services/<service_guid></p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.services_api.UpgradeService', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.services_api.UpgradeService" class="source">
+    <div class="codehilite"><pre><span></span><span class="nd">@services_api.route</span><span class="p">(</span><span class="s1">&#39;/services/&lt;service_guid&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PUT&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">UpgradeService</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Upgrade a service from one version to another</span>
+<span class="sd">    It is handler for PUT /services/&lt;service_guid&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">UpgradeServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
 </pre></div>
 
   </div>

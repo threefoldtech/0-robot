@@ -5,6 +5,7 @@ from .ExecuteBlueprintHandler import ExecuteBlueprintHandler
 from .listServicesHandler import listServicesHandler
 from .createServiceHandler import createServiceHandler
 from .GetServiceHandler import GetServiceHandler
+from .UpgradeServiceHandler import UpgradeServiceHandler
 from .DeleteServiceHandler import DeleteServiceHandler
 from .ListActionsHandler import ListActionsHandler
 from .getTaskListHandler import getTaskListHandler

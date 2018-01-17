@@ -68,9 +68,11 @@ class GreenletsMgr:
         except KeyError:
             pass
 
-    def stop_all(self):
+    def stop_all(self, wait=False):
         for gl in self.gls.values():
             gl.kill()
+        if wait:
+            gevent.wait(list(self.gls.values()))
 
 
 class TemplateBase:
@@ -91,7 +93,7 @@ class TemplateBase:
         self.guid = guid or str(uuid4())
         self.name = name
         self.parent = None
-        self._datadir = None
+        self._path = None  # location on the filesystem where to store the service
 
         self.api = ZeroRobotAPI()
 
@@ -107,7 +109,7 @@ class TemplateBase:
 
         self.logger = _configure_logger(self.guid)
 
-    def save(self, base_path):
+    def save(self, base_path=None):
         """
         serialize the service state and data to a file
 
@@ -115,14 +117,20 @@ class TemplateBase:
                           to save the service state and data
         return the path where the service is saved
         """
-        parent = self.parent
-        path = base_path
-        while parent is not None:
-            path = os.path.join(path, parent.name)
-            parent = parent.parent
+        if self._path is None and base_path is None:
+            raise ValueError("base_path needs to be specified to be able to save the service")
 
-        path = os.path.join(path, self.name)
-        self._datadir = path
+        if base_path is not None and base_path != '':
+            parent = self.parent
+            path = base_path
+            while parent is not None:
+                path = os.path.join(path, parent.name)
+                parent = parent.parent
+
+            path = os.path.join(path, self.name)
+            self._path = path
+        else:
+            path = self._path
 
         os.makedirs(path, exist_ok=True)
 
@@ -221,8 +229,8 @@ class TemplateBase:
                 h.close()
 
         # remove data from disk
-        if self._datadir and os.path.exists(self._datadir):
-            shutil.rmtree(self._datadir)
+        if self._path and os.path.exists(self._path):
+            shutil.rmtree(self._path)
         # remove from memory
         scol.delete(self)
 
