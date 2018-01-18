@@ -6,31 +6,36 @@ import os
 
 from js9 import j
 from zerorobot.template_uid import TemplateUID
+from zerorobot.sqlite import SqliteIndex
 
 logger = j.logger.get('zerorobot')
 
-_name_index = {}
+_sqlite_index = SqliteIndex()
 _guid_index = {}
 
 
 def add(service):
-    if hasattr(service, 'name'):
-        if service.name in _name_index:
-            raise ServiceConflictError("a service with name=%s already exist" % service.name)
-        _name_index[service.name] = service
-
-    if hasattr(service, 'guid'):
-        if service.guid in _name_index:
-            raise ServiceConflictError("a service with guid=%s already exist" % service.guid)
-        _guid_index[service.guid] = service
+    if service.guid in _guid_index:
+        raise ServiceConflictError("a service with guid=%s already exist" % service.guid)
+    _guid_index[service.guid] = service
+    _sqlite_index.add_service(service)
 
     logger.debug("add service %s to collection" % service)
 
 
+def find(**kwargs):
+    guids = _sqlite_index.find(**kwargs)
+    services = [_guid_index[guid] for guid in guids]
+    return services
+
+
 def get_by_name(name):
-    if name not in _name_index:
+    services = find(name=name)
+    if len(services) > 1:
+        raise TooManyResults("more then one results for service name=%s, be more precise" % name)
+    if len(services) < 1:
         raise KeyError("service with name=%s not found" % name)
-    return _name_index[name]
+    return services[0]
 
 
 def get_by_guid(guid):
@@ -43,24 +48,10 @@ def list_services():
     return list(_guid_index.values())
 
 
-def search(template_uid, parent=None):
-    if isinstance(template_uid, str):
-        template_uid = TemplateUID.parse(template_uid)
-    result = set()
-    for s in list_services():
-        if s.template_uid == template_uid:
-            if parent and (s.parent is None or s.parent.guid != parent.guid):
-                continue
-            result.add(s)
-    return list(result)
-
-
 def delete(service):
-    if hasattr(service, 'name') and service.name in _name_index:
-        del _name_index[service.name]
-
-    if hasattr(service, 'guid') and service.guid in _guid_index:
+    if service.guid in _guid_index:
         del _guid_index[service.guid]
+    _sqlite_index.delete_service(service)
 
     logger.debug("delete service %s from collection" % service)
 
@@ -122,7 +113,20 @@ def upgrade(service, new_template):
     return service
 
 
+def drop_all():
+    """
+    delete all services
+    """
+    for s in list_services():
+        delete(s)
+    _guid_index = {}
+
+
 class ServiceConflictError(Exception):
+    pass
+
+
+class TooManyResults(Exception):
     pass
 
 

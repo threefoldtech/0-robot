@@ -37,7 +37,8 @@ class ServicesMgr:
         for robot in self._base.robots.values():
             services.update(robot.services.names)
         # TODO: handle naming conflict between robots
-        services.update(scol._name_index)
+        by_name = {s.name: s for s in scol.list_services()}
+        services.update(by_name)
         return services
 
     @property
@@ -68,7 +69,9 @@ class ServicesMgr:
                         continue
                     services[service.guid] = service
 
-        for service in scol.search(template_uid, parent):
+        for service in scol.find(template_uid=str(template_uid)):
+            if parent and (service.parent is None or service.parent.guid != parent.guid):
+                continue
             services[service.guid] = service
 
         return list(services.values())

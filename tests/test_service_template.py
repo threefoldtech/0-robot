@@ -14,8 +14,7 @@ from zerorobot.template_collection import _load_template
 class TestServiceTemplate(unittest.TestCase):
 
     def setUp(self):
-        scol._name_index = {}
-        scol._guid_index = {}
+        scol.drop_all()
 
     def load_template(self, name):
         """
@@ -65,8 +64,7 @@ class TestServiceTemplate(unittest.TestCase):
             path = srv.save(tmpdir)
 
             # unload service from memory
-            scol._guid_index = {}
-            scol._name_index = {}
+            scol.drop_all()
 
             loaded = scol.load(Node, path)
             self.assertEqual(srv.name, loaded.name, "name of the loaded service should be %s" % srv.name)

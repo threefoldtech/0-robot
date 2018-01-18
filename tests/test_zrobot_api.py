@@ -73,8 +73,7 @@ class TestZRobotAPI(unittest.TestCase):
         time.sleep(1)
 
         # make sure we don't have any service loaded
-        scol._guid_index = {}
-        scol._name_index = {}
+        scol.drop_all()
         # make sure we don't have any template loaded
         tcol._templates = {}
 
@@ -88,8 +87,7 @@ class TestZRobotAPI(unittest.TestCase):
         # TODO: cleanup data_dir of each robots
 
         # make sure we don't have any service loaded
-        scol._guid_index = {}
-        scol._name_index = {}
+        scol.drop_all()
         # make sure we don't have any template loaded
         tcol._templates = {}
 

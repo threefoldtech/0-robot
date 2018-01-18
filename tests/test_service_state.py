@@ -22,7 +22,7 @@ class TestServiceState(unittest.TestCase):
         self.assertEqual(state.categories['network']['tcp-80'], 'ok', "state should be ok")
         self.assertEqual(state.categories['network']['tcp-81'], 'error', "state should be error")
 
-        with self.assertRaises(BadServiceStateError, msg="support state should only be 'ok' or 'error'"):
+        with self.assertRaises(BadServiceStateError, msg="support state should only be 'ok', 'error' or 'skipped'"):
             state.set('network', 'tcp-80', 'other')
 
     def test_get_state(self):

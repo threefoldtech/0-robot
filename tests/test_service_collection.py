@@ -25,8 +25,7 @@ class FakeService2:
 class TestServiceCollection(unittest.TestCase):
 
     def tearDown(self):
-        scol._name_index = {}
-        scol._guid_index = {}
+        scol.drop_all()
 
     def test_add_get_service(self):
         service = FakeService('1234567890', 's1')
@@ -77,12 +76,8 @@ class TestServiceCollection(unittest.TestCase):
         scol.add(s2)
         scol.add(s3)
 
-        results = scol.search('github.com/jumpscale/0-robot/fakeservice/0.0.1')
+        results = scol.find(template_uid='github.com/jumpscale/0-robot/fakeservice/0.0.1')
         self.assertEqual(len(results), 2)
         guids = [s1.guid, s2.guid]
         for s in results:
             self.assertIn(s.guid, guids)
-
-        results = scol.search('github.com/jumpscale/0-robot/fakeservice/0.0.1', parent=s1)
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0].guid, s2.guid)
