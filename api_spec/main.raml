@@ -5,7 +5,7 @@ version: 0.0.1
 mediaType: application/json
 documentation:
   - title: Extended documentation
-    content: https://github.com/Jumpscale/0-robot/tree/first_draft/docs
+    content: https://github.com/Jumpscale/0-robot/tree/master/docs
 
 types:
   Blueprint:
@@ -81,7 +81,7 @@ types:
       tag:
         type: string
       state:
-        enum: [ ok, error ]
+        enum: [ ok, error, warning, skipped ]
     example:
       category: network
       tag: local-tcp-443

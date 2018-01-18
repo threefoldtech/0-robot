@@ -2,6 +2,8 @@ from js9 import j
 
 SERVICE_STATE_OK = 'ok'
 SERVICE_STATE_ERROR = 'error'
+SERVICE_STATE_WARNING = 'warning'
+SERVICE_STATE_SKIPPED = 'skipped'
 
 
 class BadServiceStateError(Exception):
@@ -38,7 +40,7 @@ class ServiceState:
         """
         set a state to a value.
         """
-        if state not in [SERVICE_STATE_OK, SERVICE_STATE_ERROR]:
+        if state not in [SERVICE_STATE_OK, SERVICE_STATE_ERROR, SERVICE_STATE_WARNING, SERVICE_STATE_SKIPPED]:
             raise BadServiceStateError("state not supported: %s" % state)
 
         if category not in self.categories:
