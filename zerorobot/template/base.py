@@ -258,13 +258,13 @@ def _recurring_action(service, action, period):
 
     That means that it can be a longer time then period second during which the action is not executed
     """
-    last = -1
     elapsed = -1
     while True:
         try:
-            if last < 0 or elapsed >= period:
+            if elapsed == -1 or elapsed >= period:
                 task = service._schedule_action(action, priority=PRIORITY_SYSTEM)
                 task.wait()
+                last = time.time()
             else:
                 gevent.sleep(0.5)
 
