@@ -57,19 +57,22 @@ class ServicesMgr:
         services.update(scol._guid_index)
         return services
 
-    def search(self, template_uid, parent=None):
-        if isinstance(template_uid, str):
-            template_uid = TemplateUID.parse(template_uid)
+    def find(self, parent=None, **kwargs):
+        """
+        Search for services and filter results from kwargs.
+        You can filter on:
+        "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
 
+        example: to list all services with name foo: find(name='foo')
+        """
         services = {}
         for robot in self._base.robots.values():
-            for service in robot.services.guids.values():
-                if service.template_uid == template_uid:
-                    if parent and (service.parent is None or service.parent.guid != parent.guid):
-                        continue
-                    services[service.guid] = service
+            for service in robot.services.find(**kwargs):
+                if parent and (service.parent is None or service.parent.guid != parent.guid):
+                    continue
+                services[service.guid] = service
 
-        for service in scol.find(template_uid=str(template_uid)):
+        for service in scol.find(**kwargs):
             if parent and (service.parent is None or service.parent.guid != parent.guid):
                 continue
             services[service.guid] = service

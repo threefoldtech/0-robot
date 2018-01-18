@@ -2,6 +2,8 @@
 
 import json
 
+from flask import request
+
 from zerorobot import service_collection as scol
 from zerorobot.server.handlers.views import service_view
 
@@ -11,5 +13,11 @@ def listServicesHandler():
     List all the services known by the ZeroRobot.
     It is handler for GET /services
     '''
-    services = [service_view(s) for s in scol.list_services()]
+    kwargs = {}
+    for x in ["name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"]:
+        val = request.args.get(x)
+        if val:
+            kwargs[x] = val
+
+    services = [service_view(s) for s in scol.find(**kwargs)]
     return json.dumps(services), 200, {"Content-type": 'application/json'}

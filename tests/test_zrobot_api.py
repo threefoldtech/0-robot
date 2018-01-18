@@ -122,7 +122,17 @@ class TestZRobotAPI(unittest.TestCase):
         node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
         vm1 = self.api.services.create("github.com/jumpscale/0-robot/vm/0.0.1", 'vm1')
 
-        results = self.api.services.search("github.com/jumpscale/0-robot/node/0.0.1")
+        results = self.api.services.find(template_uid="github.com/jumpscale/0-robot/node/0.0.1")
+        self.assertEqual(len(results), 2)
+        guids = [node1.guid, node2.guid]
+        for s in results:
+            self.assertIn(s.guid, guids)
+
+        results = self.api.services.find(name='node1')
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].guid, node1.guid)
+
+        results = self.api.services.find(template_version='0.0.1', template_name='node')
         self.assertEqual(len(results), 2)
         guids = [node1.guid, node2.guid]
         for s in results:

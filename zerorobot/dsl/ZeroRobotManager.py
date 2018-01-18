@@ -58,9 +58,6 @@ class ServicesMgr:
         service, _ = self._client.api.services.GetService(guid)
         return self._instantiate(service)
 
-    # def get(self, template_uid, name):
-    #     self._client.api.services.GetService()
-
     @property
     def names(self):
         """
@@ -92,6 +89,13 @@ class ServicesMgr:
             srv = self._instantiate(service)
             results[srv.guid] = srv
         return results
+
+    def find(self, **kwargs):
+        """
+        Find some services based on some filters passed in **kwargs
+        """
+        services, _ = self._client.api.services.listServices(query_params=kwargs)
+        return services
 
     def create(self, template_uid, service_name, data=None):
         """

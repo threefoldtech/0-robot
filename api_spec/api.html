@@ -1242,9 +1242,13 @@ There are different informations extracted from</p>
               <!-- Nav tabs -->
               <ul class="nav nav-tabs">
                 
+                  <li class="active">
+                    <a href="#services_get_request" data-toggle="tab">Request</a>
+                  </li>
+                
 
                 
-                  <li class="active">
+                  <li>
                     <a href="#services_get_response" data-toggle="tab">Response</a>
                   </li>
                 
@@ -1255,9 +1259,273 @@ There are different informations extracted from</p>
               <!-- Tab panes -->
               <div class="tab-content">
                 
+                  <div class="tab-pane active" id="services_get_request">
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                      <h3>Query Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>name</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>Filter on the name of the service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>myservicename</code></pre>
+        
+    </div>
+
+
+  
+
+</li>
+
+                        
+                          <li>
+  <strong>template_uid</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>Filter on the complete template UID of the service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>github.com/jumpscale/0-robot/node/0.0.1</code></pre>
+        
+    </div>
+
+
+  
+
+</li>
+
+                        
+                          <li>
+  <strong>template_host</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>Filter on the host part of the template UID of the service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>github.com</code></pre>
+        
+    </div>
+
+
+  
+
+</li>
+
+                        
+                          <li>
+  <strong>template_account</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>Filter on the account part of the template UID of the service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>jumpscale</code></pre>
+        
+    </div>
+
+
+  
+
+</li>
+
+                        
+                          <li>
+  <strong>template_repo</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>Filter on the repository part of the template UID of the service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>0-robot</code></pre>
+        
+    </div>
+
+
+  
+
+</li>
+
+                        
+                          <li>
+  <strong>template_name</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>Filter on the name part of the template UID of the service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>node</code></pre>
+        
+    </div>
+
+
+  
+
+</li>
+
+                        
+                          <li>
+  <strong>template_version</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>Filter on the version part of the template UID of the service</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>0.0.1</code></pre>
+        
+    </div>
+
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+                  </div>
+                
 
                 
-                  <div class="tab-pane active" id="services_get_response">
+                  <div class="tab-pane" id="services_get_response">
                     
                       <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
 
