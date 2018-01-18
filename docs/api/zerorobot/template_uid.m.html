@@ -1075,6 +1075,9 @@ table {
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_uid', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_uid" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">_version_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;(\d+).(\d+).(\d+)&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">TemplateUID</span><span class="p">:</span>
@@ -1097,12 +1100,18 @@ table {
 <span class="sd">        - the repository name</span>
 <span class="sd">        - the name of the template itself</span>
 <span class="sd">        - a version</span>
-<span class="sd">        e.g: https://github.com/account/repository/name/version would result into</span>
+<span class="sd">        e.g: github.com/account/repository/name/version would result into</span>
 <span class="sd">        host: github.com</span>
 <span class="sd">        account: account</span>
 <span class="sd">        repository name: repository</span>
 <span class="sd">        template name: name</span>
 <span class="sd">        version: version</span>
+
+<span class="sd">        parse supports forms:</span>
+<span class="sd">        complete uid: github.com/account/repository/name/version</span>
+<span class="sd">        without version: github.com/account/repository/name</span>
+<span class="sd">        name and version: name/version</span>
+<span class="sd">        just the name: name</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
 
@@ -1110,21 +1119,28 @@ table {
         <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span><span class="p">:</span>
             <span class="n">host</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span>
 
-        <span class="n">path</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">uid</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
 
-        <span class="n">ss</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
-        <span class="k">elif</span> <span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+            <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">if</span> <span class="n">x</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tuple</span><span class="p">())</span>
@@ -1200,12 +1216,18 @@ table {
 <span class="sd">        - the repository name</span>
 <span class="sd">        - the name of the template itself</span>
 <span class="sd">        - a version</span>
-<span class="sd">        e.g: https://github.com/account/repository/name/version would result into</span>
+<span class="sd">        e.g: github.com/account/repository/name/version would result into</span>
 <span class="sd">        host: github.com</span>
 <span class="sd">        account: account</span>
 <span class="sd">        repository name: repository</span>
 <span class="sd">        template name: name</span>
 <span class="sd">        version: version</span>
+
+<span class="sd">        parse supports forms:</span>
+<span class="sd">        complete uid: github.com/account/repository/name/version</span>
+<span class="sd">        without version: github.com/account/repository/name</span>
+<span class="sd">        name and version: name/version</span>
+<span class="sd">        just the name: name</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
 
@@ -1213,21 +1235,28 @@ table {
         <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span><span class="p">:</span>
             <span class="n">host</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span>
 
-        <span class="n">path</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">uid</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
 
-        <span class="n">ss</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
-        <span class="k">elif</span> <span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+            <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">if</span> <span class="n">x</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tuple</span><span class="p">())</span>
@@ -1317,7 +1346,8 @@ table {
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_uid.TemplateUID.tuple', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_uid.TemplateUID.tuple" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">if</span> <span class="n">x</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1394,12 +1424,17 @@ There are different information extracted from
 - the repository name
 - the name of the template itself
 - a version
-e.g: https://github.com/account/repository/name/version would result into
+e.g: github.com/account/repository/name/version would result into
 host: github.com
 account: account
 repository name: repository
 template name: name
-version: version</p></div>
+version: version</p>
+<p>parse supports forms:
+complete uid: github.com/account/repository/name/version
+without version: github.com/account/repository/name
+name and version: name/version
+just the name: name</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_uid.TemplateUID.parse', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_uid.TemplateUID.parse" class="source">
@@ -1414,23 +1449,35 @@ version: version</p></div>
 <span class="sd">    - the repository name</span>
 <span class="sd">    - the name of the template itself</span>
 <span class="sd">    - a version</span>
-<span class="sd">    e.g: https://github.com/account/repository/name/version would result into</span>
+<span class="sd">    e.g: github.com/account/repository/name/version would result into</span>
 <span class="sd">    host: github.com</span>
 <span class="sd">    account: account</span>
 <span class="sd">    repository name: repository</span>
 <span class="sd">    template name: name</span>
 <span class="sd">    version: version</span>
+<span class="sd">    parse supports forms:</span>
+<span class="sd">    complete uid: github.com/account/repository/name/version</span>
+<span class="sd">    without version: github.com/account/repository/name</span>
+<span class="sd">    name and version: name/version</span>
+<span class="sd">    just the name: name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span><span class="p">:</span>
         <span class="n">host</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-    <span class="n">ss</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+    <span class="n">ss</span> <span class="o">=</span> <span class="n">uid</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
         <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
-    <span class="k">elif</span> <span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-        <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>

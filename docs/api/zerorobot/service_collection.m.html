@@ -1054,11 +1054,12 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.service_collection.add">add</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.delete">delete</a></li>
+    <li class="mono"><a href="#zerorobot.service_collection.drop_all">drop_all</a></li>
+    <li class="mono"><a href="#zerorobot.service_collection.find">find</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.get_by_guid">get_by_guid</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.get_by_name">get_by_name</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.list_services">list_services</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.load">load</a></li>
-    <li class="mono"><a href="#zerorobot.service_collection.search">search</a></li>
     <li class="mono"><a href="#zerorobot.service_collection.upgrade">upgrade</a></li>
   </ul>
 
@@ -1072,6 +1073,10 @@ table {
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.service_collection.ServiceConflictError">ServiceConflictError</a></span>
+        
+        </li>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.service_collection.TooManyResults">TooManyResults</a></span>
         
         </li>
       </ul>
@@ -1102,31 +1107,36 @@ other services and class need to use this module method to create, access, list 
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
+<span class="kn">from</span> <span class="nn">zerorobot.sqlite</span> <span class="kn">import</span> <span class="n">SqliteIndex</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
-<span class="n">_name_index</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_sqlite_index</span> <span class="o">=</span> <span class="n">SqliteIndex</span><span class="p">()</span>
 <span class="n">_guid_index</span> <span class="o">=</span> <span class="p">{}</span>
 
 
 <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="s2">&quot;a service with name=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">_name_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
-
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;guid&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="s2">&quot;a service with guid=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
-        <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+    <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="s2">&quot;a service with guid=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+    <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+    <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">add_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add service </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">guids</span> <span class="o">=</span> <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">_guid_index</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span> <span class="k">for</span> <span class="n">guid</span> <span class="ow">in</span> <span class="n">guids</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">services</span>
+
+
 <span class="k">def</span> <span class="nf">get_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;more then one results for service name=</span><span class="si">%s</span><span class="s2">, be more precise&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;service with name=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_name_index</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">services</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">get_by_guid</span><span class="p">(</span><span class="n">guid</span><span class="p">):</span>
@@ -1139,24 +1149,10 @@ other services and class need to use this module method to create, access, list 
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_guid_index</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
 
-<span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">list_services</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">template_uid</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-
-
 <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
-        <span class="k">del</span> <span class="n">_name_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;guid&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
         <span class="k">del</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span>
+    <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">delete_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete service </span><span class="si">%s</span><span class="s2"> from collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 
@@ -1218,7 +1214,20 @@ other services and class need to use this module method to create, access, list 
     <span class="k">return</span> <span class="n">service</span>
 
 
+<span class="k">def</span> <span class="nf">drop_all</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    delete all services</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">list_services</span><span class="p">():</span>
+        <span class="n">delete</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">_guid_index</span> <span class="o">=</span> <span class="p">{}</span>
+
+
 <span class="k">class</span> <span class="nc">ServiceConflictError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">TooManyResults</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
 
 
@@ -1258,15 +1267,10 @@ other services and class need to use this module method to create, access, list 
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.add', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_collection.add" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="s2">&quot;a service with name=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">_name_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
-
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;guid&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="s2">&quot;a service with guid=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
-        <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+    <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="s2">&quot;a service with guid=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+    <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
+    <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">add_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add service </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 </pre></div>
@@ -1289,13 +1293,61 @@ other services and class need to use this module method to create, access, list 
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.delete', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_collection.delete" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
-        <span class="k">del</span> <span class="n">_name_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;guid&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
         <span class="k">del</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span>
+    <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">delete_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete service </span><span class="si">%s</span><span class="s2"> from collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.service_collection.drop_all">
+    <p>def <span class="ident">drop_all</span>(</p><p>)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>delete all services</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.drop_all', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.service_collection.drop_all" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">drop_all</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    delete all services</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">list_services</span><span class="p">():</span>
+        <span class="n">delete</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">_guid_index</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.service_collection.find">
+    <p>def <span class="ident">find</span>(</p><p>**kwargs)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.find', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.service_collection.find" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">guids</span> <span class="o">=</span> <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">_guid_index</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span> <span class="k">for</span> <span class="n">guid</span> <span class="ow">in</span> <span class="n">guids</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">services</span>
 </pre></div>
 
   </div>
@@ -1339,9 +1391,12 @@ other services and class need to use this module method to create, access, list 
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.get_by_name', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_collection.get_by_name" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_name_index</span><span class="p">:</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;more then one results for service name=</span><span class="si">%s</span><span class="s2">, be more precise&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;service with name=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_name_index</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">services</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
   </div>
@@ -1420,35 +1475,6 @@ other services and class need to use this module method to create, access, list 
     <span class="n">srv</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">base_path</span>
     <span class="n">add</span><span class="p">(</span><span class="n">srv</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">srv</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="zerorobot.service_collection.search">
-    <p>def <span class="ident">search</span>(</p><p>template_uid, parent=None)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.search', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.service_collection.search" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">list_services</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">template_uid</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1565,6 +1591,44 @@ other services and class need to use this module method to create, access, list 
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.service_collection.ServiceConflictError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="zerorobot.service_collection.TooManyResults" class="name">class <span class="ident">TooManyResults</span></p>
+      
+  
+    <div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.TooManyResults', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.service_collection.TooManyResults" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TooManyResults</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.service_collection.TooManyResults">TooManyResults</a></li>
+          <li>builtins.Exception</li>
+          <li>builtins.BaseException</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="zerorobot.service_collection.TooManyResults.args" class="name">var <span class="ident">args</span></p>
             
 
             

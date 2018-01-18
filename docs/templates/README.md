@@ -4,7 +4,7 @@ A template is the source of a service.
 It contains the definition of the [actions](../../glossary.md#action), the configuration and the data schema of a [service](../../glossary.md#service).
 
 ## Template Unique Identifier (template UID)
-A tempate is identified by the url of the git repository it comes from.  
+A template is identified by the url of the git repository it comes from.  
 There is different information extracted from the URL:
 - the host
 - the account

@@ -1071,6 +1071,7 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.create">create</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.find">find</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.upgrade">upgrade</a></li>
   </ul>
 
@@ -1211,6 +1212,16 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
             <span class="n">results</span><span class="p">[</span><span class="n">srv</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">srv</span>
         <span class="k">return</span> <span class="n">results</span>
 
+    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find some services based on some filters passed in **kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">services</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">listServices</span><span class="p">(</span><span class="n">query_params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">results</span>
+
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Instantiate a service from a template</span>
@@ -1286,7 +1297,7 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 <span class="sd">        Returns a list of template UID present on the ZeroRobot</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">templates</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">ListTemplates</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">uid</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">templates</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">uid</span><span class="p">):</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">templates</span><span class="p">}</span>
 
 
 <span class="k">class</span> <span class="nc">ZeroRobotManager</span><span class="p">:</span>
@@ -1520,6 +1531,16 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
             <span class="n">results</span><span class="p">[</span><span class="n">srv</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">srv</span>
         <span class="k">return</span> <span class="n">results</span>
 
+    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find some services based on some filters passed in **kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">services</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">listServices</span><span class="p">(</span><span class="n">query_params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">results</span>
+
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Instantiate a service from a template</span>
@@ -1647,6 +1668,35 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
         <span class="k">raise</span> <span class="n">ServiceCreateError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
     <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">new_service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">new_service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotManager.ServicesMgr.find">
+    <p>def <span class="ident">find</span>(</p><p>self, **kwargs)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Find some services based on some filters passed in **kwargs</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.find', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.find" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find some services based on some filters passed in **kwargs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">services</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">listServices</span><span class="p">(</span><span class="n">query_params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">results</span>
 </pre></div>
 
   </div>
@@ -1798,7 +1848,7 @@ from a template that doesn't exists</p></div>
 <span class="sd">        Returns a list of template UID present on the ZeroRobot</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">templates</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">ListTemplates</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">uid</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">templates</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">uid</span><span class="p">):</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">templates</span><span class="p">}</span>
 </pre></div>
 
   </div>

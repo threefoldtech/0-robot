@@ -1331,8 +1331,9 @@ It is the class every template should inherits from.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;deleting service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="c1"># stop all recurring action</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c1"># close ressources of logging handlers</span>
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
@@ -1368,13 +1369,13 @@ It is the class every template should inherits from.</p>
 
 <span class="sd">    That means that it can be a longer time then period second during which the action is not executed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">last</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">elapsed</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">last</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">period</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">elapsed</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">period</span><span class="p">:</span>
                 <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
                 <span class="n">task</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+                <span class="n">last</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
@@ -1869,8 +1870,9 @@ manage a group of greenlets</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;deleting service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="c1"># stop all recurring action</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c1"># close ressources of logging handlers</span>
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
@@ -1986,8 +1988,9 @@ manage a group of greenlets</p>
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.delete', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.TemplateBase.delete" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;deleting service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
     <span class="c1"># stop all recurring action</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="c1"># close ressources of logging handlers</span>
     <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">):</span>

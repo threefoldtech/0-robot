@@ -1045,6 +1045,8 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.template.state.SERVICE_STATE_ERROR">SERVICE_STATE_ERROR</a></li>
     <li class="mono"><a href="#zerorobot.template.state.SERVICE_STATE_OK">SERVICE_STATE_OK</a></li>
+    <li class="mono"><a href="#zerorobot.template.state.SERVICE_STATE_SKIPPED">SERVICE_STATE_SKIPPED</a></li>
+    <li class="mono"><a href="#zerorobot.template.state.SERVICE_STATE_WARNING">SERVICE_STATE_WARNING</a></li>
   </ul>
 
     </li>
@@ -1102,6 +1104,8 @@ table {
 
 <span class="n">SERVICE_STATE_OK</span> <span class="o">=</span> <span class="s1">&#39;ok&#39;</span>
 <span class="n">SERVICE_STATE_ERROR</span> <span class="o">=</span> <span class="s1">&#39;error&#39;</span>
+<span class="n">SERVICE_STATE_WARNING</span> <span class="o">=</span> <span class="s1">&#39;warning&#39;</span>
+<span class="n">SERVICE_STATE_SKIPPED</span> <span class="o">=</span> <span class="s1">&#39;skipped&#39;</span>
 
 
 <span class="k">class</span> <span class="nc">BadServiceStateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1138,7 +1142,7 @@ table {
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        set a state to a value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">SERVICE_STATE_OK</span><span class="p">,</span> <span class="n">SERVICE_STATE_ERROR</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">SERVICE_STATE_OK</span><span class="p">,</span> <span class="n">SERVICE_STATE_ERROR</span><span class="p">,</span> <span class="n">SERVICE_STATE_WARNING</span><span class="p">,</span> <span class="n">SERVICE_STATE_SKIPPED</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="n">BadServiceStateError</span><span class="p">(</span><span class="s2">&quot;state not supported: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">state</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
@@ -1244,6 +1248,22 @@ table {
 </div>
 
       </div>
+      <div class="item">
+      <p id="zerorobot.template.state.SERVICE_STATE_SKIPPED" class="name">var <span class="ident">SERVICE_STATE_SKIPPED</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.template.state.SERVICE_STATE_WARNING" class="name">var <span class="ident">SERVICE_STATE_WARNING</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1311,7 +1331,7 @@ that is not supported</p></div>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        set a state to a value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">SERVICE_STATE_OK</span><span class="p">,</span> <span class="n">SERVICE_STATE_ERROR</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">SERVICE_STATE_OK</span><span class="p">,</span> <span class="n">SERVICE_STATE_ERROR</span><span class="p">,</span> <span class="n">SERVICE_STATE_WARNING</span><span class="p">,</span> <span class="n">SERVICE_STATE_SKIPPED</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="n">BadServiceStateError</span><span class="p">(</span><span class="s2">&quot;state not supported: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">state</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
@@ -1606,7 +1626,7 @@ if tag is None, delete the full category</p></div>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    set a state to a value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">SERVICE_STATE_OK</span><span class="p">,</span> <span class="n">SERVICE_STATE_ERROR</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">SERVICE_STATE_OK</span><span class="p">,</span> <span class="n">SERVICE_STATE_ERROR</span><span class="p">,</span> <span class="n">SERVICE_STATE_WARNING</span><span class="p">,</span> <span class="n">SERVICE_STATE_SKIPPED</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="n">BadServiceStateError</span><span class="p">(</span><span class="s2">&quot;state not supported: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">state</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
