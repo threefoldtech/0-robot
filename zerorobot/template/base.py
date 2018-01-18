@@ -220,8 +220,9 @@ class TemplateBase:
         self._gl_mgr.add("recurring_" + action, gl)
 
     def delete(self):
+        self.logger.info("deleting service %s (%s)", self.name, self.guid)
         # stop all recurring action
-        self._gl_mgr.stop_all()
+        self._gl_mgr.stop_all(wait=True)
 
         # close ressources of logging handlers
         for h in self.logger.handlers:
