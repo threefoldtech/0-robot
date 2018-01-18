@@ -32,9 +32,6 @@ class TestTemplateCollection(unittest.TestCase):
         with self.assertRaises(KeyError, msg="should raise KeyError"):
             tcol.get('github.com/jumpscale/0-robot/noexists/0.0.1')
 
-        with self.assertRaises(ValueError, msg="should raise ValueError cause template uid format is not valid"):
-            tcol.get('wrong_format')
-
     def test_list_template(self):
         # valid template
         file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
@@ -48,42 +45,56 @@ class TestTemplateCollection(unittest.TestCase):
     def test_template_uid_parsing(self):
         tt = [
             {
-                'uid': 'https://github.com/account/repository/name/version',
+                'uid': 'github.com/account/repository/name/0.0.1',
                 'error': False,
-                'expected': ('github.com', 'account', 'repository', 'name', 'version'),
+                'expected': ('github.com', 'account', 'repository', 'name', '0.0.1'),
                 'name': 'valid',
             },
             {
-                'uid': 'github.com/account/repository/name/version',
+                'uid': 'github.com/account/repository/name/0.0.1',
                 'error': False,
-                'expected': ('github.com', 'account', 'repository', 'name', 'version'),
+                'expected': ('github.com', 'account', 'repository', 'name', '0.0.1'),
                 'name': 'no scheme',
             },
             {
-                'uid': 'account/repository/name/version',
+                'uid': 'account/repository/name/0.0.1',
                 'error': True,
                 'name': 'missing host',
             },
             {
-                'uid': 'github.com/repository/name/version',
+                'uid': 'github.com/repository/name/0.0.1',
                 'error': True,
                 'name': 'no account',
             },
             {
-                'uid': 'github.com/account/name/version',
+                'uid': 'github.com/account/name/0.0.1',
                 'error': True,
                 'name': 'no repository',
             },
             {
-                'uid': 'github.com/account/repository/version',
+                'uid': 'github.com/account/repository/0.0.1',
                 'error': True,
                 'name': 'missing name',
             },
             {
                 'uid': 'github.com/account/repository/name',
-                'error': True,
+                'error': False,
+                'expected': ('github.com', 'account', 'repository', 'name'),
                 'name': 'missing version',
+            },
+            {
+                'uid': 'name/0.0.1',
+                'error': False,
+                'expected': ('name', '0.0.1'),
+                'name': 'name and 0.0.1',
+            },
+            {
+                'uid': 'name',
+                'error': False,
+                'expected': ('name',),
+                'name': 'just name',
             }
+
         ]
 
         for tc in tt:
@@ -107,8 +118,12 @@ class TestTemplateCollection(unittest.TestCase):
         self.assertTrue(uid1 <= uid3)
         self.assertTrue(uid1 > uid4)
         self.assertTrue(uid1 >= uid4)
+
         with self.assertRaises(ValueError, msg="should not compare 2 different template"):
             uid1 < uid5
+        with self.assertRaises(ValueError, msg="should not compare 2 different template"):
             uid1 <= uid5
+        with self.assertRaises(ValueError, msg="should not compare 2 different template"):
             uid1 >= uid5
+        with self.assertRaises(ValueError, msg="should not compare 2 different template"):
             uid1 > uid5

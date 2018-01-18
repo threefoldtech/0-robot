@@ -94,8 +94,11 @@ class ServicesMgr:
         """
         Find some services based on some filters passed in **kwargs
         """
+        results = []
         services, _ = self._client.api.services.listServices(query_params=kwargs)
-        return services
+        for service in services:
+            results.append(self._instantiate(service))
+        return results
 
     def create(self, template_uid, service_name, data=None):
         """
@@ -172,7 +175,7 @@ class TemplatesMgr:
         Returns a list of template UID present on the ZeroRobot
         """
         templates, _ = self._client.api.templates.ListTemplates()
-        return {t.uid: t for t in templates}
+        return {TemplateUID.parse(t.uid): t for t in templates}
 
 
 class ZeroRobotManager:

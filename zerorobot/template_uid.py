@@ -1,4 +1,7 @@
 from urllib.parse import urlparse
+import re
+
+_version_regex = re.compile("(\d+).(\d+).(\d+)")
 
 
 class TemplateUID:
@@ -21,12 +24,18 @@ class TemplateUID:
         - the repository name
         - the name of the template itself
         - a version
-        e.g: https://github.com/account/repository/name/version would result into
+        e.g: github.com/account/repository/name/version would result into
         host: github.com
         account: account
         repository name: repository
         template name: name
         version: version
+
+        parse supports forms:
+        complete uid: github.com/account/repository/name/version
+        without version: github.com/account/repository/name
+        name and version: name/version
+        just the name: name
         """
         host, account, repo, name, version = None, None, None, None, None
 
@@ -34,21 +43,28 @@ class TemplateUID:
         if parsed.netloc:
             host = parsed.netloc
 
-        path = parsed.path.rstrip('/').lstrip('/')
+        ss = uid.rstrip('/').lstrip('/').split('/')
 
-        ss = path.split('/')
-
-        if host is None and len(ss) == 5:
+        if len(ss) == 5:
             host, account, repo, name, version = ss
-        elif host is not None and len(ss) == 4:
-            account, repo, name, version = ss
+        elif len(ss) == 4:
+            if _version_regex.match(ss[-1]):
+                raise ValueError("format of the template uid (%s) not valid" % uid)
+            host, account, repo, name = ss
+        elif len(ss) == 2:
+            if not _version_regex.match(ss[-1]):
+                raise ValueError("format of the template uid (%s) not valid" % uid)
+            name, version = ss
+        elif len(ss) == 1:
+            name = ss[0]
         else:
             raise ValueError("format of the template uid (%s) not valid" % uid)
 
         return cls(host, account, repo, name, version)
 
     def tuple(self):
-        return (self.host, self.account, self.repo, self.name, self.version)
+        l = [self.host, self.account, self.repo, self.name, self.version]
+        return tuple(x for x in l if x)
 
     def __repr__(self):
         return '/'.join(self.tuple())

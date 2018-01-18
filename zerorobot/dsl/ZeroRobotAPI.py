@@ -162,9 +162,26 @@ class ZeroRobotAPI:
         It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.
         If not known robots managed the template_uid, then KeyError is raised
         """
+        if isinstance(template_uid, str):
+            template_uid = TemplateUID.parse(template_uid)
+
+        def compare(a, b):
+            if a.host and b.host and (a.host != b.host):
+                return False
+            if a.account and b.account and (a.account != b.account):
+                return False
+            if a.repo and b.repo and (a.repo != b.repo):
+                return False
+            if a.name and b.name and (a.name != b.name):
+                return False
+            if a.version and b.version and (a.version != b.version):
+                return False
+            return True
+
         for robot in self.robots.values():
-            if str(template_uid) in robot.templates.uids:
-                return robot
+            for uid in robot.templates.uids:
+                if compare(template_uid, uid):
+                    return robot
         raise KeyError("no robot that managed %s found" % template_uid)
 
 
