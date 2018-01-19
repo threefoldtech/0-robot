@@ -52,7 +52,7 @@ class TestZRobotClient(unittest.TestCase):
         j.clients.zrobot.delete('test')
 
     def test_list_templates(self):
-        uids = self.cl.templates.uids
+        uids = [str(x) for x in self.cl.templates.uids]
 
         self.assertEqual(len(uids), 3, "number of templates should be 3")
         self.assertIn('github.com/jumpscale/0-robot/node/0.0.1', uids)

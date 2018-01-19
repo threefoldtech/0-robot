@@ -108,11 +108,14 @@ class ServicesMgr:
         @param service_name: name of the service, needs to be unique within the robot instance
         @param data: a dictionnary with the data of the service to create
         """
+        if isinstance(template_uid, str):
+            template_uid = TemplateUID.parse(template_uid)
+
         if template_uid not in self._robot.templates.uids:
             raise TemplateNotFoundError("template %s not found" % template_uid)
 
         req = {
-            "template": template_uid,
+            "template": str(template_uid),
             "version": "0.0.1",
             "name": service_name,
         }
@@ -137,11 +140,13 @@ class ServicesMgr:
         @param service: service guid
         @param new_template_uid: template uid to be used as new template
         """
-        new_template_uid = str(new_template_uid)
+        if isinstance(new_template_uid, str):
+            new_template_uid = TemplateUID.parse(new_template_uid)
+
         if new_template_uid not in self._robot.templates.uids:
             raise TemplateNotFoundError("template %s not found" % new_template_uid)
 
-        req = {"template": new_template_uid}
+        req = {"template": str(new_template_uid)}
         try:
             new_service, resp = self._client.api.services.UpgradeService(data=req, service_guid=service_guid)
         except HTTPError as err:

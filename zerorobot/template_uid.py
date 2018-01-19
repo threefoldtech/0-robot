@@ -2,6 +2,7 @@ from urllib.parse import urlparse
 import re
 
 _version_regex = re.compile("(\d+).(\d+).(\d+)")
+_name_regex = re.compile("^\w+$")
 
 
 class TemplateUID:
@@ -48,16 +49,17 @@ class TemplateUID:
         if len(ss) == 5:
             host, account, repo, name, version = ss
         elif len(ss) == 4:
-            if _version_regex.match(ss[-1]):
-                raise ValueError("format of the template uid (%s) not valid" % uid)
             host, account, repo, name = ss
         elif len(ss) == 2:
-            if not _version_regex.match(ss[-1]):
-                raise ValueError("format of the template uid (%s) not valid" % uid)
             name, version = ss
         elif len(ss) == 1:
             name = ss[0]
         else:
+            raise ValueError("format of the template uid (%s) not valid" % uid)
+
+        if not _name_regex.match(name):
+            raise ValueError("format of the template uid (%s) not valid" % uid)
+        if version and not _version_regex.match(version):
             raise ValueError("format of the template uid (%s) not valid" % uid)
 
         return cls(host, account, repo, name, version)
@@ -83,6 +85,9 @@ class TemplateUID:
             return 0
 
     def __eq__(self, other):
+        if isinstance(other, str):
+            other = TemplateUID.parse(other)
+
         if not isinstance(other, TemplateUID):
             raise ValueError("other is not an instance of TemplateUID")
 
