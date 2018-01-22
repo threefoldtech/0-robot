@@ -91,7 +91,7 @@ class Robot:
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)
         hostport = _split_hostport(listen)
-        self._http = WSGIServer(hostport, app, spawn=pool, log=app.logger, error_log=app.logger)
+        self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger)
 
         logger.info("robot running at %s:%s" % hostport)
 
