@@ -28,3 +28,5 @@ class ZerotierClient(TemplateBase):
         delete the client configuration
         """
         j.clients.zerotier.delete(self.name)
+        # call the delete of the base class
+        super().delete()
