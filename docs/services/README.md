@@ -91,7 +91,7 @@ So an example of a service state could be:
   - tcp-8080: error
 ```
 
-Category and tags can be any string. There is not restriction. But the state associated needs to be one of `'new'`, `'ok'` or `'error'`
+Category and tags can be any string. There is not restriction. But the state associated needs to be one of `'ok'`, `'error'`, `'warning'`, `'skipped'`
 
 
 The service state management is completely left to the developer of the service. It is up to him to change the state a when needed.
