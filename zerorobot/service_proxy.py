@@ -51,6 +51,14 @@ class ServiceProxy():
         tasks, _ = self._zrobot_client.api.services.getTaskList(service_guid=self.guid, query_params={'all': True})
         return _task_list_proxy_from_api(tasks, self)
 
+    @property
+    def actions(self):
+        """
+        list available actions of the services
+        """
+        actions, _ = self._zrobot_client.api.services.ListActions(self.guid)
+        return sorted([a.name for a in actions])
+
     def schedule_action(self, action, args=None, resp_q=None):
         """
         Do a call on a remote ZeroRobot to add an action to the task list of
