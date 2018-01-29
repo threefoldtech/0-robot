@@ -12,21 +12,7 @@ from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
 
 # need to patch sockets to make requests async
-monkey.patch_all(
-    socket=True,
-    dns=True,
-    time=True,
-    select=True,
-    thread=True,
-    os=True,
-    ssl=True,
-    httplib=False,
-    subprocess=False,
-    sys=False,
-    aggressive=True,
-    Event=False,
-    builtins=True,
-    signal=True)
+monkey.patch_all(subprocess=False)
 
 
 class TestServiceProxy(unittest.TestCase):

@@ -2,7 +2,7 @@
 from gevent import monkey
 
 # need to patch sockets to make requests async
-monkey.patch_all()
+monkey.patch_all(subprocess=False)
 
 from js9 import j
 import click
