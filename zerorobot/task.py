@@ -109,6 +109,12 @@ class Task:
     def __lt__(self, other):
         return self._created < other._created
 
+    def __repr__(self):
+        return self.action_name
+
+    def __str__(self):
+        return repr(self)
+
 
 # has the highest priority, usually used by the robot when it needs a service to execute something
 PRIORITY_SYSTEM = 0
