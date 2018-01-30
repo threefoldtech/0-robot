@@ -1,4 +1,3 @@
 include zerorobot/server/handlers/schema/*.json
 include zerorobot/server/index.html
-include zerorobot/server/serverdocs/*
-include zerorobot/server/apidocs/*/*
+graft zerorobot/server/apidocs
