@@ -23,7 +23,7 @@ Let's get to creating the `template` templates are like "classes" and services a
 
 The whole thing
 - `schema.capnp`
-```
+```capnp
 @0x8ee99b43f92f8c51;
 
 struct Schema {
@@ -33,7 +33,7 @@ struct Schema {
 > 
 
 - `helloworld.py`
-```
+```python
 from zerorobot.template.base import TemplateBase
 
 
@@ -55,14 +55,14 @@ class Helloworld(TemplateBase):
 Let's dissect the template code a little bit
 
 * Imports
-```
+```python
 from js9 import j
 from zerorobot.template.base import TemplateBase
 ```
 Because we want to use jumpscale facilities and TemplateBase as the Base class for all templates
 
-* 
-``` Template class
+* Template class
+```python
 class Helloworld(TemplateBase):
 
     version = '0.0.1'
@@ -81,7 +81,7 @@ class Helloworld(TemplateBase):
 
 
 * Actions
-```
+```python
     def echo_to_temp(self):
         j.sal.fs.writeFile("/tmp/msg.robot", self._data['msg'], append=True)
 ```
@@ -140,7 +140,7 @@ Hello World
 ## Creating instance of the service and schedluing actions using Blueprints 
 * make a blueprint in some directory  `/tmp/proj/blueprints`
 /tmp/proj/blueprints# cat hello.yaml 
-```
+```yaml
 services:
     - github.com/jumpscale/0-robot/helloworld/0.0.1__service4:
           msg: wilkommen
