@@ -10,6 +10,7 @@ from flask import request
 from zerorobot import template_collection as tcol
 from zerorobot.server.handlers.views import service_view
 from zerorobot.service_collection import ServiceConflictError
+from zerorobot.template_collection import TemplateNotFoundError
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 ServiceCreate_schema = json.load(open(dir_path + '/schema/ServiceCreate_schema.json'))
@@ -31,7 +32,7 @@ def createServiceHandler():
 
     try:
         TemplateClass = tcol.get(inputs['template'])
-    except KeyError:
+    except TemplateNotFoundError:
         return json.dumps({'code': 400, 'message': "template '%s' not found" % inputs['template']}), \
             400, {"Content-type": 'application/json'}
     except ValueError as err:

@@ -11,6 +11,7 @@ from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import blueprint
 from zerorobot.service_collection import ServiceConflictError
+from zerorobot.template_collection import TemplateNameError, TemplateNotFoundError
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 Blueprint_schema = JSON.load(open(dir_path + '/schema/Blueprint_schema.json'))
@@ -38,7 +39,7 @@ def ExecuteBlueprintHandler():
         srv = None
         try:
             srv = tcol.instantiate_service(service['template'], service['service'], service['data'])
-        except KeyError:
+        except TemplateNotFoundError:
             return JSON.dumps({'code': 404, 'message': "template '%s' not found" % service['template']}), \
                 404, {"Content-type": 'application/json'}
         except ServiceConflictError:

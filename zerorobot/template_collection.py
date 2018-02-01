@@ -49,7 +49,7 @@ def get(uid):
     if isinstance(uid, str):
         uid = TemplateUID.parse(uid)
     if uid not in _templates:
-        raise KeyError("template with name %s not found" % str(uid))
+        raise TemplateNotFoundError("template with name %s not found" % str(uid))
     return _templates[uid]
 
 
@@ -139,4 +139,12 @@ def instantiate_service(template, name=None, data=None):
 
 
 class TemplateNameError(Exception):
+    pass
+
+
+class TemplateNotFoundError(Exception):
+    """
+    This exception is raised when trying to create a service
+    from a template that doesn't exists
+    """
     pass

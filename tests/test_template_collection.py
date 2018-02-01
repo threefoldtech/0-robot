@@ -2,6 +2,7 @@ import os
 import unittest
 
 from zerorobot import template_collection as tcol
+from zerorobot.template_collection import TemplateNotFoundError
 from zerorobot.template_uid import TemplateUID
 
 
@@ -29,7 +30,7 @@ class TestTemplateCollection(unittest.TestCase):
         self.assertTrue(template is not None)
         self.assertEqual(template.template_dir, dir_path)
 
-        with self.assertRaises(KeyError, msg="should raise KeyError"):
+        with self.assertRaises(TemplateNotFoundError, msg="should raise KeyError"):
             tcol.get('github.com/jumpscale/0-robot/noexists/0.0.1')
 
     def test_list_template(self):

@@ -9,14 +9,7 @@ from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 from zerorobot.template_uid import TemplateUID
-
-
-class TemplateNotFoundError(Exception):
-    """
-    This exception is raised when trying to create a service
-    from a template that doesn't exists
-    """
-    pass
+from zerorobot.template_collection import TemplateNotFoundError
 
 
 class ServicesMgr:
@@ -96,7 +89,7 @@ class ServicesMgr:
             # we can create a service locally, the local robot has the template
             template = tcol.get(template_uid)
             return tcol.instantiate_service(template, service_name, data)
-        except KeyError:
+        except TemplateNotFoundError:
             # we need to look for a robot that handle this template
             pass
 
