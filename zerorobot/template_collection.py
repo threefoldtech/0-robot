@@ -10,6 +10,7 @@ import sys
 
 from js9 import j
 from zerorobot import service_collection as scol
+from zerorobot.service_collection import ServiceConflictError
 from zerorobot.template_uid import TemplateUID
 
 logger = j.logger.get('zerorobot')
@@ -131,6 +132,9 @@ def _load_template(url, template_dir):
 def instantiate_service(template, name=None, data=None):
     if isinstance(template, str):
         template = get(template)
+
+    if name and scol.find(template_uid=str(template.template_uid), name=name):
+        raise ServiceConflictError("a service with name=%s already exist" % name)
 
     service = template(data=data, name=name)
 
