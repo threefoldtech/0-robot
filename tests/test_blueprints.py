@@ -2,6 +2,9 @@ import os
 import unittest
 
 from zerorobot import blueprint
+from zerorobot.server.handlers.ExecuteBlueprintHandler import _schedule_action, _instanciate_services
+from zerorobot import service_collection as scol
+from zerorobot import template_collection as tcol
 
 
 class TestBlueprintParsing(unittest.TestCase):
@@ -68,3 +71,163 @@ class TestBlueprintParsing(unittest.TestCase):
             blueprint.parse(content)
         err = cm.exception
         self.assertEqual(err.args[1], "Template uid not valid")
+
+
+class TestBlueprintExecution(unittest.TestCase):
+
+    def setUp(self):
+        tcol.add_repo("https://github.com/jumpscale/0-robot", directory='tests/fixtures/templates')
+        scol.drop_all()
+
+    def test_instanciate_service(self):
+        services = [
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'name',
+            },
+            {
+                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'service': 'name',
+            },
+        ]
+
+        for service in services:
+            _instanciate_services(service)
+
+        self.assertEqual(len(scol.list_services()), 2)
+        self.assertEqual(len(scol.find(template_uid='github.com/jumpscale/0-robot/node/0.0.1')), 1)
+        self.assertEqual(len(scol.find(template_uid='github.com/jumpscale/0-robot/vm/0.0.1')), 1)
+
+    def test_instanciate_service_duplicate(self):
+        services = [
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'name',
+            },
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'name',
+            },
+        ]
+
+        for service in services:
+            _instanciate_services(service)
+
+        self.assertEqual(len(scol.list_services()), 1)
+        self.assertEqual(len(scol.find(template_uid='github.com/jumpscale/0-robot/node/0.0.1')), 1)
+
+    def test_schedule_actions(self):
+        services = [
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'name',
+            },
+            {
+                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'service': 'name',
+            },
+        ]
+
+        for service in services:
+            _instanciate_services(service)
+
+        actions = [
+            {
+                'template': 'github.com/jumpscale/0-robot/node',
+                'name': 'name',
+                'action': 'start'
+            },
+        ]
+        tasks = []
+        for action_item in actions:
+            tasks.extend(_schedule_action(action_item))
+
+        self.assertEqual(len(tasks), 1)
+
+    def test_schedule_actions_template_filter(self):
+        services = [
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'node1',
+            },
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'node2',
+            },
+            {
+                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'service': 'vm1',
+            },
+        ]
+
+        for service in services:
+            _instanciate_services(service)
+
+        actions = [
+            {
+                'template': 'github.com/jumpscale/0-robot/node',
+                'action': 'start'
+            },
+        ]
+        tasks = []
+        for action_item in actions:
+            tasks.extend(_schedule_action(action_item))
+
+        self.assertEqual(len(tasks), 2)
+
+    def test_schedule_actions_name_filter(self):
+        services = [
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'node1',
+            },
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'node2',
+            },
+            {
+                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'service': 'vm1',
+            },
+        ]
+
+        for service in services:
+            _instanciate_services(service)
+
+        actions = [{
+            'service': 'node1',
+            'action': 'start'
+        }]
+        tasks = []
+        for action_item in actions:
+            tasks.extend(_schedule_action(action_item))
+
+        self.assertEqual(len(tasks), 1)
+
+    def test_schedule_actions_all_services(self):
+        services = [
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'node1',
+            },
+            {
+                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'service': 'node2',
+            },
+            {
+                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'service': 'vm1',
+            },
+        ]
+
+        for service in services:
+            _instanciate_services(service)
+
+        actions = [{
+            'action': 'start'
+        }]
+        tasks = []
+        for action_item in actions:
+            tasks.extend(_schedule_action(action_item))
+
+        self.assertEqual(len(tasks), 3)

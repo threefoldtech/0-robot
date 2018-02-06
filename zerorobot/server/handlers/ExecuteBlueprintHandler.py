@@ -15,7 +15,7 @@ from zerorobot.service_collection import ServiceConflictError
 from zerorobot.template.base import BadActionArgumentError
 from zerorobot.template_collection import (TemplateNameError,
                                            TemplateNotFoundError)
-
+from zerorobot.template_uid import TemplateUID
 from .views import task_view
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -41,23 +41,15 @@ def ExecuteBlueprintHandler():
         return JSON.dumps({'code': 400, 'message': str(err.args[1])}), 400, {"Content-type": 'application/json'}
 
     for service in services:
-        srv = None
         try:
-            srv = tcol.instantiate_service(service['template'], service['service'], service['data'])
+            _instanciate_services(service)
         except TemplateNotFoundError:
-            return JSON.dumps({'code': 404, 'message': "template '%s' not found" % service['template']}), \
-                404, {"Content-type": 'application/json'}
-        except ServiceConflictError as err:
-            if err.service is None:
-                raise j.exceptions.RuntimeError("should have the conflicting service in the exception")
-            # err.service is the conflicting service, that's the one we want to update
-            # with the new data from the blueprint
-            err.service.data.update_secure(service.get('data', {}))
+            return JSON.dumps({'code': 404, 'message': "template '%s' not found" % service['template']}), 404, {"Content-type": 'application/json'}
 
     tasks_created = []
     for action_item in actions:
         try:
-            tasks_created.extend(schedule_action(action_item))
+            tasks_created.extend(_schedule_action(action_item))
         except BadActionArgumentError as err:
             err_msg = "bad action argument for action %s: %s" % (action_item['action'], str(err))
             return JSON.dumps({'code': 400, 'message': err_msg}), 400, {"Content-type": 'application/json'}
@@ -69,8 +61,23 @@ def ExecuteBlueprintHandler():
     return JSON.dumps(response), 200, {"Content-type": 'application/json'}
 
 
-def schedule_action(action_item):
+def _instanciate_services(service_descr):
+    try:
+        srv = tcol.instantiate_service(service_descr['template'], service_descr['service'], service_descr.get('data', None))
+    except ServiceConflictError as err:
+        if err.service is None:
+            raise j.exceptions.RuntimeError("should have the conflicting service in the exception")
+        # err.service is the conflicting service, that's the one we want to update
+        # with the new data from the blueprint
+        err.service.data.update_secure(service_descr.get('data', {}))
+
+
+def _schedule_action(action_item):
+    template_uid = None
     template = action_item.get("template")
+    if template:
+        template_uid = TemplateUID.parse(template)
+
     service = action_item.get("service")
     action = action_item.get("action")
     args = action_item.get('args')
@@ -79,12 +86,20 @@ def schedule_action(action_item):
 
     candidates = []
 
-    if template and service:
-        candidates = scol.find(template_uid=template, name=service)
-    elif template and not service:
-        candidates = scol.find(template_uid=template)
-    elif not template and service:
-        candidates = scol.find(name=service)
+    kwargs = {'name': service}
+    if template_uid:
+        kwargs.update({
+            'template_host': template_uid.host,
+            'template_account': template_uid.account,
+            'template_repo': template_uid.repo,
+            'template_name': template_uid.name,
+            'template_version': template_uid.version,
+        })
+    # filter out None value
+    kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+    if len(kwargs) > 0:
+        candidates = scol.find(**kwargs)
     else:
         candidates = scol.list_services()
 
