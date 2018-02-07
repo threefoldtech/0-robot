@@ -128,3 +128,43 @@ class TestTemplateCollection(unittest.TestCase):
             uid1 >= uid5
         with self.assertRaises(ValueError, msg="should not compare 2 different template"):
             uid1 > uid5
+
+    def test_parse_git_url(self):
+        tb = [
+            {
+                'url': 'git@hostname:account/repo',
+                'protocol': 'git',
+                'host': 'hostname',
+                'account': 'account',
+                'repo': 'repo',
+                'valid': True
+            },
+            {
+                'url': 'https://hostname/account/repo',
+                'protocol': 'https',
+                'host': 'hostname',
+                'account': 'account',
+                'repo': 'repo',
+                'valid': True
+            },
+            {
+                # https://github.com/Jumpscale/0-robot/issues/69
+                'url': 'ssh://git@docs.greenitgloe.com:10022/Threefold/it_env_zrobot_nodes-0001.git',
+                'protocol': 'git',
+                'host': 'docs.greenitgloe.com',
+                'account': 'Threefold',
+                'repo': 'it_env_zrobot_nodes-0001',
+                'valid': True
+            }
+        ]
+
+        for test in tb:
+            if test['valid']:
+                protocol, host, account, repo = tcol._parse_git_url(test['url'])
+                self.assertEqual(protocol, test['protocol'])
+                self.assertEqual(host, test['host'])
+                self.assertEqual(account, test['account'])
+                self.assertEqual(repo, test['repo'])
+            else:
+                with self.assertRaises(RuntimeError):
+                    tcol._parse_git_url(test['url'])
