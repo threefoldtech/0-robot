@@ -7,6 +7,7 @@ import importlib.util
 import os
 import re
 import sys
+import urllib
 
 from js9 import j
 from zerorobot import service_collection as scol
@@ -15,9 +16,11 @@ from zerorobot.template_uid import TemplateUID
 
 logger = j.logger.get('zerorobot')
 
-_url_pattern_ssh = re.compile('^(git@)(.*?):(.*?)/(.*?)/?$')
-_url_pattern_ssh2 = re.compile('^(git@)(.*?)/(.*?)/(.*?)/?$')
-_url_pattern_http = re.compile('^(https?://)(.*?)/(.*?)/(.*?)/?$')
+_url_pattern_ssh = re.compile('^(git)@(.*?):(.*?)/(.*?)/?$')
+_url_pattern_ssh2 = re.compile('^(git)@(.*?)/(.*?)/(.*?)/?$')
+_url_pattern_ssh3 = re.compile('^ssh://(git)@(.*?)/(.*?)/(.*?)/?$')
+_url_pattern_http = re.compile('^(https?)://(.*?)/(.*?)/(.*?)/?$')
+_url_patterns = (_url_pattern_ssh, _url_pattern_ssh2, _url_pattern_ssh3, _url_pattern_http)
 
 
 _templates = {}
@@ -62,21 +65,20 @@ def _parse_git_url(url):
     """
     return (protocol, repository_host, repository_account, repository_name)
     """
-    sshmatch = _url_pattern_ssh.match(url)
-    sshmatch2 = _url_pattern_ssh2.match(url)
-    httpmatch = _url_pattern_http.match(url)
-    if sshmatch:
-        match = sshmatch
-    elif sshmatch2:
-        match = sshmatch2
-    elif httpmatch:
-        match = httpmatch
-    else:
+    match = None
+    for pattern in _url_patterns:
+        m = pattern.match(url)
+        if m:
+            match = m
+            break
+
+    if not match:
         raise RuntimeError(
-            "Url is invalid. Must be in the form of 'http(s)://hostname/account/repo' or 'git@hostname:account/repo'\nnow:\n%s" % url)
+            "Url is invalid. Must be in the form of 'http(s)://hostname/account/repo', 'git@hostname:account/repo' or 'ssh://git@hostname/account/repo' \nnow:\n%s" % url)
 
     protocol, repository_host, repository_account, repository_name = match.groups()
     repository_name = repository_name.split('.git')[0]
+    repository_host = urllib.parse.splitport(repository_host)[0]
     return (protocol, repository_host, repository_account, repository_name)
 
 
