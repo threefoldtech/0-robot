@@ -121,6 +121,16 @@ class TemplateBase:
 
         self.logger = _configure_logger(self.guid)
 
+    def validate(self):
+        """
+        This method is called on all services during robot statup
+        after all the service have been loaded
+
+        in here you can implement some logic to ensure that all the requirement
+        of you service are still met after a restart of the 0-robot
+        """
+        pass
+
     def save(self, base_path=None):
         """
         serialize the service state and data to a file

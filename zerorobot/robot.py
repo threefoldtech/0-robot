@@ -89,11 +89,6 @@ class Robot:
 
         self._block = block
 
-        self._autosave_gl = gevent.spawn(_auto_save_services, data_dir=self._data_dir)
-
-        # load services from data repo
-        self._load_services()
-
         self._sig_handler.append(gevent.signal(signal.SIGINT, self.stop))
 
         # configure logger
@@ -103,8 +98,13 @@ class Robot:
         pool = Pool(None)
         hostport = _split_hostport(listen)
         self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger)
+        self._http.start()
 
         logger.info("robot running at %s:%s" % hostport)
+
+        # load services from data repo
+        self._load_services()
+        self._autosave_gl = gevent.spawn(_auto_save_services, data_dir=self._data_dir)
 
         if block:
             self._http.serve_forever()
@@ -150,6 +150,9 @@ class Robot:
             # TODO: template should be url+name
             tmplClass = tcol.get(service_info['template'])
             srv = scol.load(tmplClass, srv_dir)
+
+        for service in scol.list_services():
+            service.validate()
 
     def _save_services(self):
         """
