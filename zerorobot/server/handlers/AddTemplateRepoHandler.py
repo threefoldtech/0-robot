@@ -30,7 +30,6 @@ def AddTemplateRepoHandler():
     except jsonschema.ValidationError as e:
         return json.dumps({'code': 400, 'message': "bad request body"}), 400, {"Content-type": 'application/json'}
 
-    # TODO: handle branches
-    added = tcol.add_repo(inputs['url'])
+    added = tcol.add_repo(inputs['url'], branch=inputs.get('branch', 'master'))
     templates = [template_view(t) for t in added]
     return json.dumps(templates), 201, {"Content-type": 'application/json'}

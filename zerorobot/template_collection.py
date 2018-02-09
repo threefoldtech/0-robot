@@ -35,7 +35,7 @@ def add_repo(url, branch='master', directory='templates'):
     new_templates = []
     dir_path = _git_path(url)
     if not os.path.exists(dir_path):
-        dir_path = j.clients.git.pullGitRepo(url)
+        dir_path = j.clients.git.pullGitRepo(url, branch=branch)
     for path in j.sal.fs.listDirsInDir(j.sal.fs.joinPaths(dir_path, directory)):
         if j.sal.fs.getBaseName(path) == '__pycache__':
             continue
