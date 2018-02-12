@@ -45,6 +45,27 @@ class Node(TemplateBase):
         self.data['randomkey'] = 'value'
 ```
 
+### Validate service data received during creation
+Usually you want to validate the data that your service received when it is created.
+To do that, the TemplateBase class allow you to overwrite the `validate` method and implement all your validation logic inside. The `validate` method is automatically called after your service is instantiated and also when you service is reloaded after the robot is restared.
+
+example of data validation:
+ ```python
+class Node(TemplateBase):
+
+    version = '0.0.1'
+    template_name = "node"
+
+    def __init__(self, name=None, guid=None, data=None):
+        super().__init__(name=name, guid=guid, data=data)
+
+    # this method is automatically called after the __init__ method
+    def validate(self):
+        # ensure that the data received is correct
+        if 'hostname' not in self.data:
+            raise ValueError("service can't be created without hostname")
+```
+
 ### Update data from blueprint
 When you send a blueprint that contains the definition of service that already exists. 
 The data from the blueprint will be proposed to the service. The service can then decide what to do with the new data.
