@@ -143,6 +143,7 @@ def instantiate_service(template, name=None, data=None):
             service=existing[0])
 
     service = template(data=data, name=name)
+    service.validate()
 
     scol.add(service)
     return service
