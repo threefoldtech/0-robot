@@ -2,10 +2,13 @@ import logging
 import os
 import time
 import unittest
+import shutil
+import tempfile
 
 from js9 import j
 from zerorobot.template.decorator import profile, retry, timeout
 from zerorobot.template_collection import _load_template
+from zerorobot import config
 
 
 class RetryableError(Exception):
@@ -188,6 +191,13 @@ class TestRetryTimout(unittest.TestCase):
 
 
 class TestProfile(unittest.TestCase):
+
+    def setUp(self):
+        config.DATA_DIR = tempfile.mkdtemp(prefix='0robottest')
+
+    def tearDown(self):
+        if os.path.exists(config.DATA_DIR):
+            shutil.rmtree(config.DATA_DIR)
 
     def _load_template(self, name):
         """

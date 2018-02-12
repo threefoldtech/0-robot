@@ -5,15 +5,17 @@ import unittest
 import uuid
 
 from gevent import monkey
+
+from js9 import j
 from zerorobot import service_collection as scol
-from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager, TemplateNotFoundError
+from zerorobot import config
+from zerorobot.dsl.ZeroRobotManager import (TemplateNotFoundError,
+                                            ZeroRobotManager)
 from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
 
 # need to patch sockets to make requests async
 monkey.patch_all(subprocess=False)
-
-from js9 import j
 
 
 class TestZRobotClient(unittest.TestCase):
@@ -24,15 +26,16 @@ class TestZRobotClient(unittest.TestCase):
         self.robot = Robot()
         self.robot.set_data_repo('http://github.com/jumpscale/0-robot')
         self.robot.add_template_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
-        if os.path.exists(self.robot._data_dir):
-            shutil.rmtree(self.robot._data_dir)
+        if os.path.exists(config.DATA_DIR):
+            shutil.rmtree(config.DATA_DIR)
         # make sure we don't have any service loaded
         scol.drop_all()
         self.robot.start(listen='127.0.0.1:6600', block=False)
 
     def tearDown(self):
         self.robot.stop()
-        shutil.rmtree(self.robot._data_dir)
+        if os.path.exists(config.DATA_DIR):
+            shutil.rmtree(config.DATA_DIR)
         # make sure we don't have any service loaded
         scol.drop_all()
         j.clients.zrobot.delete('test')
@@ -60,7 +63,7 @@ class TestZRobotClient(unittest.TestCase):
         self.assertEqual(len(self.cl.services.names), 1, "listing of service per name should return 1")
         self.assertEqual(len(self.cl.services.guids), 1, "listing of service per guid should return 1")
 
-    def test_service_create(self):
+    def test_service_create_without_name(self):
         data = {'ip': '127.0.0.1'}
         node = self.cl.services.create('github.com/jumpscale/0-robot/node/0.0.1', data=data)
         self.assertEqual(type(node), ServiceProxy, 'service type should be ServiceProxy')

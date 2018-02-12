@@ -7,9 +7,11 @@ import uuid
 from multiprocessing import Process
 
 from gevent import monkey
+
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
+from zerorobot import config
 from zerorobot.dsl.ZeroRobotAPI import TemplateNotFoundError, ZeroRobotAPI
 from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
@@ -28,7 +30,7 @@ class TestZRobotAPI(unittest.TestCase):
     def _start_robot(self, id, with_tmpl=False):
         def new(id, with_tmpl):
             robot = Robot()
-            robot._data_dir = tempfile.mkdtemp(prefix="robot1")
+            config.DATA_DIR = tempfile.mkdtemp(prefix="robot%s" % id)
             if with_tmpl:
                 robot.add_template_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
 
@@ -94,14 +96,16 @@ class TestZRobotAPI(unittest.TestCase):
         self.assertEqual(type(node1), ServiceProxy)
 
         # load template in current process
-        tcol.add_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
-        # now that we have some templates loaded, it should create a local service
-        node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
-        self.assertTrue(isinstance(node2, TemplateBase))
+        with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
+            config.DATA_DIR = tmpdir
+            tcol.add_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
+            # now that we have some templates loaded, it should create a local service
+            node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
+            self.assertTrue(isinstance(node2, TemplateBase))
 
-        # the api should get all services from both local and remote robots
-        self.assertEqual(len(self.api.services.names), 2)
-        self.assertEqual(len(self.api.services.guids), 2)
+            # the api should get all services from both local and remote robots
+            self.assertEqual(len(self.api.services.names), 2)
+            self.assertEqual(len(self.api.services.guids), 2)
 
     def test_service_search(self):
         node1 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')

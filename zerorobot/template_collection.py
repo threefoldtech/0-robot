@@ -144,6 +144,7 @@ def instantiate_service(template, name=None, data=None):
 
     service = template(data=data, name=name)
     service.validate()
+    service.save()
 
     scol.add(service)
     return service
