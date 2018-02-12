@@ -69,16 +69,16 @@ def load(template, base_path):
     if not os.path.exists(base_path):
         raise FileNotFoundError("Trying to load service from %s, but directory doesn't exists" % base_path)
 
-    name = os.path.basename(base_path)
+    guid = os.path.basename(base_path)
     service_info = j.data.serializer.yaml.load(os.path.join(base_path, 'service.yaml'))
     service_data = j.data.serializer.yaml.load(os.path.join(base_path, 'data.yaml'))
 
     template_uid = TemplateUID.parse(service_info['template'])
     if template_uid != template.template_uid:
         raise BadTemplateError("Trying to load service %s with template %s, while it requires %s"
-                               % (name, template.template_uid, service_info['template']))
+                               % (guid, template.template_uid, service_info['template']))
 
-    if service_info['name'] != name:
+    if service_info['guid'] != guid:
         raise BadTemplateError("Trying to load service from folder %s, but name of the service is %s"
                                % (base_path, service_info['name']))
 

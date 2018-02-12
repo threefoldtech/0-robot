@@ -55,10 +55,10 @@ class TestServiceTemplate(unittest.TestCase):
         srv = tcol.instantiate_service(Node, 'testnode')
         with tempfile.TemporaryDirectory() as tmpdir:
             srv.save(tmpdir)
-            srv_dir = os.path.join(tmpdir, srv.name)
+            srv_dir = os.path.join(tmpdir, srv.guid)
             self.assertTrue(os.path.exists(srv_dir), "directory of the saved service should exists")
             for x in ['service.yaml', 'data.yaml', 'state.yaml']:
-                self.assertTrue(os.path.exists(os.path.join(tmpdir, srv.name, x)), "%s file service should exists" % x)
+                self.assertTrue(os.path.exists(os.path.join(tmpdir, srv.guid, x)), "%s file service should exists" % x)
 
             service_info = j.data.serializer.yaml.load(os.path.join(srv_dir, 'service.yaml'))
             for k in ['template', 'guid', 'name', 'version']:

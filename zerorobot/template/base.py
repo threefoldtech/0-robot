@@ -149,7 +149,7 @@ class TemplateBase:
                 path = os.path.join(path, parent.name)
                 parent = parent.parent
 
-            path = os.path.join(path, self.name)
+            path = os.path.join(path, self.guid)
             self._path = path
         else:
             path = self._path
