@@ -17,9 +17,11 @@ from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.server.app import app
 from zerorobot.task import PRIORITY_SYSTEM
-
+from zerorobot import config
 # create logger
 logger = j.logger.get('zerorobot')
+
+# constant
 
 
 class Robot:
@@ -35,7 +37,6 @@ class Robot:
         self._started = False
         self._block = True
         self.data_repo_url = None
-        self._data_dir = None
         self._http = None  # server handler
         self.addr = None
         self._sig_handler = []
@@ -57,7 +58,7 @@ class Robot:
             location = j.clients.git.pullGitRepo(url)
 
         self.data_repo_url = url
-        self._data_dir = j.sal.fs.joinPaths(location, 'zrobot_data')
+        config.DATA_DIR = j.sal.fs.joinPaths(location, 'zrobot_data')
 
     def add_template_repo(self, url, branch='master', directory='templates'):
         tcol.add_repo(url=url, branch=branch, directory=directory)
@@ -78,21 +79,15 @@ class Robot:
         start the rest web server
         load the services from the local git repository
         """
-
-        if self._data_dir is None:
+        if config.DATA_DIR is None:
             raise RuntimeError("Not data repository set. Robot doesn't know where to save data.")
 
-        logger.info("data directory: %s" % self._data_dir)
+        logger.info("data directory: %s" % config.DATA_DIR)
 
         # will raise if not config repo is found
         j.tools.configmanager.path_configrepo
 
         self._block = block
-
-        self._autosave_gl = gevent.spawn(_auto_save_services, data_dir=self._data_dir)
-
-        # load services from data repo
-        self._load_services()
 
         self._sig_handler.append(gevent.signal(signal.SIGINT, self.stop))
 
@@ -103,8 +98,13 @@ class Robot:
         pool = Pool(None)
         hostport = _split_hostport(listen)
         self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger)
+        self._http.start()
 
         logger.info("robot running at %s:%s" % hostport)
+
+        # load services from data repo
+        self._load_services()
+        self._autosave_gl = gevent.spawn(_auto_save_services, data_dir=config.DATA_DIR)
 
         if block:
             self._http.serve_forever()
@@ -142,14 +142,19 @@ class Robot:
             self._save_services()
 
     def _load_services(self):
-        if not os.path.exists(self._data_dir):
-            os.makedirs(self._data_dir)
+        if not os.path.exists(config.DATA_DIR):
+            os.makedirs(config.DATA_DIR)
 
-        for srv_dir in j.sal.fs.listDirsInDir(self._data_dir, recursive=True):
-            service_info = j.data.serializer.yaml.load(os.path.join(srv_dir, 'service.yaml'))
-            # TODO: template should be url+name
+        for srv_dir in j.sal.fs.listDirsInDir(config.DATA_DIR, recursive=True):
+            info_path = os.path.join(srv_dir, 'service.yaml')
+            if not os.path.exists(info_path):
+                continue
+            service_info = j.data.serializer.yaml.load(info_path)
             tmplClass = tcol.get(service_info['template'])
             srv = scol.load(tmplClass, srv_dir)
+
+        for service in scol.list_services():
+            service.validate()
 
     def _save_services(self):
         """
@@ -158,7 +163,7 @@ class Robot:
         for service in scol.list_services():
             # stop all the greenlets attached to the services
             service.gl_mgr.stop_all()
-            service.save(self._data_dir)
+            service.save()
 
 
 def _auto_save_services(data_dir):
@@ -172,7 +177,7 @@ def _auto_save_services(data_dir):
     while True:
         try:
             for service in scol.list_services():
-                service._schedule_action(action='save', args={'base_path': data_dir}, priority=PRIORITY_SYSTEM)
+                service._schedule_action(action='save', priority=PRIORITY_SYSTEM)
             gevent.sleep(10)
         except GreenletExit:
             break

@@ -19,6 +19,7 @@ from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.task import PRIORITY_NORMAL, PRIORITY_SYSTEM, Task, TaskList
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
+from zerorobot import config
 
 logger = j.logger.get('zerorobot')
 
@@ -105,7 +106,16 @@ class TemplateBase:
         self.guid = guid or str(uuid4())
         self.name = name or self.guid
         self.parent = None
-        self._path = None  # location on the filesystem where to store the service
+        # location on the filesystem where to store the service
+        self._path = os.path.join(
+            config.DATA_DIR,
+            self.template_uid.host,
+            self.template_uid.account,
+            self.template_uid.repo,
+            self.template_uid.name,
+            self.name,
+            self.guid
+        )
 
         self.api = ZeroRobotAPI()
 
@@ -121,7 +131,17 @@ class TemplateBase:
 
         self.logger = _configure_logger(self.guid)
 
-    def save(self, base_path=None):
+    def validate(self):
+        """
+        This method is called on all services during robot statup
+        after all the service have been loaded
+
+        in here you can implement some logic to ensure that all the requirement
+        of you service are still met after a restart of the 0-robot
+        """
+        pass
+
+    def save(self):
         """
         serialize the service state and data to a file
 
@@ -129,34 +149,34 @@ class TemplateBase:
                           to save the service state and data
         return the path where the service is saved
         """
-        if self._path is None and base_path is None:
-            raise ValueError("base_path needs to be specified to be able to save the service")
+        if self._path is None:
+            raise RuntimeError("service._path is None, don't know where to save the service")
 
-        if base_path is not None and base_path != '':
-            parent = self.parent
-            path = base_path
-            while parent is not None:
-                path = os.path.join(path, parent.name)
-                parent = parent.parent
+        # if base_path is not None and base_path != '':
+        #     parent = self.parent
+        #     path = base_path
+        #     while parent is not None:
+        #         path = os.path.join(path, parent.name)
+        #         parent = parent.parent
 
-            path = os.path.join(path, self.name)
-            self._path = path
-        else:
-            path = self._path
+        #     path = os.path.join(path, self.guid)
+        #     self._path = path
+        # else:
+        #     path = self._path
 
-        os.makedirs(path, exist_ok=True)
+        os.makedirs(self._path, exist_ok=True)
 
-        j.data.serializer.yaml.dump(os.path.join(path, 'service.yaml'), {
+        j.data.serializer.yaml.dump(os.path.join(self._path, 'service.yaml'), {
             'template': str(self.template_uid),
             'version': self.version,
             'name': self.name,
             'guid': self.guid,
             'parent': self.parent.guid if self.parent else None,
         })
-        self.state.save(os.path.join(path, 'state.yaml'))
-        self.data.save(os.path.join(path, 'data.yaml'))
-        self.task_list.save(os.path.join(path, 'tasks.yaml'))
-        return path
+        self.state.save(os.path.join(self._path, 'state.yaml'))
+        self.data.save(os.path.join(self._path, 'data.yaml'))
+        self.task_list.save(os.path.join(self._path, 'tasks.yaml'))
+        return self._path
 
     def _run(self):
         """

@@ -1,13 +1,24 @@
 import os
+import shutil
+import tempfile
 import unittest
 
-from zerorobot import blueprint
-from zerorobot.server.handlers.ExecuteBlueprintHandler import _schedule_action, _instanciate_services
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
+from zerorobot import blueprint, config
+from zerorobot.server.handlers.ExecuteBlueprintHandler import (_instanciate_services,
+                                                               _schedule_action)
 
 
 class TestBlueprintParsing(unittest.TestCase):
+
+    def setUp(self):
+        config.DATA_DIR = tempfile.mkdtemp(prefix='0robottest')
+        scol.drop_all()
+
+    def tearDown(self):
+        if os.path.exists(config.DATA_DIR):
+            shutil.rmtree(config.DATA_DIR)
 
     def read_bp(self, name):
         bp_path = os.path.join(os.path.dirname(__file__), 'fixtures/blueprints/%s' % name)

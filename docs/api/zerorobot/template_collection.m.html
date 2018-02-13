@@ -1205,6 +1205,7 @@ other services and class need to use this module method to load/access the templ
     <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">class_path</span><span class="p">)</span>
     <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
     <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
 
     <span class="k">if</span> <span class="n">class_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TemplateNameError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> should contain a class called </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">template_name</span><span class="p">,</span> <span class="n">class_name</span><span class="p">))</span>
@@ -1232,6 +1233,8 @@ other services and class need to use this module method to load/access the templ
             <span class="n">service</span><span class="o">=</span><span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
     <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>
@@ -1360,6 +1363,8 @@ a zerorobot.template_collection.TemplateUID object</p></div>
             <span class="n">service</span><span class="o">=</span><span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
     <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>

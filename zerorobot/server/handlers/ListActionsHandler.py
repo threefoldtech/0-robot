@@ -27,7 +27,7 @@ def get_actions_list(obj):
     extract the method name that the service has that are not the
     method comming from the template base
     """
-    skip = ['load', 'save', 'schedule_action', 'recurring_action']
+    skip = ['load', 'save', 'schedule_action', 'recurring_action', 'validate']
     actions = []
     for name in dir(obj):
         if name in skip or name.startswith('_'):

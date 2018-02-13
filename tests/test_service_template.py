@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+import shutil
 
 from js9 import j
 from zerorobot import service_collection as scol
@@ -9,12 +10,18 @@ from zerorobot import template_collection as tcol
 from zerorobot.template.base import (ActionNotFoundError,
                                      BadActionArgumentError, TemplateBase)
 from zerorobot.template_collection import _load_template
+from zerorobot import config
 
 
 class TestServiceTemplate(unittest.TestCase):
 
     def setUp(self):
+        config.DATA_DIR = tempfile.mkdtemp(prefix='0robottest')
         scol.drop_all()
+
+    def tearDown(self):
+        if os.path.exists(config.DATA_DIR):
+            shutil.rmtree(config.DATA_DIR)
 
     def load_template(self, name):
         """
@@ -53,69 +60,73 @@ class TestServiceTemplate(unittest.TestCase):
     def test_service_save_delete(self):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')
-        with tempfile.TemporaryDirectory() as tmpdir:
-            srv.save(tmpdir)
-            srv_dir = os.path.join(tmpdir, srv.name)
-            self.assertTrue(os.path.exists(srv_dir), "directory of the saved service should exists")
-            for x in ['service.yaml', 'data.yaml', 'state.yaml']:
-                self.assertTrue(os.path.exists(os.path.join(tmpdir, srv.name, x)), "%s file service should exists" % x)
 
-            service_info = j.data.serializer.yaml.load(os.path.join(srv_dir, 'service.yaml'))
-            for k in ['template', 'guid', 'name', 'version']:
-                self.assertTrue(k in service_info, "%s should be present in service.yaml" % k)
+        srv.save()
+        srv_dir = os.path.join(
+            config.DATA_DIR,
+            srv.template_uid.host,
+            srv.template_uid.account,
+            srv.template_uid.repo,
+            srv.template_uid.name,
+            srv.name,
+            srv.guid
+        )
 
-            srv.delete()
-            self.assertFalse(os.path.exists(srv_dir), "directory of the saved service not should exists anymore")
-            with self.assertRaises(scol.ServiceNotFoundError, message='service should not be found in memory anymore'):
-                scol.get_by_guid(srv.guid)
+        self.assertTrue(os.path.exists(srv_dir), "directory of the saved service should exists")
+        for x in ['service.yaml', 'data.yaml', 'state.yaml']:
+            self.assertTrue(os.path.exists(os.path.join(srv_dir, x)), "%s file service should exists" % x)
+
+        service_info = j.data.serializer.yaml.load(os.path.join(srv_dir, 'service.yaml'))
+        for k in ['template', 'guid', 'name', 'version']:
+            self.assertTrue(k in service_info, "%s should be present in service.yaml" % k)
+
+        srv.delete()
+        self.assertFalse(os.path.exists(srv_dir), "directory of the saved service not should exists anymore")
+        with self.assertRaises(scol.ServiceNotFoundError, message='service should not be found in memory anymore'):
+            scol.get_by_guid(srv.guid)
 
     def test_service_load(self):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = srv.save(tmpdir)
+        path = srv.save()
 
-            # unload service from memory
-            scol.drop_all()
+        # unload service from memory
+        scol.drop_all()
 
-            loaded = scol.load(Node, path)
-            self.assertEqual(srv.name, loaded.name, "name of the loaded service should be %s" % srv.name)
-            self.assertEqual(srv.template_name, loaded.template_name, "template_name of the loaded service should be %s" % srv.template_name)
-            self.assertEqual(srv.guid, loaded.guid, "guid of the loaded service should be %s" % srv.guid)
-            self.assertEqual(srv.version, loaded.version, "version of the loaded service should be %s" % srv.version)
-            self.assertIsNotNone(srv.data, "loaded service data should not be None")
-            self.assertIsNotNone(srv.state, "loaded service state should not be None")
-            self.assertIsNotNone(srv.task_list, "loaded service task_list should not be None")
+        loaded = scol.load(Node, path)
+        self.assertEqual(srv.name, loaded.name, "name of the loaded service should be %s" % srv.name)
+        self.assertEqual(srv.template_name, loaded.template_name, "template_name of the loaded service should be %s" % srv.template_name)
+        self.assertEqual(srv.guid, loaded.guid, "guid of the loaded service should be %s" % srv.guid)
+        self.assertEqual(srv.version, loaded.version, "version of the loaded service should be %s" % srv.version)
+        self.assertIsNotNone(srv.data, "loaded service data should not be None")
+        self.assertIsNotNone(srv.state, "loaded service state should not be None")
+        self.assertIsNotNone(srv.task_list, "loaded service task_list should not be None")
 
     def test_service_load_dir_not_exists(self):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = srv.save(tmpdir)
-            with self.assertRaises(FileNotFoundError):
-                scol.load(Node, '/tmp/zerorobot-test-not-exists')
+        path = srv.save()
+        with self.assertRaises(FileNotFoundError):
+            scol.load(Node, '/tmp/zerorobot-test-not-exists')
 
     def test_service_load_wrong_name(self):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = srv.save(tmpdir)
-            # rename the folder where the service have been saved
-            new_path = os.path.join(os.path.dirname(path), 'other')
-            os.rename(path, new_path)
-            with self.assertRaises(BadTemplateError):
-                scol.load(Node, new_path)
+        path = srv.save()
+        # rename the folder where the service have been saved
+        new_path = os.path.join(os.path.dirname(path), 'other')
+        os.rename(path, new_path)
+        with self.assertRaises(BadTemplateError):
+            scol.load(Node, new_path)
 
     def test_service_load_wrong_template(self):
         Node = self.load_template('node')
         Vm = self.load_template('vm')
         srv = tcol.instantiate_service(Node, 'testnode')
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = srv.save(tmpdir)
-            with self.assertRaises(BadTemplateError):
-                # Try to load with the wrong template class
-                scol.load(Vm, path)
+        path = srv.save()
+        with self.assertRaises(BadTemplateError):
+            # Try to load with the wrong template class
+            scol.load(Vm, path)
 
     def test_service_add_task(self):
         Node = self.load_template('node')
