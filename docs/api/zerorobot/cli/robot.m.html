@@ -1102,6 +1102,7 @@ table {
     <span class="c1"># just select existing robot</span>
     <span class="k">if</span> <span class="n">instance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_list</span><span class="p">()</span> <span class="ow">and</span> <span class="n">addr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;instance &#39;</span><span class="si">%s</span><span class="s2">&#39; not found. Use &#39;zrobot robot connect instance addr` to configure a new connection to a 0-robot&quot;</span> <span class="o">%</span> <span class="n">instance</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">connected</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">connected</span><span class="p">:</span>
@@ -1129,6 +1130,18 @@ table {
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">instance</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> @ </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">addr</span><span class="p">))</span>
+
+
+<span class="nd">@robot.command</span><span class="p">()</span>
+<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;instance&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">instance</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    delete a instance of the 0-robot configuration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># just select existing robot</span>
+    <span class="k">if</span> <span class="n">instance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_list</span><span class="p">():</span>
+        <span class="k">return</span>
+    <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
 </pre></div>
 
   </div>

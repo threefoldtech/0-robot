@@ -1116,7 +1116,11 @@ table {
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service found with guid=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;task created - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
 
@@ -1133,7 +1137,11 @@ table {
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service found with guid=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">tasks</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="nb">all</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">sort_by_created</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
@@ -1161,11 +1169,16 @@ table {
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service found with guid=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
     <span class="k">try</span><span class="p">:</span>
         <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get_task_by_guid</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no task with guid </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">task</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no task with guid </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">task</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">print_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">tb</span><span class="p">)</span>

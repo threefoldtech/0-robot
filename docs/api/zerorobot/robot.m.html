@@ -1061,6 +1061,7 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.robot.Robot.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.add_template_repo">add_template_repo</a></li>
+    <li class="mono"><a href="#zerorobot.robot.Robot.set_config_repo">set_config_repo</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.set_data_repo">set_data_repo</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.start">start</a></li>
     <li class="mono"><a href="#zerorobot.robot.Robot.stop">stop</a></li>
@@ -1129,7 +1130,6 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1151,6 +1151,17 @@ table {
 
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the url of the configuration repository used by JumpScale to store client configuration</span>
+<span class="sd">        It can be the same URL as the data repository.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">_git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
+            <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
 
     <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1182,14 +1193,10 @@ table {
 
         <span class="c1"># load services from data repo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_save_services</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
-
             <span class="c1"># this is executed when self.stop is called.</span>
-            <span class="c1"># stop autosave greenlet</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
             <span class="c1"># here no more requests are comming in, we can safely save all services</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1213,9 +1220,6 @@ table {
         <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>
         <span class="c1"># cause we&#39;re not in a sig handler</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-
-             <span class="c1"># stop autosave greenlet</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
             <span class="c1"># here no more requests are comming in, we can safely save all services</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
 
@@ -1242,23 +1246,6 @@ table {
             <span class="c1"># stop all the greenlets attached to the services</span>
             <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
             <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-
-
-<span class="k">def</span> <span class="nf">_auto_save_services</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    this method runs in a greenlet during the lifetime of the robot</span>
-<span class="sd">    it ask the services to saves themself every minutes</span>
-
-<span class="sd">    The save method is added as a task with high priority on the services, so we don&#39;t create race conditions</span>
-<span class="sd">    with other tasks</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
-                <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
-            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">GreenletExit</span><span class="p">:</span>
-            <span class="k">break</span>
 
 
 <span class="k">def</span> <span class="nf">_split_hostport</span><span class="p">(</span><span class="n">hostport</span><span class="p">):</span>
@@ -1327,7 +1314,6 @@ It is responsible to:
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1349,6 +1335,17 @@ It is responsible to:
 
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the url of the configuration repository used by JumpScale to store client configuration</span>
+<span class="sd">        It can be the same URL as the data repository.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">_git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
+            <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
 
     <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1380,14 +1377,10 @@ It is responsible to:
 
         <span class="c1"># load services from data repo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_save_services</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
-
             <span class="c1"># this is executed when self.stop is called.</span>
-            <span class="c1"># stop autosave greenlet</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
             <span class="c1"># here no more requests are comming in, we can safely save all services</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1411,9 +1404,6 @@ It is responsible to:
         <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>
         <span class="c1"># cause we&#39;re not in a sig handler</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-
-             <span class="c1"># stop autosave greenlet</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
             <span class="c1"># here no more requests are comming in, we can safely save all services</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
 
@@ -1473,7 +1463,6 @@ It is responsible to:
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="bp">None</span>
 </pre></div>
 
   </div>
@@ -1495,6 +1484,37 @@ It is responsible to:
   <div id="source-zerorobot.robot.Robot.add_template_repo" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
     <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.robot.Robot.set_config_repo">
+    <p>def <span class="ident">set_config_repo</span>(</p><p>self, url)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Set the url of the configuration repository used by JumpScale to store client configuration
+It can be the same URL as the data repository.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.set_config_repo', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.Robot.set_config_repo" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the url of the configuration repository used by JumpScale to store client configuration</span>
+<span class="sd">    It can be the same URL as the data repository.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">_git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
+    <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
 </pre></div>
 
   </div>
@@ -1569,12 +1589,9 @@ load the services from the local git repository</p></div>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
     <span class="c1"># load services from data repo</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_save_services</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
         <span class="c1"># this is executed when self.stop is called.</span>
-        <span class="c1"># stop autosave greenlet</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
         <span class="c1"># here no more requests are comming in, we can safely save all services</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1617,8 +1634,6 @@ serialize all services state to disk</p></div>
     <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>
     <span class="c1"># cause we&#39;re not in a sig handler</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-         <span class="c1"># stop autosave greenlet</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
         <span class="c1"># here no more requests are comming in, we can safely save all services</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
 </pre></div>
