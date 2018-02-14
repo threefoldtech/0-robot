@@ -25,7 +25,9 @@ def monitor(app):
         http_concurrent_request_count.dec()
 
         http_request_count.labels(request.method, request.path, response.status_code).inc()
-        http_response_size_bytes.labels(request.method, request.path).observe(response.calculate_content_length())
+        length = response.calculate_content_length()
+        if length:
+            http_response_size_bytes.labels(request.method, request.path).observe(length)
         return response
 
     monitor_host_metrics()

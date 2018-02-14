@@ -14,6 +14,7 @@ from .storage.file import TaskStorageFile
 from .storage.redis import TaskStorageRedis
 from .task import Task
 from .utils import _instantiate_task
+from zerorobot.prometheus.robot import nr_task_waiting
 
 
 class TaskList:
@@ -46,6 +47,7 @@ class TaskList:
         """
         _, task = self._queue.get()
         self.current = task
+        nr_task_waiting.labels(service_guid=self.service.guid).dec()
         return task
 
     def put(self, task, priority=PRIORITY_NORMAL):
@@ -55,6 +57,7 @@ class TaskList:
         if not isinstance(task, Task):
             raise ValueError("task should be an instance of the Task class not %s" % type(task))
         task._priority = priority
+        nr_task_waiting.labels(service_guid=self.service.guid).inc()
         self._queue.put((priority, task))
 
     def done(self, task):
