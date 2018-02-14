@@ -69,3 +69,15 @@ def current():
     """
     instance, addr = utils.get_instance()
     print('%s @ %s' % (instance, addr))
+
+
+@robot.command()
+@click.argument('instance', required=True)
+def delete(instance):
+    """
+    delete a instance of the 0-robot configuration
+    """
+    # just select existing robot
+    if instance not in _list():
+        return
+    j.clients.zrobot.delete(instance)
