@@ -66,6 +66,19 @@ class Node(TemplateBase):
             raise ValueError("service can't be created without hostname")
 ```
 
+> What happens if some of some of my services raise an exception while executing the `validate` action when the robot is starting?
+
+In that case, the services that fails to load properly will be kept in a list and the robot will continue his life. This is done so we don't block a robot if
+some service fail to load because of some remote dependencies that can't be found for some reason for example.
+
+The list of failed service is then passed to a greenlet that will try to re-execute the `validate` function forever.
+While the service is in this state, it will **not** process the tasks in its task list. Reason is the behavior would be unpredictable since something is wrong with the service in the first place.
+As soon as the `validate` method passes, the service is remove from the list and start processing his task list.
+
+When all the service have been removed from the list, the greenlet exists.
+
+
+
 ### Update data from blueprint
 When you send a blueprint that contains the definition of service that already exists. 
 The data from the blueprint will be proposed to the service. The service can then decide what to do with the new data.
