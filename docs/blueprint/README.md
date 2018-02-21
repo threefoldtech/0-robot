@@ -50,7 +50,7 @@ actions: ['install', 'start']
 
 ```yaml
 # actions and service name, will schedule install and start action on all services with name 'node1'
-name: node1
+service: node1
 actions: ['install', 'start']
 ```
 
@@ -58,14 +58,14 @@ actions: ['install', 'start']
 ```yaml
 # full block, will schedule install and start action on service type `github.com/jumpscale/0-robot/node/0.0.1` and with name 'node1'
 template: github.com/jumpscale/0-robot/node/0.0.1
-name: node1
+service: node1
 actions: ['install', 'start']
 ```
 
 ```yaml
 # full block with argument, will schedule 'migrate_vm' action and pass the argument 'destination' to the 'migrate_vm' action.
 template: github.com/jumpscale/0-robot/node/0.0.1
-name: node1
+service: node1
 actions: ['migrate_vm']
 args:
     destination: node2
