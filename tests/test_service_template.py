@@ -150,8 +150,9 @@ class TestServiceTemplate(unittest.TestCase):
         with self.assertRaises(BadActionArgumentError, msg='should raise BadActionArgumentError when mandatory parameters is missing'):
             task = srv.schedule_action('foo', args={'bor': 'foo'})
 
-        with self.assertRaises(BadActionArgumentError, msg="should raise if passing argument that are not part of the signature of the action"):
+        with self.assertRaises(BadActionArgumentError, msg="should raise if passing argument that are not part of the signature of the action") as err:
             srv.schedule_action('foo', args={'bar': 'foo', 'wrong_arg': 'bar'})
+        assert err.exception.args[0] == 'arguments "wrong_arg" are not present in the signature of the action'
 
     def test_update_secure(self):
         Node = self.load_template('node')
