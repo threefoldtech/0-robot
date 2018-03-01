@@ -52,7 +52,7 @@ def schedule(guid, action):
     except KeyError:
         print("no service found with guid=%s" % guid)
         sys.exit(1)
-    task = service.schedule_action(action, args=None, resp_q=None)
+    task = service.schedule_action(action, args=None)
     print('task created - %s' % task.guid)
 
 
