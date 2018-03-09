@@ -4,10 +4,10 @@ task module holds the logic regarding TaskList and Task classes.
 These two classes are used by the services to managed the requested actions
 """
 
-import json
 import os
 import sys
 import time
+import traceback
 
 import gevent
 from gevent.lock import Semaphore
@@ -24,12 +24,11 @@ logger = j.logger.get('zerorobot')
 
 class Task:
 
-    def __init__(self, func, args, resp_q=None):
+    def __init__(self, func, args):
         """
-        @param service: is the service object that own the action to be executed
-        @param action_name: is the method name of the action that this task need to execute
+        @param func: action that needs to be called
+        @param action_name: arguments for the action
         @param args: argument to pass to the action when executing
-        @param resp_q: is the response queue on which the result of the action need to be put
         """
         self.guid = j.data.idgenerator.generateGUID()
         self.func = func
@@ -79,9 +78,9 @@ class Task:
             # capture stacktrace and exception
             _, _, exc_traceback = sys.exc_info()
             self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
+
         finally:
             self._duration = time.time() - started
-
         return result
 
     @property
