@@ -7,7 +7,6 @@ import glob
 import inspect
 import logging
 import os
-import pprint
 import shutil
 import time
 from logging.handlers import RotatingFileHandler
@@ -26,7 +25,6 @@ from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
 
 logger = j.logger.get('zerorobot')
-telegram_logger = logging.getLogger('telegram_logger')
 
 
 class BadActionArgumentError(Exception):
@@ -204,25 +202,7 @@ class TemplateBase:
                     # notify the task list that this task is done
                     self.task_list.done(task)
                     if task.state == TASK_STATE_ERROR:
-                        traceback = task.eco.traceback
-                        tb = task.eco.tb
-
-                        self.logger.error("error executing action %s:\n%s" % (task.action_name, traceback))
-
-                        # go to last traceback
-                        while tb.tb_next:
-                            tb = tb.tb_next
-
-                        # get locals
-                        locals = tb.tb_frame.f_locals
-
-                        # if enabled, this would be logged on the telegram chat
-                        telegram_logger.error(
-                            "Error executing action %s:\n%s\n\nLocal values:\n%s" % (
-                                task.action_name,
-                                traceback,
-                                pprint.pformat(locals, width=50)
-                            ))
+                        self.logger.error("error executing action %s:\n%s" % (task.action_name, task.eco.traceback))
 
     def schedule_action(self, action, args=None):
         """
