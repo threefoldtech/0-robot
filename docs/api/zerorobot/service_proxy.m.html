@@ -1146,7 +1146,6 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="c1"># a proxy service doesn&#39;t have direct access to the data of it&#39;s remote homologue</span>
         <span class="c1"># cause data are always only accessible  by the service itself and locally</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1354,7 +1353,6 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="c1"># a proxy service doesn&#39;t have direct access to the data of it&#39;s remote homologue</span>
         <span class="c1"># cause data are always only accessible  by the service itself and locally</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1440,7 +1438,6 @@ so the robot see the service as if it as local to him while in reality the servi
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="c1"># a proxy service doesn&#39;t have direct access to the data of it&#39;s remote homologue</span>
     <span class="c1"># cause data are always only accessible  by the service itself and locally</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1548,16 +1545,6 @@ the corresponding service</p>
             </div>
             <div class="item">
             <p id="zerorobot.service_proxy.ServiceProxy.name" class="name">var <span class="ident">name</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-            <div class="item">
-            <p id="zerorobot.service_proxy.ServiceProxy.parent" class="name">var <span class="ident">parent</span></p>
             
 
             
@@ -1827,10 +1814,9 @@ actual state of the task on the remote ZeroRobot</p></div>
 
     
   
-    <div class="desc"><p>@param service: is the service object that own the action to be executed
-@param action_name: is the method name of the action that this task need to execute
-@param args: argument to pass to the action when executing
-@param resp_q: is the response queue on which the result of the action need to be put</p></div>
+    <div class="desc"><p>@param func: action that needs to be called
+@param action_name: arguments for the action
+@param args: argument to pass to the action when executing</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_proxy.TaskProxy.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_proxy.TaskProxy.__init__" class="source">

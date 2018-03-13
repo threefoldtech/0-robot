@@ -109,7 +109,6 @@ class TemplateBase:
         self.template_dir = os.path.dirname(inspect.getsourcefile(self.__class__))
         self.guid = guid or str(uuid4())
         self.name = name or self.guid
-        self.parent = None
         # location on the filesystem where to store the service
         self._path = os.path.join(
             config.DATA_DIR,
@@ -157,18 +156,6 @@ class TemplateBase:
         if self._path is None:
             raise RuntimeError("service._path is None, don't know where to save the service")
 
-        # if base_path is not None and base_path != '':
-        #     parent = self.parent
-        #     path = base_path
-        #     while parent is not None:
-        #         path = os.path.join(path, parent.name)
-        #         parent = parent.parent
-
-        #     path = os.path.join(path, self.guid)
-        #     self._path = path
-        # else:
-        #     path = self._path
-
         os.makedirs(self._path, exist_ok=True)
 
         j.data.serializer.yaml.dump(os.path.join(self._path, 'service.yaml'), {
@@ -176,7 +163,6 @@ class TemplateBase:
             'version': self.version,
             'name': self.name,
             'guid': self.guid,
-            'parent': self.parent.guid if self.parent else None,
         })
         self.state.save(os.path.join(self._path, 'state.yaml'))
         self.data.save(os.path.join(self._path, 'data.yaml'))
