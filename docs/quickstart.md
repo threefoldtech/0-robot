@@ -49,7 +49,7 @@ class Helloworld(TemplateBase):
             self.data['msg'] = "Hello World"
 
     def echo_to_temp(self):
-        j.sal.fs.writeFile("/tmp/msg.robot", self._data['msg'], append=True)
+        j.sal.fs.writeFile("/tmp/msg.robot", self.data['msg'], append=True)
 ```
 
 Let's dissect the template code a little bit
@@ -77,13 +77,13 @@ class Helloworld(TemplateBase):
 ``` 
 - name is used for service name creation
 - data used to populate the `schema.capnp` data
-- `self._msg` will be used through the service lifetime.
+- `self.data['msg']` will be used through the service lifetime.
 
 
 * Actions
 ```python
     def echo_to_temp(self):
-        j.sal.fs.writeFile("/tmp/msg.robot", self._data['msg'], append=True)
+        j.sal.fs.writeFile("/tmp/msg.robot", self.data['msg'], append=True)
 ```
 `echo_to_temp` is an action that can be scheduled
 > Needs to be a method.
@@ -108,20 +108,19 @@ using zerorobot dsl to easily interact with the robot
 In [54]: from zerorobot.dsl import ZeroRobotAPI
 
 In [55]: api = ZeroRobotAPI.ZeroRobotAPI()
+
+In [56]: robot = api.robots['main']
 ```
 2- Create instance of the helloworld template
 ```
-In [58]: service = api.services.create("github.com/jumpscale/0-robot/helloworld/0.0.1", "firstservice")
+In [58]: service = robot.services.create("github.com/jumpscale/0-robot/helloworld/0.0.1", "firstservice")
 Out[58]: <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c392b0>
 
 ```
 
 you can use services.names dict to retrieve service by itsname
 ```
-In [60]: api.services
-Out[60]: <zerorobot.dsl.ZeroRobotAPI.ServicesMgr at 0x7f71f7ea4f60>
-
-In [61]: api.services.names
+In [61]: robot.services.names
 Out[61]: 
 {'firstservice': <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c5a470>,
  'hi1': <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c39358>,
@@ -129,8 +128,7 @@ Out[61]:
 
 
 
-In [63]: api.services.names['firstservice']
-Out[63]: <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c28470>
+In [63]: service = robot.services.names['firstservice']
 ```
 
 Now let's ask the service to execute its specific task `echo_to_temp`
