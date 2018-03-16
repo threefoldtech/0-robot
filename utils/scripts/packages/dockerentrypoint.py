@@ -5,8 +5,10 @@ from js9 import j
 
 if not j.sal.fs.exists("/root/.ssh/id_rsa"):
     j.tools.prefab.local.system.ssh.keygen(user='root', name='id_rsa')
+    print("Configure the following ssh public key to have write access to your config / data repository:\n%s" % pubkey)
+    exit(0)
 
-j.tools.prefab.local.core.run("js9_config init -s")
+j.tools.prefab.local.core.run("js9_config init -s -k /root/.ssh/id_rsa")
 
 cmd_line = "zrobot server start"
 args = [
