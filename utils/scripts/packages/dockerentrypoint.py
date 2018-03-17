@@ -42,6 +42,8 @@ for arg in args:
             cmd_line += " --%s" % arg
         elif arg == "template-repo"
             for val in val.split(','):
+                cmd_line += " --%s '%s'" % (arg, val.strip())    
         else:
+            cmd_line += " --%s '%s'" % (arg, val.strip())
 
 j.tools.prefab.local.core.run(cmd_line)
