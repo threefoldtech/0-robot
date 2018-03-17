@@ -40,7 +40,7 @@ for arg in args:
     if val:
         if arg in ("debug", "auto-push"):
             cmd_line += " --%s" % arg
-        elif arg == "template-repo"
+        elif arg == "template-repo":
             for val in val.split(','):
                 cmd_line += " --%s '%s'" % (arg, val.strip())    
         else:
