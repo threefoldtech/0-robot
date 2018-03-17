@@ -35,11 +35,13 @@ args = [
     "auto_push_interval"
 ]
 for arg in args:
-    val = os.environ.get(arg)
+    arg = arg.replace("_", "-")
+    val = os.environ.get(arg, "").replace("'", "\\'")
     if val:
         if arg in ("debug", "auto-push"):
             cmd_line += " --%s" % arg
+        elif arg == "template-repo"
+            for val in val.split(','):
         else:
-            cmd_line += " --%s '%s'" % (arg.replace("_", "-") , val.replace("'", "\\'"))
 
 j.tools.prefab.local.core.run(cmd_line)
