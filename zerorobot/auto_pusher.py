@@ -46,6 +46,7 @@ def _auto_push_data_repo(interval=60, repo_dir="", logger=None):
             service.save()
 
         _push_data_repo(repo_dir=repo_dir)
+        _push_config_repo()
 
 
 def _push_data_repo(repo_dir=""):
@@ -53,6 +54,15 @@ def _push_data_repo(repo_dir=""):
     commit and push (full) repository
     """
     git = j.clients.git.get(basedir=repo_dir)
+    git.commit(message='zrobot sync', addremove=True)
+    git.push()
+
+
+def _push_config_repo():
+    """
+    commit and push (full) repository
+    """
+    git = j.clients.git.get(basedir=j.tools.configmanager.path)
     git.commit(message='zrobot sync', addremove=True)
     git.push()
 
