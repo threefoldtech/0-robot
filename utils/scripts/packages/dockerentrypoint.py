@@ -35,8 +35,8 @@ args = [
     "auto_push_interval"
 ]
 for arg in args:
-    arg = arg.replace("_", "-")
     val = os.environ.get(arg, "").replace("'", "\\'")
+    arg = arg.replace("_", "-")
     if val:
         if arg in ("debug", "auto-push"):
             cmd_line += " --%s" % arg
