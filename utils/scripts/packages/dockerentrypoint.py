@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os
 import time
+import subprocess
 from js9 import j
 
 STANDARD_CONFIG_DIR = '/opt/code/local/stdorg/config'
@@ -46,4 +47,4 @@ for arg in args:
         else:
             cmd_line += " --%s '%s'" % (arg, val.strip())
 
-j.tools.prefab.local.core.run(cmd_line)
+subprocess.run(cmd_line, shell=True)
