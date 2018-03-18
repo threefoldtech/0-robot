@@ -105,7 +105,8 @@ class Robot:
         # auto-push data repo
         if auto_push:
             logger.info("auto push of data repo enabled")
-            auto_pusher.run(interval=auto_push_interval, repo_dir=config.DATA_DIR, logger=logger)
+            repo_dir = giturl.git_path(self.data_repo_url)
+            auto_pusher.run(interval=auto_push_interval, repo_dir=repo_dir, logger=logger)
 
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)
