@@ -31,7 +31,7 @@ def execute(blueprint):
     try:
         tasks, _ = client.api.blueprints.ExecuteBlueprint(data)
         print("blueprint executed")
-        print("list of taks created with this blueprint:")
+        print("list of tasks created with this blueprint:")
         print_tasks(tasks)
     except HTTPError as err:
         msg = err.response.json()['message']
