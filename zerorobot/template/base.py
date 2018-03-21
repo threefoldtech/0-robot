@@ -179,20 +179,21 @@ class TemplateBase:
             config.SERVICE_LOADED.wait()
 
         while True:
-            task = None
             try:
                 task = self.task_list.get()
-                task.execute()
-            except gevent.GreenletExit:
-                # TODO: gracefull shutdown
-                break
-            finally:
-                if task:
+                try:
+                    task.execute()
+                finally:
                     task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(task.duration)
                     # notify the task list that this task is done
                     self.task_list.done(task)
                     if task.state == TASK_STATE_ERROR:
                         self.logger.error("error executing action %s:\n%s" % (task.action_name, task.eco.traceback))
+            except gevent.GreenletExit:
+                # TODO: gracefull shutdown
+                return
+            except:
+                self.logger.exception("Uncaught exception in service task loop!")
 
     def schedule_action(self, action, args=None):
         """

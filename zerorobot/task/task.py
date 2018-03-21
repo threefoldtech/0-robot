@@ -10,6 +10,7 @@ import time
 import traceback
 import pprint
 import logging
+import hashlib
 
 import gevent
 from gevent.lock import Semaphore
@@ -26,6 +27,7 @@ from . import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
 logger = j.logger.get('zerorobot')
 telegram_logger = logging.getLogger('telegram_logger')
 
+stacks = list()
 
 class Task:
 
@@ -67,10 +69,7 @@ class Task:
         return self._eco
 
     def execute(self):
-
         self.state = TASK_STATE_RUNNING
-        # TODO: handle logging,...
-        result = None
         started = time.time()
         try:
             if self._args is not None:
@@ -78,33 +77,44 @@ class Task:
             else:
                 self._result = self.func()
             self.state = TASK_STATE_OK
-        except Exception as err:
+        except:
             self.state = TASK_STATE_ERROR
             # capture stacktrace and exception
-            exc_type, _, exc_traceback = sys.exc_info()
-            self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
-
-            # if enabled, unexpected errors would be logged on the telegram chat
-            if not isinstance(err, ExpectedError):
-                # go to last traceback
-                while exc_traceback.tb_next:
-                    exc_traceback = exc_traceback.tb_next
-
-                # get locals
-                locals = exc_traceback.tb_frame.f_locals
-
-                telegram_logger.error(
-                    "Error type: %s\nError message:\n\t%s\nStacktrace:\n%s\n\nTask arguments:\n%s\n\nLocal values:\n%s" % (
-                        exc_type.__name__,
-                        err,
-                        ''.join(traceback.format_tb(exc_traceback)),
-                        pprint.pformat(self._args, width=50),
-                        pprint.pformat(locals, width=50)
-                    ))
-
+            exc_type, exc, exc_traceback = sys.exc_info()
+            self._eco = j.core.errorhandler.parsePythonExceptionObject(exc, tb=exc_traceback)
+            gevent.spawn(self._report, exc_type, exc, exc_traceback)
         finally:
             self._duration = time.time() - started
-        return result
+        return self._result
+
+    def _report(self, exc_type, exc, tb):
+        # if enabled, unexpected errors would be logged on the telegram chat
+        if not isinstance(exc, ExpectedError):
+            # go to last traceback
+            last_traceback = tb
+            while last_traceback.tb_next:
+                last_traceback = last_traceback.tb_next
+
+            # get locals
+            locals_ = last_traceback.tb_frame.f_locals
+
+            stacktrace = ''.join(traceback.format_tb(tb))
+            stacktrace_hash = hashlib.md5(stacktrace).digest()
+            if not stacktrace_hash in stacks:
+                try:
+                    telegram_logger.error(
+                        "Error type: %s\nError message:\n\t%s\nStacktrace:\n%s\n\nTask arguments:\n%s\n\nLocal values:\n%s" % (
+                            exc_type.__name__,
+                            exc,
+                            stacktrace,
+                            pprint.pformat(self._args, width=50),
+                            pprint.pformat(locals_, width=50)
+                        ))
+                    stacks.append(stacktrace_hash)
+                    while len(stacks) > 1000:
+                        stacks.pop(0)
+                except:
+                    logger.exception("Failed to log error to telegram handler")
 
     @property
     def state(self):
