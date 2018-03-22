@@ -99,7 +99,7 @@ class Task:
             locals_ = last_traceback.tb_frame.f_locals
 
             stacktrace = ''.join(traceback.format_tb(tb))
-            stacktrace_hash = hashlib.md5(stacktrace).digest()
+            stacktrace_hash = hashlib.md5(stacktrace.encode('utf8')).digest()
             if not stacktrace_hash in stacks:
                 try:
                     telegram_logger.error(
