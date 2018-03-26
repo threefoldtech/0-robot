@@ -1099,7 +1099,7 @@ table {
     <span class="k">try</span><span class="p">:</span>
         <span class="n">tasks</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">blueprints</span><span class="o">.</span><span class="n">ExecuteBlueprint</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;blueprint executed&quot;</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;list of taks created with this blueprint:&quot;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;list of tasks created with this blueprint:&quot;</span><span class="p">)</span>
         <span class="n">print_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>

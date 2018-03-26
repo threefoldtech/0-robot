@@ -143,7 +143,7 @@ $ cat /tmp/msg.robot
 Hello World
 ```
 
-## Creating instance of the service and schedluing actions using Blueprints
+## Creating instance of the service and scheduling actions using Blueprints
  
 * make a blueprint in some directory  `/tmp/proj/blueprints`
 /tmp/proj/blueprints# cat hello.yaml 

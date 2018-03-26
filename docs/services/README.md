@@ -132,7 +132,7 @@ The service state management is completely left to the developer of the service.
 
 The developer can also check the state of a another service to take decision.
 
-See the detail API documentation about the service state for more detail about the interface: https://jumpscale.github.io/0-robot/api/zerorobot/template/base.m.html#0-robot.template.base.ServiceState
+See the detail API documentation about the service state for more detail about the interface: https://zero-os.github.io/0-robot/api/zerorobot/template/base.m.html#0-robot.template.base.ServiceState
 
 Example:
 ```python
@@ -177,7 +177,7 @@ You can inspect different properties of a task:
 
 ### Customize actions behavior
 It is possible to add some special behavior to an actions using decorators
-See the API documentation for more detail: https://jumpscale.github.io/0-robot/api/zerorobot/template/decorator.m.html
+See the API documentation for more detail: https://zero-os.github.io/0-robot/api/zerorobot/template/decorator.m.html
 
 #### Retry decorator
 This decorator allows to define retry policy for the action. 

@@ -7,7 +7,7 @@ See the [intallation instruction](https://github.com/Jumpscale/core9#jumpscale-9
 Clone this repository and install the zerorobot:
 
 ```bash
-git clone https://github.com/Jumpscale/0-robot.git
+git clone https://github.com/zero-os/0-robot.git
 cd 0-robot
 pip install .
 ```
@@ -51,7 +51,7 @@ This parameter is required for the robot to starts.
 
 ### example:
 ```bash
-zrobot server start --listen :6601 --template-repo https://github.com/jumpscale/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602
+zrobot server start --listen :6601 --template-repo https://github.com/zero-os/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602
 ```
 
 ## Running 0-robot in a docker

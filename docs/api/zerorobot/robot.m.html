@@ -1195,7 +1195,8 @@ table {
         <span class="c1"># auto-push data repo</span>
         <span class="k">if</span> <span class="n">auto_push</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
-            <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+            <span class="n">repo_dir</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span><span class="p">)</span>
+            <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
@@ -1259,6 +1260,9 @@ table {
                 <span class="c1"># execute validate() without problem</span>
                 <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
                 <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+        <span class="c1"># notify services that they can start processing their task list</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>
@@ -1425,7 +1429,8 @@ It is responsible to:
         <span class="c1"># auto-push data repo</span>
         <span class="k">if</span> <span class="n">auto_push</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
-            <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+            <span class="n">repo_dir</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span><span class="p">)</span>
+            <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
@@ -1489,6 +1494,9 @@ It is responsible to:
                 <span class="c1"># execute validate() without problem</span>
                 <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
                 <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+        <span class="c1"># notify services that they can start processing their task list</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>
@@ -1662,7 +1670,8 @@ load the services from the local git repository</p></div>
     <span class="c1"># auto-push data repo</span>
     <span class="k">if</span> <span class="n">auto_push</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
-        <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">repo_dir</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span><span class="p">)</span>
+        <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="c1"># using a pool allow to kill the request when stopping the server</span>
     <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
     <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>

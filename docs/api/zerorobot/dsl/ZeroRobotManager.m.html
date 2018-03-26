@@ -1299,7 +1299,8 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 
 <span class="sd">        @param template_uid: UID of the template of the service</span>
 <span class="sd">        @param service: the name of the service.</span>
-<span class="sd">        @param data: a dictionnary with the data of the service when it is created</span>
+<span class="sd">        @param data: a dictionnary with the data of the service if and only if the service is created</span>
+<span class="sd">                    so if the service already exists, the data argument is not used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service_name</span><span class="p">)</span>
@@ -1670,7 +1671,8 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 
 <span class="sd">        @param template_uid: UID of the template of the service</span>
 <span class="sd">        @param service: the name of the service.</span>
-<span class="sd">        @param data: a dictionnary with the data of the service when it is created</span>
+<span class="sd">        @param data: a dictionnary with the data of the service if and only if the service is created</span>
+<span class="sd">                    so if the service already exists, the data argument is not used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service_name</span><span class="p">)</span>
@@ -1860,7 +1862,8 @@ if the service is found, it is returned
 if the service is not found, it is created using the data passed then returned</p>
 <p>@param template_uid: UID of the template of the service
 @param service: the name of the service.
-@param data: a dictionnary with the data of the service when it is created</p></div>
+@param data: a dictionnary with the data of the service if and only if the service is created
+            so if the service already exists, the data argument is not used</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.find_or_create', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.find_or_create" class="source">
@@ -1871,7 +1874,8 @@ if the service is not found, it is created using the data passed then returned</
 <span class="sd">    if the service is not found, it is created using the data passed then returned</span>
 <span class="sd">    @param template_uid: UID of the template of the service</span>
 <span class="sd">    @param service: the name of the service.</span>
-<span class="sd">    @param data: a dictionnary with the data of the service when it is created</span>
+<span class="sd">    @param data: a dictionnary with the data of the service if and only if the service is created</span>
+<span class="sd">                so if the service already exists, the data argument is not used</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service_name</span><span class="p">)</span>
