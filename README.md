@@ -1,6 +1,6 @@
 # 0-Robot
 [![Build Status](https://travis-ci.org/zero-os/0-robot.svg?branch=master)](https://travis-ci.org/zero-os/0-robot)
-[![codecov](https://codecov.io/gh/zero-os/zerorobot/branch/master/graph/badge.svg)](https://codecov.io/gh/zero-os/zerorobot)
+[![codecov](https://codecov.io/gh/zero-os/0-robot/branch/master/graph/badge.svg)](https://codecov.io/gh/zero-os/0-robot)
 
 The goal of this project is to create a distributed live cycle management system.
 By combining multiple 0-Robots, each of them focusing on a specific purpose. We can create a distributed network of robots that manages nodes and applications.
