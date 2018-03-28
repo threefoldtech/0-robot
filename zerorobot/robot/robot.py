@@ -77,7 +77,7 @@ class Robot:
         """
         config_repo.init(path, key)
 
-    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, auto_push_interval=60, **kwargs):
+    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, auto_push_interval=60, jwt_organization=None, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
