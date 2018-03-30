@@ -117,6 +117,7 @@ def instantiate_service(template, name=None, data=None):
 
 
 def checkout_repo(url, revision='master'):
+    logger.info("checkout %s for repo %s", revision, url)
     dir_path = git.url.git_path(url)
 
     if not os.path.exists(dir_path):
@@ -129,6 +130,14 @@ def checkout_repo(url, revision='master'):
     t, _ = repo.branch_or_tag()
     if t == 'branch':
         repo.pull()
+
+    # load the new templates
+    logger.info("reload templates")
+    updated_templates = add_repo(url)
+    for template in updated_templates:
+        for service in scol.find(template_uid=str(template.template_uid)):
+            logger.info("upgrading %s", service)
+            scol.upgrade(service, template, force=True)
 
 
 class TemplateNameError(Exception):

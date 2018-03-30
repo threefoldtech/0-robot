@@ -92,8 +92,8 @@ def load(template, base_path):
     return srv
 
 
-def upgrade(service, new_template):
-    if service.template_uid == new_template.template_uid:
+def upgrade(service, new_template, force=False):
+    if not force and service.template_uid == new_template.template_uid:
         # nothing to do
         return service
 
