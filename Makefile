@@ -1,5 +1,5 @@
 
-all:
+all: test
 
 generate: generate-server generate-apidoc
 
@@ -25,6 +25,15 @@ test: clean
 
 test-ui: clean
 	pytest --cov=./ --cov-report=html tests -v
+
+# usage: make release version=0.5.0 js=development
+release:
+	git checkout -b $(version)
+	./utils/scripts/release.sh $(version) $(js)
+	git tag -s v$(version) -m "Release v$(version)"
+	git commit -a -m "release  v$(version)"
+	git push origin $(version)
+	git push origin v$(version)
 
 clean:
 	find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
