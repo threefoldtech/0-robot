@@ -30,7 +30,7 @@ class TestServiceTemplate(unittest.TestCase):
         fixtures/templates folder
         """
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        tmpl = _load_template("https://github.com/jumpscale/0-robot",
+        tmpl = _load_template("https://github.com/zero-os/0-robot",
                               os.path.join(dir_path, 'fixtures', 'templates', name))
         return tmpl
 

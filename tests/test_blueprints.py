@@ -33,12 +33,12 @@ class TestBlueprintParsing(unittest.TestCase):
 
         self.assertEqual(len(actions), 2, 'number of actions should be 2')
         for action in actions:
-            self.assertEqual(action['template'], 'github.com/jumpscale/0-robot/node/0.0.1')
+            self.assertEqual(action['template'], 'github.com/zero-os/0-robot/node/0.0.1')
             self.assertEqual(action['service'], 'node1')
             self.assertIn(action['action'], ['start', 'monitor'])
 
         self.assertEqual(len(services), 1)
-        self.assertEqual(services[0]['template'], 'github.com/jumpscale/0-robot/node/0.0.1')
+        self.assertEqual(services[0]['template'], 'github.com/zero-os/0-robot/node/0.0.1')
         self.assertEqual(services[0]['service'], 'node1')
         self.assertDictEqual(services[0]['data'], {'foo': 'bar'})
 
@@ -49,7 +49,7 @@ class TestBlueprintParsing(unittest.TestCase):
         self.assertEqual(len(actions), 1, 'number of actions should be 1')
 
         action = actions[0]
-        self.assertEqual(action['template'], 'github.com/jumpscale/0-robot/node/0.0.1')
+        self.assertEqual(action['template'], 'github.com/zero-os/0-robot/node/0.0.1')
         self.assertEqual(action['service'], 'node1')
         self.assertIn(action['action'], 'foo')
         self.assertDictEqual(action['args'], {'bar': 'hello', 'bor': 'world'})
@@ -60,7 +60,7 @@ class TestBlueprintParsing(unittest.TestCase):
             blueprint.parse(content)
         err = cm.exception
         self.assertNotEqual(err.args[0], "need to specify action key in action block")
-        self.assertDictEqual(err.block, {'actions': {'template': 'github.com/jumpscale/0-robot/node/0.0.1', 'service': 'node1'}})
+        self.assertDictEqual(err.block, {'actions': {'template': 'github.com/zero-os/0-robot/node/0.0.1', 'service': 'node1'}})
 
     def test_bad_service_key(self):
         content = self.read_bp('bad_service_key.bp')
@@ -87,17 +87,17 @@ class TestBlueprintParsing(unittest.TestCase):
 class TestBlueprintExecution(unittest.TestCase):
 
     def setUp(self):
-        tcol.add_repo("https://github.com/jumpscale/0-robot", directory='tests/fixtures/templates')
+        tcol.add_repo("https://github.com/zero-os/0-robot", directory='tests/fixtures/templates')
         scol.drop_all()
 
     def test_instanciate_service(self):
         services = [
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'name',
             },
             {
-                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'template': 'github.com/zero-os/0-robot/vm/0.0.1',
                 'service': 'name',
             },
         ]
@@ -106,17 +106,17 @@ class TestBlueprintExecution(unittest.TestCase):
             _instanciate_services(service)
 
         self.assertEqual(len(scol.list_services()), 2)
-        self.assertEqual(len(scol.find(template_uid='github.com/jumpscale/0-robot/node/0.0.1')), 1)
-        self.assertEqual(len(scol.find(template_uid='github.com/jumpscale/0-robot/vm/0.0.1')), 1)
+        self.assertEqual(len(scol.find(template_uid='github.com/zero-os/0-robot/node/0.0.1')), 1)
+        self.assertEqual(len(scol.find(template_uid='github.com/zero-os/0-robot/vm/0.0.1')), 1)
 
     def test_instanciate_service_duplicate(self):
         services = [
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'name',
             },
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'name',
             },
         ]
@@ -125,16 +125,16 @@ class TestBlueprintExecution(unittest.TestCase):
             _instanciate_services(service)
 
         self.assertEqual(len(scol.list_services()), 1)
-        self.assertEqual(len(scol.find(template_uid='github.com/jumpscale/0-robot/node/0.0.1')), 1)
+        self.assertEqual(len(scol.find(template_uid='github.com/zero-os/0-robot/node/0.0.1')), 1)
 
     def test_schedule_actions(self):
         services = [
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'name',
             },
             {
-                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'template': 'github.com/zero-os/0-robot/vm/0.0.1',
                 'service': 'name',
             },
         ]
@@ -144,7 +144,7 @@ class TestBlueprintExecution(unittest.TestCase):
 
         actions = [
             {
-                'template': 'github.com/jumpscale/0-robot/node',
+                'template': 'github.com/zero-os/0-robot/node',
                 'name': 'name',
                 'action': 'start'
             },
@@ -158,15 +158,15 @@ class TestBlueprintExecution(unittest.TestCase):
     def test_schedule_actions_template_filter(self):
         services = [
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'node1',
             },
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'node2',
             },
             {
-                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'template': 'github.com/zero-os/0-robot/vm/0.0.1',
                 'service': 'vm1',
             },
         ]
@@ -176,7 +176,7 @@ class TestBlueprintExecution(unittest.TestCase):
 
         actions = [
             {
-                'template': 'github.com/jumpscale/0-robot/node',
+                'template': 'github.com/zero-os/0-robot/node',
                 'action': 'start'
             },
         ]
@@ -189,15 +189,15 @@ class TestBlueprintExecution(unittest.TestCase):
     def test_schedule_actions_name_filter(self):
         services = [
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'node1',
             },
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'node2',
             },
             {
-                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'template': 'github.com/zero-os/0-robot/vm/0.0.1',
                 'service': 'vm1',
             },
         ]
@@ -218,15 +218,15 @@ class TestBlueprintExecution(unittest.TestCase):
     def test_schedule_actions_all_services(self):
         services = [
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'node1',
             },
             {
-                'template': 'github.com/jumpscale/0-robot/node/0.0.1',
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
                 'service': 'node2',
             },
             {
-                'template': 'github.com/jumpscale/0-robot/vm/0.0.1',
+                'template': 'github.com/zero-os/0-robot/vm/0.0.1',
                 'service': 'vm1',
             },
         ]

@@ -15,7 +15,7 @@ class TestTemplateCollection(unittest.TestCase):
     def test_load_template(self):
         # valid template
         file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/jumpscale/0-robot", file_path)
+        tcol._load_template("https://github.com/zero-os/0-robot", file_path)
         self.assertEqual(len(tcol._templates), 1, 'should have loaded a template')
 
         # non existing template
@@ -24,20 +24,20 @@ class TestTemplateCollection(unittest.TestCase):
 
     def test_get_template(self):
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/jumpscale/0-robot", dir_path)
+        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
         self.assertGreater(len(tcol._templates), 0, 'should have loaded template, actual loaded')
 
-        template = tcol.get('github.com/jumpscale/0-robot/node/0.0.1')
+        template = tcol.get('github.com/zero-os/0-robot/node/0.0.1')
         self.assertTrue(template is not None)
         self.assertEqual(template.template_dir, dir_path)
 
         with self.assertRaises(TemplateNotFoundError, msg="should raise TemplateNotFoundError"):
-            tcol.get('github.com/jumpscale/0-robot/noexists/0.0.1')
+            tcol.get('github.com/zero-os/0-robot/noexists/0.0.1')
 
     def test_list_template(self):
         # valid template
         file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/jumpscale/0-robot", file_path)
+        tcol._load_template("https://github.com/zero-os/0-robot", file_path)
 
         templates = tcol.list_templates()
         self.assertEqual(len(templates), 1, "size of templates list should 1")
@@ -149,7 +149,7 @@ class TestTemplateCollection(unittest.TestCase):
                 'valid': True
             },
             {
-                # https://github.com/Jumpscale/0-robot/issues/69
+                # https://github.com/zero-os/0-robot/issues/69
                 'url': 'ssh://git@docs.greenitgloe.com:10022/Threefold/it_env_zrobot_nodes-0001.git',
                 'protocol': 'git',
                 'host': 'docs.greenitgloe.com',

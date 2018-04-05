@@ -1,5 +1,4 @@
 from zerorobot.template.base import TemplateBase
-from zerorobot.template.decorator import profile, timeout
 
 
 class NodeUpdatedata(TemplateBase):

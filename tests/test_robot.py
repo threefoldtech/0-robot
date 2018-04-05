@@ -17,9 +17,9 @@ class TestRobot(unittest.TestCase):
 
     def test_add_data_repo(self):
         robot = Robot()
-        url = 'https://github.com/jumpscale/0-robot'
+        url = 'https://github.com/zero-os/0-robot'
         robot.set_data_repo(url)
-        self.assertEqual(config.DATA_DIR, '/opt/code/github/jumpscale/0-robot/zrobot_data')
+        self.assertEqual(config.DATA_DIR, '/opt/code/github/zero-os/0-robot/zrobot_data')
         self.assertEqual(robot.data_repo_url, url)
 
     def test_data_dir_required(self):
