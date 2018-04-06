@@ -29,7 +29,7 @@ protected = true
 after = ["zrobot-port", "zrobot-vol"]
 
 [startup.zrobot.args]
-root = "https://hub.gig.tech/gig-autobuilder/zero-os-0-robot-autobuild.flist"
+root = "https://hub.gig.tech/gig-autobuilder/zero-os-0-robot-autostart-0.5.0.flist"
 name = "zrobot"
 privileged = false
 host_network = false
