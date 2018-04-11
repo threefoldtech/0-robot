@@ -1,12 +1,8 @@
 import sys
-from os import path
-from pathlib import Path
-
-import requests
-
-from js9 import j
 
 import click
+
+from js9 import j
 from zerorobot.cli import utils
 
 

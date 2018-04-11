@@ -15,7 +15,7 @@ def test_connection(instance):
     cl = j.clients.zrobot.get(instance)
     addr = cl.config.data['url']
     try:
-        resp = requests.head(addr)
+        _, resp = cl.api.services.listServices()
         return resp.status_code == 200, addr
     except requests.exceptions.ConnectionError:
         return False, addr
