@@ -30,8 +30,8 @@ test-ui: clean
 release:
 	git checkout -b $(version)
 	./utils/scripts/release.sh $(version) $(js)
-	git tag -s v$(version) -m "Release v$(version)"
 	git commit -a -m "release  v$(version)"
+	git tag -s v$(version) -m "Release v$(version)"
 	git push origin $(version)
 	git push origin v$(version)
 
