@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ZeroRobot',
-    version='0.5.0',
+    version='0.5.1',
     description='Automation framework for cloud workloads',
     url='https://github.com/Jumpscale/zerorobot',
     author='GreenItGlobe',
