@@ -10,8 +10,6 @@ mkdir -p $ARCHIVE
 apt-get update
 apt-get install -y git sudo python3-pip
 
-pip3 install --upgrade pip
-
 # install jumpscale
 export BRANCH="development"
 
