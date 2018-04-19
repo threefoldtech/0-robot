@@ -2,15 +2,21 @@
 
 set -ex
 
+
 # make output directory
 ARCHIVE=/tmp/archives
 FLIST=/tmp/flist
 mkdir -p $ARCHIVE
 
+# install system deps
 apt-get update
-apt-get install -y git sudo python3-pip
+apt-get install -y locales git sudo python3-pip libffi-dev python3-dev libssl-dev libpython3-dev libssh-dev libsnappy-dev build-essential pkg-config libvirt-dev libsqlite3-dev -y
 
-pip3 install --upgrade pip
+# setting up locales
+if ! grep -q ^en_US /etc/locale.gen; then
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+    locale-gen
+fi
 
 # install jumpscale
 export BRANCH="development"
@@ -31,7 +37,7 @@ done
 # installing core and plugins
 for target in core9 lib9; do
     pushd ${target}
-    pip3 install .
+    pip3 install -e .
     popd
 done
 popd
