@@ -11,11 +11,10 @@ Clone this repository and install the zerorobot:
 
 ```bash
 apt-get install -y libsqlite3-dev
+mkdir -p /opt/code/github/zero-os
+cd /opt/code/github/zero-os
 git clone https://github.com/zero-os/0-robot.git
-cd 0-robot
-mkdir -p /opt/code/github/zero-os/0-robot
-cp -a * /opt/code/github/zero-os/0-robot/
-pip install .
+pip install -e .
 ```
 
 
