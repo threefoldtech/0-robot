@@ -14,6 +14,7 @@ apt-get install -y libsqlite3-dev
 mkdir -p /opt/code/github/zero-os
 cd /opt/code/github/zero-os
 git clone https://github.com/zero-os/0-robot.git
+cd 0-robot
 pip install -e .
 ```
 
