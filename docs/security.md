@@ -32,7 +32,7 @@ Matrix of API methods to authentication scheme:
 |add task to task list  |user|
 |delete service         |admin, user|
 |execute blueprint      |admin|
-|get service            |multi|
+|get service            |admin, user|
 |get task               |user|
 |list tasks             |user|
 |list actions           |user|
