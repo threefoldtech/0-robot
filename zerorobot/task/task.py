@@ -157,6 +157,8 @@ class Task:
             else:
                 raise self.eco
 
+        return self
+
     def __lt__(self, other):
         return self._created < other._created
 
