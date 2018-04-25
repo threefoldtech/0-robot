@@ -8,6 +8,8 @@ from zerorobot import service_collection as scol
 
 from . import user_jwt
 
+logger = j.logger.get('zrobot')
+
 _oauth2_server_pub_key = """-----BEGIN PUBLIC KEY-----
 MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAES5X8XrfKdx9gYayFITc89wad4usrk0n2
 7MjiGYvqalizeSWTHEpnd7oea9IQ8T5oJjMVH5cc0H5tFSKilFFeh//wngxIyny6
@@ -31,7 +33,8 @@ def _verify_admin_token(token):
 
     try:
         scope = jwt.decode(token, _oauth2_server_pub_key, audience=None)["scope"]
-    except:
+    except Exception as err:
+        logger.error('error decoding JWT: %s', str(err))
         return False
 
     for allowed in allowed_scopes:

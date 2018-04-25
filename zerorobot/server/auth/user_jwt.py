@@ -4,6 +4,7 @@ import os
 from jose import jwt
 from js9 import j
 
+logger = j.logger.get('zrobot')
 _token_prefix = "Bearer "
 
 
@@ -31,8 +32,9 @@ def verify(service_guid, token):
         claims = decode(token)
         if claims == expected:
             return True
-    except:
-        pass  # return False
+    except Exception as err:
+        logger.error('error decoding user secret: %s', str(err))
+
     return False
 
 
@@ -49,11 +51,11 @@ def _get_key():
     try:
         key_name = j.core.state.config_js['myconfig']['sshkeyname']
     except KeyError:
-        raise SigningKeyNotFoundError()
+        raise SigningKeyNotFoundError('no key configured')
 
     key_path = os.path.expanduser(os.path.join('~/.ssh', key_name))
     if not os.path.exists(key_path):
-        raise SigningKeyNotFoundError()
+        raise SigningKeyNotFoundError('key not found')
     return j.sal.fs.fileGetContents(key_path)
 
 
