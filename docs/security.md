@@ -1,7 +1,8 @@
 # Security
 
 ## REST API authentication schemes
-The 0-robot REST API has 2 schemes of authentication and each scheme gives access to a part of the API.
+The 0-robot REST API has 2 schemes of authentication and each scheme gives access to a part of the API.  
+You **MUST** run the 0-robot API behind HTTPS, failing to do so would allow hackers to gather your secrets and usurp your identity
 
 ### Organization secret:  
 Request needs to be Authenticated with a JWT given from [ItYouOnline](https://itsyou.online/) and contains the scope: `user:memberof:<org>` where `<org>` is the value of the `--organization` flag given to the `zrobot server start` command. In case this flag is not passed, the api methods are open to anyone.
