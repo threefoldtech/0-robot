@@ -186,8 +186,12 @@ def _extract_user_secrets(request):
 
     services_guids = []
     for token in tokens.split(' '):
-        claims = auth.user_jwt.decode(token)
-        guid = claims.get('service_guid')
-        if guid:
-            services_guids.append(guid)
+        try:
+            claims = auth.user_jwt.decode(token)
+            guid = claims.get('service_guid')
+            if guid:
+                services_guids.append(guid)
+        except:
+            continue
+
     return services_guids
