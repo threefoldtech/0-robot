@@ -28,6 +28,25 @@ securitySchemes:
           description: |
             Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won't help here.
 
+  zrobot:
+    type: Pass Through
+    description: |
+      Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
+      this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
+      that created it.
+    describedBy:
+      headers:
+        Zrobot:
+          description: Secret returned by the robot when creating service.
+          type: string
+      responses:
+        401:
+          description: |
+            Bad or expired token.
+        403:
+          description: |
+            Bad request wrong scope in the JWT.
+
 types:
   Blueprint:
     description: |
@@ -44,6 +63,14 @@ types:
           template: node
           service: node1
           action: start
+
+  BlueprintResult:
+    description: type returned after the execution of a blueprint. It contains a list of created services and task scheduled
+    properties:
+      tasks:
+        type: Task[]
+      services:
+        type: ServiceCreated[]
 
   TemplateRepository:
     properties:
@@ -156,13 +183,13 @@ types:
         tag: db
         state: ok
 
-  ServiceUpgradeRequest:
+  ServiceCreated:
+    type: Service
     properties:
-      template:
+      secret:
         type: string
-        description: UID of a template of the new version
-    example:
-      template: github.com/jumpscale/0-robot/node/0.0.2
+        description: secret to use to managed the created services
+        required: True
 
   Action:
     properties:
@@ -322,7 +349,7 @@ types:
           Blueprint executed successfully
           Which mean all the service have been created and all actions added to the task list
         body:
-          type: Task[]
+          type: BlueprintResult
 
 /templates:
   description: |
@@ -354,7 +381,7 @@ types:
     body:
       type: TemplateRepository
     responses:
-      200:
+      204:
         description: Template repository updated successfully
       404:
         description: Template repository not cloned yet. can't update to a certain branch/tag/revision
@@ -417,7 +444,7 @@ types:
       201:
         description: Service created successfully
         body:
-          type: Service
+          type: ServiceCreated
         headers:
           Location:
             description: URL to the created service resource
@@ -442,20 +469,6 @@ types:
           description: Service with this guid not found
           body:
             type: Error
-    put:
-      displayName: UpgradeService
-      description: Upgrade a service from one version to another
-      body:
-        type: ServiceUpgradeRequest
-      responses:
-        200:
-          description: Service upgraded successfully
-          body:
-            type: Service
-        404:
-          description: Service with this guid not found or template version not found
-          body:
-            type: Error
     delete:
       displayName: DeleteService
       description: Delete a service
@@ -464,6 +477,7 @@ types:
           description: Service deleted successfully
     /actions:
       get:
+        securedBy: [zrobot]
         displayName: ListActions
         description: List all the possible action a service can do.
         responses:
@@ -473,6 +487,7 @@ types:
     /task_list:
       description: A task list is all the actions that are scheduled for a service
       get:
+        securedBy: [zrobot]
         displayName: getTaskList
         description: Return all the action in the task list
         queryParameters:
@@ -488,6 +503,7 @@ types:
             body:
               type: Task[]
       post:
+        securedBy: [zrobot]
         displayName: AddTaskToList
         description: Add a task to the task list
         body:
@@ -502,6 +518,7 @@ types:
                 description: description URL to the created task resource
       /{task_guid}:
         get:
+          securedBy: [zrobot]
           displayName: GetTask
           description: Retrieve the detail of a task
           responses:

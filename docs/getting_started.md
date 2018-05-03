@@ -7,10 +7,16 @@ See the [intallation instruction](https://github.com/Jumpscale/core9#jumpscale-9
 Clone this repository and install the zerorobot:
 
 ```bash
+apt-get install -y libsqlite3-dev
+mkdir -p /opt/code/github/zero-os
+cd /opt/code/github/zero-os
 git clone https://github.com/zero-os/0-robot.git
 cd 0-robot
-pip install .
+pip install -e .
 ```
+
+
+
 ## Start the robot:
 ```
 Usage: zrobot server start [OPTIONS]
@@ -66,7 +72,7 @@ Absolute path to ssh key to secure configuration data, which is committed and pu
 - `--debug`:  
 Sets the logger output level to debug
 - `auto-push`:  
-Enables automatic commiting and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details
+Enables automatic committing and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details
 - `--auto-push-interval`:  
 Define a custom interval in minutes for `auto-push` if enabled (default: 60)
 
@@ -74,6 +80,8 @@ Define a custom interval in minutes for `auto-push` if enabled (default: 60)
 ```bash
 zrobot server start --listen :6601 --template-repo https://github.com/zero-os/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602 --organization myOrg
 ```
+### Note regarding security:
+0-robot REST API uses different secrets to authenticate the requests. You MUST run the 0-robot API behind HTTPS, failing to do so would allow hackers to gather your secrets and usurp your identity. More detail about the different secrets: [security.md](security.md)
 
 ## Running 0-robot in a docker
 

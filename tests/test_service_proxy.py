@@ -26,7 +26,7 @@ class TestServiceProxy(unittest.TestCase):
         j.clients.zrobot.get('test', {'url': 'http://localhost:6600'})
         self.cl = ZeroRobotManager('test')
         self.robot = Robot()
-        self.robot.set_data_repo('http://github.com/zero-os/0-robot')
+        self.robot.set_data_repo(j.sal.fs.getTmpDirPath())
         self.robot.add_template_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
         if os.path.exists(config.DATA_DIR):
             shutil.rmtree(config.DATA_DIR)
@@ -72,7 +72,13 @@ class TestServiceProxy(unittest.TestCase):
         task = service.schedule_action('start')
         task.wait()
 
-        self.assertEqual(len(proxy.task_list.list_tasks(all=True)), 1, "task create on service should be visible from the proxy")
+        try:
+            self.assertEqual(len(proxy.task_list.list_tasks(all=True)), 1, "task create on service should be visible from the proxy")
+        except Exception as err:
+            jsonerr = err.response.json()
+            print(jsonerr)
+            raise err
+
         proxy_task = proxy.task_list.get_task_by_guid(task.guid)
         self.assertEqual(proxy_task.state, task.state, "state of a task should be reflect on the proxy task")
 
@@ -106,7 +112,6 @@ class TestServiceProxy(unittest.TestCase):
 
     def test_delete(self):
         proxy, service = self._create_proxy()
-
         proxy.delete()
         with self.assertRaises(KeyError, msg='deleting a proxy, should delete the real service'):
             scol.get_by_guid(proxy.guid)

@@ -22,7 +22,7 @@ class TestTemplateCollection(unittest.TestCase):
         with self.assertRaises(Exception, msg='loading non existing template should fail'):
             tcol._load_template("/not/existing/path", file_path)
 
-    def test_get_template(self):
+    def test_get_template_uid(self):
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
         tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
         self.assertGreater(len(tcol._templates), 0, 'should have loaded template, actual loaded')
@@ -33,6 +33,28 @@ class TestTemplateCollection(unittest.TestCase):
 
         with self.assertRaises(TemplateNotFoundError, msg="should raise TemplateNotFoundError"):
             tcol.get('github.com/zero-os/0-robot/noexists/0.0.1')
+
+    def test_get_template_name(self):
+        dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
+        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        self.assertGreater(len(tcol._templates), 0, 'should have loaded template, actual loaded')
+
+        template = tcol.get('node')
+        self.assertTrue(template is not None)
+        self.assertEqual(template.template_dir, dir_path)
+        self.assertEqual(str(template.template_uid), 'github.com/zero-os/0-robot/node/0.0.1')
+
+        with self.assertRaises(TemplateNotFoundError, msg="should raise TemplateNotFoundError"):
+            tcol.get('noexists')
+
+    def test_get_template_name_conflict(self):
+        dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
+        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates_2/node')
+        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        self.assertEqual(len(tcol._templates), 2, 'should have loaded 2 templates')
+        with self.assertRaises(tcol.TemplateConflictError) as err:
+            tmpl = tcol.get('node')
 
     def test_list_template(self):
         # valid template
@@ -86,14 +108,12 @@ class TestTemplateCollection(unittest.TestCase):
             },
             {
                 'uid': 'name/0.0.1',
-                'error': False,
-                'expected': ('name', '0.0.1'),
+                'error': True,
                 'name': 'name and 0.0.1',
             },
             {
                 'uid': 'name',
-                'error': False,
-                'expected': ('name',),
+                'error': True,
                 'name': 'just name',
             }
 
@@ -169,3 +189,32 @@ class TestTemplateCollection(unittest.TestCase):
             else:
                 with self.assertRaises(RuntimeError):
                     giturl.parse(test['url'])
+
+    def test_find(self):
+        assert tcol.find() == [], "find should return an empty list when there are no templates loaded"
+
+        # load some templates
+        dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
+        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+
+        assert tcol.find() != [], "find should not return an empty list when there are some templates loaded"
+        assert len(tcol.find()) == len(tcol.list_templates()), "find without argument should return the full list of loaded templates"
+
+        assert len(tcol.find(host='github.com')) != 0
+        assert len(tcol.find(host='gitlab.com')) == 0
+
+        assert len(tcol.find(account='zero-os')) != 0
+        assert len(tcol.find(account='nonexisting')) == 0
+
+        assert len(tcol.find(repo='0-robot')) != 0
+        assert len(tcol.find(repo='nonexisting')) == 0
+
+        assert len(tcol.find(name='node')) == 1
+        assert len(tcol.find(name='nonexisting')) == 0
+
+        assert len(tcol.find(version='0.0.1')) != 0
+        assert len(tcol.find(version='nonexisting')) == 0
+
+        found = tcol.find(host='github.com', account='zero-os', repo='0-robot', name='node', version='0.0.1')
+        assert len(found) == 1
+        assert str(found[0].template_uid) == 'github.com/zero-os/0-robot/node/0.0.1'

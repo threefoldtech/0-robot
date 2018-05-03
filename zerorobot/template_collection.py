@@ -7,6 +7,8 @@ import importlib.util
 import os
 import sys
 
+from gevent.pool import Pool
+
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import git
@@ -46,17 +48,60 @@ def add_repo(url, branch=None, directory='templates'):
 
 
 def get(uid):
-    """
-    @uid: unique identifier for a template.
-    Can be a string with valid format as : 'github.com/account/repository/name/version'
-    or
-    a zerorobot.template_collection.TemplateUID object
+    """Get a template class
+
+    Arguments:
+        uid {string|TemplateUID} -- unique identifier for a template.
+                                    Can be a string with valid format as : 'github.com/account/repository/name/version'
+                                    or a zerorobot.template_collection.TemplateUID object
+                                    or a string which is the name of the template you want
+                                    if 2 templates are loaded that have the same name TemplateConflictError is raised
+
+    Raises:
+        TemplateNotFoundError -- template with specified uid is not found
+        TemplateConflictError -- raise if 2 templates have the same name is raised
+
+    Returns:
+        [TemplateBase] -- return the template class
     """
     if isinstance(uid, str):
-        uid = TemplateUID.parse(uid)
+        try:
+            uid = TemplateUID.parse(uid)
+        except ValueError:
+            # uid is not a full template uid, try with only its name
+            templates = find(name=uid)
+            size = len(templates)
+            if size > 1:
+                raise TemplateConflictError("tried to get template with name %s, but more then one template have this name (%s)" %
+                                            (uid, ', '.join([str(t.template_uid) for t in templates])))
+            elif size <= 0:
+                raise TemplateNotFoundError("template with name %s not found" % str(uid))
+            else:
+                return templates[0]
+
     if uid not in _templates:
         raise TemplateNotFoundError("template with name %s not found" % str(uid))
     return _templates[uid]
+
+
+def find(host=None, account=None, repo=None, name=None, version=None):
+    """
+    search for a template based on the part of the template UID
+    """
+    match = []
+    for uid, template in _templates.items():
+        if host and uid.host != host:
+            continue
+        if account and uid.account != account:
+            continue
+        if repo and uid.repo != repo:
+            continue
+        if name and uid.name != name:
+            continue
+        if version and uid.version != version:
+            continue
+        match.append(template)
+    return match
 
 
 def list_templates():
@@ -134,10 +179,16 @@ def checkout_repo(url, revision='master'):
     # load the new templates
     logger.info("reload templates")
     updated_templates = add_repo(url)
+
+    # pool of greenlet used to upgrade service concurrently
+    pool = Pool(25)
     for template in updated_templates:
-        for service in scol.find(template_uid=str(template.template_uid)):
-            logger.info("upgrading %s", service)
-            scol.upgrade(service, template, force=True)
+        for service in scol.find(template_host=template.template_uid.host,
+                                 template_account=template.template_uid.account,
+                                 template_repo=template.template_uid.repo,
+                                 template_name=template.template_uid.name):
+            pool.spawn(scol.upgrade, service, template, True)
+    pool.join(raise_error=True)
 
 
 class TemplateNameError(Exception):
@@ -148,5 +199,13 @@ class TemplateNotFoundError(KeyError):
     """
     This exception is raised when trying to create a service
     from a template that doesn't exists
+    """
+    pass
+
+
+class TemplateConflictError(Exception):
+    """
+    This exception is raised when trying to get a template with its name
+    and 2 templates have te same name, so we can't decide which one to retrn
     """
     pass
