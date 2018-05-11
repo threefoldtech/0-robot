@@ -185,6 +185,13 @@ class ServicesMgr:
         @param data: a dictionnary with the data of the service if and only if the service is created
                     so if the service already exists, the data argument is not used
         """
+        # allow to use just the name of the template instead of the full uid
+        if template_uid.find('/') == -1:
+            for t in self._robot.templates.uids.values():
+                if template_uid == t.name:
+                    template_uid = str(t.uid)
+                    break
+
         try:
             return self.get(template_uid=template_uid, name=service_name)
         except ServiceNotFoundError:
