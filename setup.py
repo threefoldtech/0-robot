@@ -37,7 +37,7 @@ class develop(_develop):
 
 setup(
     name='ZeroRobot',
-    version='0.6.0',
+    version='0.6.1',
     description='Automation framework for cloud workloads',
     url='https://github.com/Jumpscale/zerorobot',
     author='Christophe de Carvalho',
@@ -46,8 +46,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'JumpScale9>=9.3.0',
-        'JumpScale9Lib>=9.3.0',
+        'JumpScale9>=v9.3.1-rc3 ',
+        'JumpScale9Lib>=v9.3.1-rc3',
         'gevent>=1.2.2',
         'Flask>=0.12.2',
         'Flask-Inputs>=0.2.0',
