@@ -2,7 +2,7 @@
 set -e
 
 # settings
-export BRANCH="development"
+export BRANCH="v9.3.1-rc3"
 
 for target in /usr/local /opt /opt/cfg /opt/code/github/jumpscale /opt/var/capnp /opt/var/log $HOME/js9host/cfg; do
     mkdir -p $target
@@ -14,7 +14,10 @@ pushd /opt/code/github/jumpscale
 
 # cloning source code
 for target in core9 lib9; do
-    git clone --depth=1 -b ${BRANCH} https://github.com/jumpscale/${target}
+    git clone https://github.com/jumpscale/${target}
+    pushd ${target}
+    git checkout $BRANCH
+    popd
 done
 
 # installing core and plugins
