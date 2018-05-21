@@ -20,5 +20,5 @@ timeout = 120
 unixsocket = '/tmp/redis.sock'
 EOF
 
-exec /usr/local/bin/zrobot server start -T http://github.com/zero-os/0-templates
+exec /usr/local/bin/zrobot server start --mode node
 """

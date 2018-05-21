@@ -79,7 +79,7 @@ class Robot:
         """
         config_repo.init(path, key)
 
-    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, auto_push_interval=60, jwt_organization=None, **kwargs):
+    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, auto_push_interval=60, jwt_organization=None, mode=None, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -116,21 +116,23 @@ class Robot:
             repo_dir = giturl.git_path(self.data_repo_url)
             auto_pusher.run(interval=auto_push_interval, repo_dir=repo_dir, logger=logger)
 
-        # using a pool allow to kill the request when stopping the server
-        pool = Pool(None)
-        hostport = _split_hostport(listen)
-        self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger)
-        self._http.start()
-
-        logger.info("robot running at %s:%s" % hostport)
-
         # load services from data repo
         loader.load_services(config.DATA_DIR)
         # notify services that they can start processing their task list
         config.SERVICE_LOADED.set()
 
+        if mode == 'node':
+            _create_node_service()
+
         # only keep executed tasks for 2 hours
         gevent.spawn(_trim_tasks, 7200)
+
+        # using a pool allow to kill the request when stopping the server
+        pool = Pool(None)
+        hostport = _split_hostport(listen)
+        self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger)
+        self._http.start()
+        logger.info("robot running at %s:%s" % hostport)
 
         if block:
             self._http.serve_forever()
@@ -169,6 +171,29 @@ class Robot:
             # stop all the greenlets attached to the services
             service.gl_mgr.stop_all()
             service.save()
+
+
+def _create_node_service():
+    service_found = scol.find(template_host='github.com', template_account='zero-os', template_name='node')
+    if not service_found:
+        template_found = tcol.find(host='github.com', account='zero-os', name='node')
+        if not template_found:
+            tcol.add_repo("https://github.com/zero-os/0-templates")
+
+        template_found = tcol.find(host='github.com', account='zero-os', name='node')
+        if not template_found:
+            raise RuntimeError("cannot create node service and --mode node is set")
+
+        logger.info("create node service because --mode node is net")
+        node = tcol.instantiate_service(template_found[0], 'local', {})
+    else:
+        node = service_found[0]
+
+    try:
+        node.state.check('actions', 'install', 'ok')
+    except:
+        node.schedule_action('install')
+    node.schedule_action('_register')
 
 
 def _trim_tasks(period=7200):  # default 2 hours ago
