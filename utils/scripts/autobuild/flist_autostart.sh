@@ -18,7 +18,7 @@ if ! grep -q ^en_US /etc/locale.gen; then
 fi
 
 # install jumpscale
-export BRANCH="v9.3.1-rc3"
+export BRANCH="development"
 
 for target in /usr/local /opt /opt/cfg /opt/code/github/jumpscale /opt/code/github/zero-os /opt/var/capnp /opt/var/log $HOME/js9host/cfg; do
     mkdir -p $target
