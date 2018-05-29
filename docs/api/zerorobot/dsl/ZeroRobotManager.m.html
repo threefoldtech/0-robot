@@ -4,9 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
     <title>zerorobot.dsl.ZeroRobotManager API documentation</title>
-    <meta name="description" content="This module contains a wrapper of the go-raml generated client for ZeroRobot.
-
-Jumpscale provie a fa..." />
+    <meta name="description" content="This module contains a wrapper of the go-raml generated client for ZeroRobot." />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1082,13 +1080,8 @@ table {
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.find">find</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.find_or_create">find_or_create</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.get">get</a></li>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.upgrade">upgrade</a></li>
   </ul>
 
-        </li>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotManager.TemplateNotFoundError">TemplateNotFoundError</a></span>
-        
         </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotManager.TemplatesMgr">TemplatesMgr</a></span>
@@ -1097,6 +1090,7 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.TemplatesMgr.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.TemplatesMgr.add_repo">add_repo</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.TemplatesMgr.checkout_repo">checkout_repo</a></li>
   </ul>
 
         </li>
@@ -1125,35 +1119,25 @@ table {
   <header id="section-intro">
   <h1 class="title"><span class="name">zerorobot.dsl.ZeroRobotManager</span> module</h1>
   <p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
-<p>Jumpscale provie a factory that return a instance of the class defined in this module
-We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.</p>
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotManager" class="source">
     <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module contains a wrapper of the go-raml generated client for ZeroRobot.</span>
-
-<span class="sd">Jumpscale provie a factory that return a instance of the class defined in this module</span>
-<span class="sd">We keep this logic in this repository itself and not jumpscale so we don&#39;t spread the code over multiple repositories.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-<span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceConflictError</span>
+<span class="kn">from</span> <span class="nn">zerorobot.git.repo</span> <span class="kn">import</span> <span class="n">RepoCheckoutError</span>
+<span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ServiceConflictError</span><span class="p">,</span>
+                                          <span class="n">ServiceNotFoundError</span><span class="p">,</span> <span class="n">TooManyResults</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">zerorobot.service_proxy</span> <span class="kn">import</span> <span class="n">ServiceProxy</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TemplateConflictError</span><span class="p">,</span>
+                                           <span class="n">TemplateNotFoundError</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
-<span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceNotFoundError</span><span class="p">,</span> <span class="n">TooManyResults</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This exception is raised when trying to create a service</span>
-<span class="sd">    from a template that doesn&#39;t exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
 
 
 <span class="k">class</span> <span class="nc">ServiceCreateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1183,6 +1167,15 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">_client</span>
 
     <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;secret&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">secret</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">secret</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;secrets_&#39;</span><span class="p">]:</span>
+                <span class="n">secrets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;secrets_&#39;</span><span class="p">]</span>
+                <span class="n">secrets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">secret</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="c1"># force re-creation of the connection with new secret added in the Authorization header</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="bp">None</span>
+
         <span class="n">srv</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
         <span class="n">srv</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">template</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">srv</span>
@@ -1256,23 +1249,29 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
             <span class="k">raise</span> <span class="n">ServiceNotFoundError</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Instantiate a service from a template</span>
 
-<span class="sd">        @param template_uid: UID of the template to use a base class for the service</span>
-<span class="sd">        @param service_name: name of the service, needs to be unique within the robot instance</span>
-<span class="sd">        @param data: a dictionnary with the data of the service to create</span>
+<span class="sd">        :param template_uid: UID of the template to use a base class for the service</span>
+<span class="sd">        :type template_uid: str</span>
+<span class="sd">        :param service_name: name of the service, needs to be unique within the robot instance, defaults to None</span>
+<span class="sd">        :param service_name: str, optional</span>
+<span class="sd">        :param data: a dictionnary with the data of the service to create, defaults to None</span>
+<span class="sd">        :param data: dict, optional</span>
+<span class="sd">        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False</span>
+<span class="sd">        :type public: bool, optional</span>
+<span class="sd">        :raises ServiceConflictError: raised when a service with same name already exists</span>
+<span class="sd">        :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use</span>
+<span class="sd">        :raises TemplateNotFoundError: raise when the template specified is not found</span>
+<span class="sd">        :raises ServiceCreateError: raise when an error happens during service creation</span>
+<span class="sd">        :return: service proxy</span>
+<span class="sd">        :rtype: ServiceProxy</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
-
         <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">template_uid</span><span class="p">),</span>
             <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;public&quot;</span><span class="p">:</span> <span class="n">public</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="n">service_name</span><span class="p">:</span>
             <span class="n">req</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_name</span>
@@ -1282,53 +1281,55 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
         <span class="k">try</span><span class="p">:</span>
             <span class="n">new_service</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">createService</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">jsonerr</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">jsonerr</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">jsonerr</span><span class="p">[</span><span class="s1">&#39;code&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">409</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">409</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">4090</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TemplateConflictError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
             <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;fail to create service: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
             <span class="k">raise</span> <span class="n">ServiceCreateError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
 
-        <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">new_service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">new_service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">service</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">new_service</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper method that first check if a service exists and if not then creates it</span>
 <span class="sd">        if the service is found, it is returned</span>
 <span class="sd">        if the service is not found, it is created using the data passed then returned</span>
 
-<span class="sd">        @param template_uid: UID of the template of the service</span>
-<span class="sd">        @param service: the name of the service.</span>
-<span class="sd">        @param data: a dictionnary with the data of the service if and only if the service is created</span>
-<span class="sd">                    so if the service already exists, the data argument is not used</span>
+<span class="sd">        ::param template_uid: UID of the template to use a base class for the service</span>
+<span class="sd">        :type template_uid: str</span>
+<span class="sd">        :param service_name: name of the service, needs to be unique within the robot instance, defaults to None</span>
+<span class="sd">        :param service_name: str, optional</span>
+<span class="sd">        :param data: a dictionnary with the data of the service to create, defaults to None</span>
+<span class="sd">        :param data: dict, optional</span>
+<span class="sd">        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False</span>
+<span class="sd">        :raises ServiceConflictError: raised when a service with same name already exists</span>
+<span class="sd">        :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use</span>
+<span class="sd">        :raises TemplateNotFoundError: raise when the template specified is not found</span>
+<span class="sd">        :raises ServiceCreateError: raise when an error happens during service creation</span>
+<span class="sd">        :type public: bool, optional</span>
+<span class="sd">        :return: service proxy</span>
+<span class="sd">        :rtype: ServiceProxy</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># allow to use just the name of the template instead of the full uid</span>
+        <span class="k">if</span> <span class="n">template_uid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">template_uid</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                    <span class="n">template_uid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+                    <span class="k">break</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service_name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">ServiceNotFoundError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">new_template_uid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Upgrade a service to a new version</span>
-
-<span class="sd">        @param service: service guid</span>
-<span class="sd">        @param new_template_uid: template uid to be used as new template</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">new_template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">new_template_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">new_template_uid</span><span class="p">)</span>
-
-        <span class="n">req</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)}</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">new_service</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">UpgradeService</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">req</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="n">service_guid</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-            <span class="k">raise</span> <span class="n">ServiceUpgradeError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
-
-        <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">new_service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">new_service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">service</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="n">public</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">TemplatesMgr</span><span class="p">:</span>
@@ -1347,6 +1348,23 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
         <span class="p">}</span>
         <span class="n">repo</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">AddTemplateRepo</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">repo</span>
+
+    <span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checkout a branch/tag/revision of a template repository</span>
+
+<span class="sd">        @param url: url of the template repo</span>
+<span class="sd">        @param revision: branch, tag or revision to checkout</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+            <span class="s2">&quot;branch&quot;</span><span class="p">:</span> <span class="n">revision</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">CheckoutVersionTemplateRepo</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">RepoCheckoutError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">uids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1555,6 +1573,15 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">_client</span>
 
     <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;secret&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">secret</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">secret</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;secrets_&#39;</span><span class="p">]:</span>
+                <span class="n">secrets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;secrets_&#39;</span><span class="p">]</span>
+                <span class="n">secrets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">secret</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="c1"># force re-creation of the connection with new secret added in the Authorization header</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="bp">None</span>
+
         <span class="n">srv</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
         <span class="n">srv</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">template</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">srv</span>
@@ -1628,23 +1655,29 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
             <span class="k">raise</span> <span class="n">ServiceNotFoundError</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Instantiate a service from a template</span>
 
-<span class="sd">        @param template_uid: UID of the template to use a base class for the service</span>
-<span class="sd">        @param service_name: name of the service, needs to be unique within the robot instance</span>
-<span class="sd">        @param data: a dictionnary with the data of the service to create</span>
+<span class="sd">        :param template_uid: UID of the template to use a base class for the service</span>
+<span class="sd">        :type template_uid: str</span>
+<span class="sd">        :param service_name: name of the service, needs to be unique within the robot instance, defaults to None</span>
+<span class="sd">        :param service_name: str, optional</span>
+<span class="sd">        :param data: a dictionnary with the data of the service to create, defaults to None</span>
+<span class="sd">        :param data: dict, optional</span>
+<span class="sd">        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False</span>
+<span class="sd">        :type public: bool, optional</span>
+<span class="sd">        :raises ServiceConflictError: raised when a service with same name already exists</span>
+<span class="sd">        :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use</span>
+<span class="sd">        :raises TemplateNotFoundError: raise when the template specified is not found</span>
+<span class="sd">        :raises ServiceCreateError: raise when an error happens during service creation</span>
+<span class="sd">        :return: service proxy</span>
+<span class="sd">        :rtype: ServiceProxy</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
-
         <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">template_uid</span><span class="p">),</span>
             <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;public&quot;</span><span class="p">:</span> <span class="n">public</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="n">service_name</span><span class="p">:</span>
             <span class="n">req</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_name</span>
@@ -1654,53 +1687,55 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
         <span class="k">try</span><span class="p">:</span>
             <span class="n">new_service</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">createService</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">jsonerr</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">jsonerr</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">jsonerr</span><span class="p">[</span><span class="s1">&#39;code&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">409</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">409</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">4090</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TemplateConflictError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
             <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;fail to create service: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
             <span class="k">raise</span> <span class="n">ServiceCreateError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
 
-        <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">new_service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">new_service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">service</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">new_service</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper method that first check if a service exists and if not then creates it</span>
 <span class="sd">        if the service is found, it is returned</span>
 <span class="sd">        if the service is not found, it is created using the data passed then returned</span>
 
-<span class="sd">        @param template_uid: UID of the template of the service</span>
-<span class="sd">        @param service: the name of the service.</span>
-<span class="sd">        @param data: a dictionnary with the data of the service if and only if the service is created</span>
-<span class="sd">                    so if the service already exists, the data argument is not used</span>
+<span class="sd">        ::param template_uid: UID of the template to use a base class for the service</span>
+<span class="sd">        :type template_uid: str</span>
+<span class="sd">        :param service_name: name of the service, needs to be unique within the robot instance, defaults to None</span>
+<span class="sd">        :param service_name: str, optional</span>
+<span class="sd">        :param data: a dictionnary with the data of the service to create, defaults to None</span>
+<span class="sd">        :param data: dict, optional</span>
+<span class="sd">        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False</span>
+<span class="sd">        :raises ServiceConflictError: raised when a service with same name already exists</span>
+<span class="sd">        :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use</span>
+<span class="sd">        :raises TemplateNotFoundError: raise when the template specified is not found</span>
+<span class="sd">        :raises ServiceCreateError: raise when an error happens during service creation</span>
+<span class="sd">        :type public: bool, optional</span>
+<span class="sd">        :return: service proxy</span>
+<span class="sd">        :rtype: ServiceProxy</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># allow to use just the name of the template instead of the full uid</span>
+        <span class="k">if</span> <span class="n">template_uid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">template_uid</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                    <span class="n">template_uid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+                    <span class="k">break</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service_name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">ServiceNotFoundError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">new_template_uid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Upgrade a service to a new version</span>
-
-<span class="sd">        @param service: service guid</span>
-<span class="sd">        @param new_template_uid: template uid to be used as new template</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">new_template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">new_template_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">new_template_uid</span><span class="p">)</span>
-
-        <span class="n">req</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)}</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">new_service</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">UpgradeService</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">req</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="n">service_guid</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-            <span class="k">raise</span> <span class="n">ServiceUpgradeError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
-
-        <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">new_service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">new_service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">service</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="n">public</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1740,33 +1775,52 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
             
   <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotManager.ServicesMgr.create">
-    <p>def <span class="ident">create</span>(</p><p>self, template_uid, service_name=None, data=None)</p>
+    <p>def <span class="ident">create</span>(</p><p>self, template_uid, service_name=None, data=None, public=False)</p>
     </div>
     
 
     
   
     <div class="desc"><p>Instantiate a service from a template</p>
-<p>@param template_uid: UID of the template to use a base class for the service
-@param service_name: name of the service, needs to be unique within the robot instance
-@param data: a dictionnary with the data of the service to create</p></div>
+<p>:param template_uid: UID of the template to use a base class for the service
+:type template_uid: str
+:param service_name: name of the service, needs to be unique within the robot instance, defaults to None
+:param service_name: str, optional
+:param data: a dictionnary with the data of the service to create, defaults to None
+:param data: dict, optional
+:param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False
+:type public: bool, optional
+:raises ServiceConflictError: raised when a service with same name already exists
+:raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use
+:raises TemplateNotFoundError: raise when the template specified is not found
+:raises ServiceCreateError: raise when an error happens during service creation
+:return: service proxy
+:rtype: ServiceProxy</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.create', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.create" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Instantiate a service from a template</span>
-<span class="sd">    @param template_uid: UID of the template to use a base class for the service</span>
-<span class="sd">    @param service_name: name of the service, needs to be unique within the robot instance</span>
-<span class="sd">    @param data: a dictionnary with the data of the service to create</span>
+<span class="sd">    :param template_uid: UID of the template to use a base class for the service</span>
+<span class="sd">    :type template_uid: str</span>
+<span class="sd">    :param service_name: name of the service, needs to be unique within the robot instance, defaults to None</span>
+<span class="sd">    :param service_name: str, optional</span>
+<span class="sd">    :param data: a dictionnary with the data of the service to create, defaults to None</span>
+<span class="sd">    :param data: dict, optional</span>
+<span class="sd">    :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False</span>
+<span class="sd">    :type public: bool, optional</span>
+<span class="sd">    :raises ServiceConflictError: raised when a service with same name already exists</span>
+<span class="sd">    :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use</span>
+<span class="sd">    :raises TemplateNotFoundError: raise when the template specified is not found</span>
+<span class="sd">    :raises ServiceCreateError: raise when an error happens during service creation</span>
+<span class="sd">    :return: service proxy</span>
+<span class="sd">    :rtype: ServiceProxy</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">template_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
     <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">template_uid</span><span class="p">),</span>
         <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;public&quot;</span><span class="p">:</span> <span class="n">public</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">service_name</span><span class="p">:</span>
         <span class="n">req</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_name</span>
@@ -1775,13 +1829,20 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
     <span class="k">try</span><span class="p">:</span>
         <span class="n">new_service</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">createService</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">jsonerr</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">jsonerr</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">jsonerr</span><span class="p">[</span><span class="s1">&#39;code&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">409</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">409</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">4090</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TemplateConflictError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;fail to create service: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
         <span class="k">raise</span> <span class="n">ServiceCreateError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">new_service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">new_service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">service</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">new_service</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1851,7 +1912,7 @@ You can filter on:
             
   <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotManager.ServicesMgr.find_or_create">
-    <p>def <span class="ident">find_or_create</span>(</p><p>self, template_uid, service_name, data)</p>
+    <p>def <span class="ident">find_or_create</span>(</p><p>self, template_uid, service_name, data, public=False)</p>
     </div>
     
 
@@ -1860,27 +1921,53 @@ You can filter on:
     <div class="desc"><p>Helper method that first check if a service exists and if not then creates it
 if the service is found, it is returned
 if the service is not found, it is created using the data passed then returned</p>
-<p>@param template_uid: UID of the template of the service
-@param service: the name of the service.
-@param data: a dictionnary with the data of the service if and only if the service is created
-            so if the service already exists, the data argument is not used</p></div>
+<p>::param template_uid: UID of the template to use a base class for the service
+:type template_uid: str
+:param service_name: name of the service, needs to be unique within the robot instance, defaults to None
+:param service_name: str, optional
+:param data: a dictionnary with the data of the service to create, defaults to None
+:param data: dict, optional
+:param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False
+:raises ServiceConflictError: raised when a service with same name already exists
+:raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use
+:raises TemplateNotFoundError: raise when the template specified is not found
+:raises ServiceCreateError: raise when an error happens during service creation
+:type public: bool, optional
+:return: service proxy
+:rtype: ServiceProxy</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.find_or_create', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.find_or_create" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper method that first check if a service exists and if not then creates it</span>
 <span class="sd">    if the service is found, it is returned</span>
 <span class="sd">    if the service is not found, it is created using the data passed then returned</span>
-<span class="sd">    @param template_uid: UID of the template of the service</span>
-<span class="sd">    @param service: the name of the service.</span>
-<span class="sd">    @param data: a dictionnary with the data of the service if and only if the service is created</span>
-<span class="sd">                so if the service already exists, the data argument is not used</span>
+<span class="sd">    ::param template_uid: UID of the template to use a base class for the service</span>
+<span class="sd">    :type template_uid: str</span>
+<span class="sd">    :param service_name: name of the service, needs to be unique within the robot instance, defaults to None</span>
+<span class="sd">    :param service_name: str, optional</span>
+<span class="sd">    :param data: a dictionnary with the data of the service to create, defaults to None</span>
+<span class="sd">    :param data: dict, optional</span>
+<span class="sd">    :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False</span>
+<span class="sd">    :raises ServiceConflictError: raised when a service with same name already exists</span>
+<span class="sd">    :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use</span>
+<span class="sd">    :raises TemplateNotFoundError: raise when the template specified is not found</span>
+<span class="sd">    :raises ServiceCreateError: raise when an error happens during service creation</span>
+<span class="sd">    :type public: bool, optional</span>
+<span class="sd">    :return: service proxy</span>
+<span class="sd">    :rtype: ServiceProxy</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># allow to use just the name of the template instead of the full uid</span>
+    <span class="k">if</span> <span class="n">template_uid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">template_uid</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="n">template_uid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+                <span class="k">break</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">ServiceNotFoundError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="n">public</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1923,46 +2010,6 @@ You can filter on:
 
   </div>
   
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotManager.ServicesMgr.upgrade">
-    <p>def <span class="ident">upgrade</span>(</p><p>self, service_guid, new_template_uid)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Upgrade a service to a new version</p>
-<p>@param service: service guid
-@param new_template_uid: template uid to be used as new template</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.upgrade', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.upgrade" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">new_template_uid</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Upgrade a service to a new version</span>
-<span class="sd">    @param service: service guid</span>
-<span class="sd">    @param new_template_uid: template uid to be used as new template</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">new_template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">new_template_uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">new_template_uid</span><span class="p">)</span>
-    <span class="n">req</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)}</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">new_service</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">UpgradeService</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">req</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="n">service_guid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="k">raise</span> <span class="n">ServiceUpgradeError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">new_service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">new_service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">service</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
           <h3>Instance variables</h3>
             <div class="item">
             <p id="zerorobot.dsl.ZeroRobotManager.ServicesMgr.guids" class="name">var <span class="ident">guids</span></p>
@@ -1996,49 +2043,6 @@ value is a ServiceProxy object</p></div>
       </div>
       
       <div class="item">
-      <p id="zerorobot.dsl.ZeroRobotManager.TemplateNotFoundError" class="name">class <span class="ident">TemplateNotFoundError</span></p>
-      
-  
-    <div class="desc"><p>This exception is raised when trying to create a service
-from a template that doesn't exists</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.TemplateNotFoundError', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotManager.TemplateNotFoundError" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This exception is raised when trying to create a service</span>
-<span class="sd">    from a template that doesn&#39;t exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.dsl.ZeroRobotManager.TemplateNotFoundError">TemplateNotFoundError</a></li>
-          <li>builtins.Exception</li>
-          <li>builtins.BaseException</li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Class variables</h3>
-            <div class="item">
-            <p id="zerorobot.dsl.ZeroRobotManager.TemplateNotFoundError.args" class="name">var <span class="ident">args</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
-      
-      <div class="item">
       <p id="zerorobot.dsl.ZeroRobotManager.TemplatesMgr" class="name">class <span class="ident">TemplatesMgr</span></p>
       
   
@@ -2061,6 +2065,23 @@ from a template that doesn't exists</p></div>
         <span class="p">}</span>
         <span class="n">repo</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">AddTemplateRepo</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">repo</span>
+
+    <span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checkout a branch/tag/revision of a template repository</span>
+
+<span class="sd">        @param url: url of the template repo</span>
+<span class="sd">        @param revision: branch, tag or revision to checkout</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+            <span class="s2">&quot;branch&quot;</span><span class="p">:</span> <span class="n">revision</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">CheckoutVersionTemplateRepo</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">RepoCheckoutError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">uids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2128,6 +2149,43 @@ from a template that doesn't exists</p></div>
     <span class="p">}</span>
     <span class="n">repo</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">AddTemplateRepo</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">repo</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotManager.TemplatesMgr.checkout_repo">
+    <p>def <span class="ident">checkout_repo</span>(</p><p>self, url, revision=&#39;master&#39;)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Checkout a branch/tag/revision of a template repository</p>
+<p>@param url: url of the template repo
+@param revision: branch, tag or revision to checkout</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.TemplatesMgr.checkout_repo', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotManager.TemplatesMgr.checkout_repo" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checkout a branch/tag/revision of a template repository</span>
+<span class="sd">    @param url: url of the template repo</span>
+<span class="sd">    @param revision: branch, tag or revision to checkout</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+        <span class="s2">&quot;branch&quot;</span><span class="p">:</span> <span class="n">revision</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">CheckoutVersionTemplateRepo</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">RepoCheckoutError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
 </pre></div>
 
   </div>

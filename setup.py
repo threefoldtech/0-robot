@@ -37,7 +37,7 @@ class develop(_develop):
 
 setup(
     name='ZeroRobot',
-    version='0.6.1',
+    version='0.7.0',
     description='Automation framework for cloud workloads',
     url='https://github.com/Jumpscale/zerorobot',
     author='Christophe de Carvalho',

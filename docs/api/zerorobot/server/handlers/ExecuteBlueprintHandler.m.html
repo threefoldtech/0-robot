@@ -1082,19 +1082,22 @@ table {
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">jsonschema</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
 <span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
 
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">blueprint</span>
 <span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceConflictError</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.base</span> <span class="kn">import</span> <span class="n">BadActionArgumentError</span>
-<span class="kn">from</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TemplateNameError</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TemplateConflictError</span><span class="p">,</span>
+                                           <span class="n">TemplateNameError</span><span class="p">,</span>
                                            <span class="n">TemplateNotFoundError</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
-<span class="kn">from</span> <span class="nn">.views</span> <span class="kn">import</span> <span class="n">task_view</span>
+
+<span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
+<span class="kn">from</span> <span class="nn">.views</span> <span class="kn">import</span> <span class="n">task_view</span><span class="p">,</span> <span class="n">service_view</span>
 
 <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 <span class="n">Blueprint_schema</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/Blueprint_schema.json&#39;</span><span class="p">))</span>
@@ -1102,6 +1105,7 @@ table {
 <span class="n">Blueprint_schema_validator</span> <span class="o">=</span> <span class="n">Draft4Validator</span><span class="p">(</span><span class="n">Blueprint_schema</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">Blueprint_schema_resolver</span><span class="p">)</span>
 
 
+<span class="nd">@auth.admin_user.login_required</span>
 <span class="k">def</span> <span class="nf">ExecuteBlueprintHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Execute a blueprint on the ZeroRobot</span>
@@ -1111,18 +1115,39 @@ table {
     <span class="k">try</span><span class="p">:</span>
         <span class="n">Blueprint_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)),</span> <span class="mi">400</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">actions</span><span class="p">,</span> <span class="n">services</span> <span class="o">=</span> <span class="n">blueprint</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">])</span>
-    <span class="k">except</span> <span class="n">blueprint</span><span class="o">.</span><span class="n">BadBlueprintFormatError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">blueprint</span><span class="o">.</span><span class="n">BadBlueprintFormatError</span><span class="p">,</span> <span class="n">TemplateConflictError</span><span class="p">,</span> <span class="n">TemplateNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="mi">400</span>
 
+    <span class="n">services_created</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">_instanciate_services</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">_instanciate_services</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">service</span><span class="p">:</span>
+                <span class="c1"># add secret to new created service</span>
+                <span class="n">view</span> <span class="o">=</span> <span class="n">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">view</span><span class="p">[</span><span class="s1">&#39;secret&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">})</span>
+                    <span class="n">services_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">SigningKeyNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;error creating user secret: no signing key available&#39;</span><span class="p">),</span> <span class="mi">500</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;error creating user secret: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)),</span> <span class="mi">500</span>
+
         <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]}),</span> <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]),</span> <span class="mi">404</span>
+        <span class="k">except</span> <span class="n">TemplateConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">404</span>
+
+    <span class="n">services_2b_schedules</span> <span class="o">=</span> <span class="n">_find_services_to_be_scheduled</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+    <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">_extract_user_secrets</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">services_created</span><span class="p">]</span>
+    <span class="n">not_allowed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">services_2b_schedules</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">allowed_services</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">not_allowed</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;you are trying to schedule action on some services on which you don&#39;t have rights.&quot;</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">),</span> <span class="mi">401</span>
 
     <span class="n">tasks_created</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">action_item</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
@@ -1130,18 +1155,19 @@ table {
             <span class="n">tasks_created</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action_item</span><span class="p">))</span>
         <span class="k">except</span> <span class="n">BadActionArgumentError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;bad action argument for action </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">action_item</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="n">err_msg</span><span class="p">}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">err_msg</span><span class="p">),</span> <span class="mi">400</span>
 
-    <span class="n">response</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tasks&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;services&#39;</span><span class="p">:</span> <span class="n">services_created</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">task</span><span class="p">,</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">tasks_created</span><span class="p">:</span>
-        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
+        <span class="n">response</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="mi">200</span>
 
 
 <span class="k">def</span> <span class="nf">_instanciate_services</span><span class="p">(</span><span class="n">service_descr</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">srv</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">service_descr</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">],</span> <span class="n">service_descr</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">service_descr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">srv</span>
     <span class="k">except</span> <span class="n">ServiceConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">service</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">j</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RuntimeError</span><span class="p">(</span><span class="s2">&quot;should have the conflicting service in the exception&quot;</span><span class="p">)</span>
@@ -1149,6 +1175,40 @@ table {
         <span class="c1"># with the new data from the blueprint</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">service_descr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">err</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update_secure</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_find_services_to_be_scheduled</span><span class="p">(</span><span class="n">actions</span><span class="p">):</span>
+    <span class="n">services_guids</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">action_item</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+        <span class="n">template_uid</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;template&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">template</span><span class="p">:</span>
+            <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+
+        <span class="n">service</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;service&quot;</span><span class="p">)</span>
+
+        <span class="n">candidates</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">template_uid</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s1">&#39;template_host&#39;</span><span class="p">:</span> <span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                <span class="s1">&#39;template_account&#39;</span><span class="p">:</span> <span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
+                <span class="s1">&#39;template_repo&#39;</span><span class="p">:</span> <span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
+                <span class="s1">&#39;template_name&#39;</span><span class="p">:</span> <span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s1">&#39;template_version&#39;</span><span class="p">:</span> <span class="n">template_uid</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="p">})</span>
+        <span class="c1"># filter out None value</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()</span>
+
+        <span class="n">services_guids</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">guid</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">services_guids</span>
 
 
 <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="n">action_item</span><span class="p">):</span>
@@ -1187,6 +1247,32 @@ table {
         <span class="n">t</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
         <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">t</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">tasks</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_user_secrets</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;ZrobotSecret&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">ss</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;ZrobotSecret&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">auth_type</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">auth_type</span> <span class="o">!=</span> <span class="s1">&#39;Bearer&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">tokens</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">services_guids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">claims</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="n">guid</span> <span class="o">=</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;service_guid&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">guid</span><span class="p">:</span>
+                <span class="n">services_guids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+    <span class="k">return</span> <span class="n">services_guids</span>
 </pre></div>
 
   </div>
@@ -1232,7 +1318,7 @@ table {
       
   <div class="item">
     <div class="name def" id="zerorobot.server.handlers.ExecuteBlueprintHandler.ExecuteBlueprintHandler">
-    <p>def <span class="ident">ExecuteBlueprintHandler</span>(</p><p>)</p>
+    <p>def <span class="ident">ExecuteBlueprintHandler</span>(</p><p>*args, **kwargs)</p>
     </div>
     
 
@@ -1243,7 +1329,8 @@ It is handler for POST /blueprints</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ExecuteBlueprintHandler.ExecuteBlueprintHandler', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.ExecuteBlueprintHandler.ExecuteBlueprintHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ExecuteBlueprintHandler</span><span class="p">():</span>
+    <div class="codehilite"><pre><span></span><span class="nd">@auth.admin_user.login_required</span>
+<span class="k">def</span> <span class="nf">ExecuteBlueprintHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Execute a blueprint on the ZeroRobot</span>
 <span class="sd">    It is handler for POST /blueprints</span>
@@ -1252,18 +1339,39 @@ It is handler for POST /blueprints</p></div>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">Blueprint_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)),</span> <span class="mi">400</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">actions</span><span class="p">,</span> <span class="n">services</span> <span class="o">=</span> <span class="n">blueprint</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">])</span>
-    <span class="k">except</span> <span class="n">blueprint</span><span class="o">.</span><span class="n">BadBlueprintFormatError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">blueprint</span><span class="o">.</span><span class="n">BadBlueprintFormatError</span><span class="p">,</span> <span class="n">TemplateConflictError</span><span class="p">,</span> <span class="n">TemplateNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="mi">400</span>
 
+    <span class="n">services_created</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">_instanciate_services</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">_instanciate_services</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">service</span><span class="p">:</span>
+                <span class="c1"># add secret to new created service</span>
+                <span class="n">view</span> <span class="o">=</span> <span class="n">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">view</span><span class="p">[</span><span class="s1">&#39;secret&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">})</span>
+                    <span class="n">services_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">SigningKeyNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;error creating user secret: no signing key available&#39;</span><span class="p">),</span> <span class="mi">500</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;error creating user secret: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)),</span> <span class="mi">500</span>
+
         <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]}),</span> <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]),</span> <span class="mi">404</span>
+        <span class="k">except</span> <span class="n">TemplateConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">404</span>
+
+    <span class="n">services_2b_schedules</span> <span class="o">=</span> <span class="n">_find_services_to_be_scheduled</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+    <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">_extract_user_secrets</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">services_created</span><span class="p">]</span>
+    <span class="n">not_allowed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">services_2b_schedules</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">allowed_services</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">not_allowed</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;you are trying to schedule action on some services on which you don&#39;t have rights.&quot;</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">error_msg</span><span class="p">),</span> <span class="mi">401</span>
 
     <span class="n">tasks_created</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">action_item</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
@@ -1271,13 +1379,13 @@ It is handler for POST /blueprints</p></div>
             <span class="n">tasks_created</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action_item</span><span class="p">))</span>
         <span class="k">except</span> <span class="n">BadActionArgumentError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;bad action argument for action </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">action_item</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="n">err_msg</span><span class="p">}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">err_msg</span><span class="p">),</span> <span class="mi">400</span>
 
-    <span class="n">response</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;tasks&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;services&#39;</span><span class="p">:</span> <span class="n">services_created</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">task</span><span class="p">,</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">tasks_created</span><span class="p">:</span>
-        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
+        <span class="n">response</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="mi">200</span>
 </pre></div>
 
   </div>

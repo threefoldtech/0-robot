@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.server.handlers.UpgradeServiceHandler API documentation</title>
-    <meta name="description" content="" />
+    <title>zerorobot.git.url API documentation</title>
+    <meta name="description" content="this module contains utility to parse git URL" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1040,21 +1040,13 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.server.handlers.UpgradeServiceHandler.ServiceUpgradeRequest_schema">ServiceUpgradeRequest_schema</a></li>
-    <li class="mono"><a href="#zerorobot.server.handlers.UpgradeServiceHandler.ServiceUpgradeRequest_schema_resolver">ServiceUpgradeRequest_schema_resolver</a></li>
-    <li class="mono"><a href="#zerorobot.server.handlers.UpgradeServiceHandler.ServiceUpgradeRequest_schema_validator">ServiceUpgradeRequest_schema_validator</a></li>
-    <li class="mono"><a href="#zerorobot.server.handlers.UpgradeServiceHandler.dir_path">dir_path</a></li>
-  </ul>
-
-    </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.server.handlers.UpgradeServiceHandler.UpgradeServiceHandler">UpgradeServiceHandler</a></li>
+    <li class="mono"><a href="#zerorobot.git.url.git_path">git_path</a></li>
+    <li class="mono"><a href="#zerorobot.git.url.parse">parse</a></li>
+    <li class="mono"><a href="#zerorobot.git.url.parse_template_repo_url">parse_template_repo_url</a></li>
   </ul>
 
     </li>
@@ -1071,59 +1063,79 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.server.handlers.UpgradeServiceHandler</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.git.url</span> module</h1>
+  <p>this module contains utility to parse git URL</p>
   
-  
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.UpgradeServiceHandler', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.server.handlers.UpgradeServiceHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.git.url', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.git.url" class="source">
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">this module contains utility to parse git URL</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
 
-<span class="kn">import</span> <span class="nn">gevent</span>
-<span class="kn">import</span> <span class="nn">jsonschema</span>
-<span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 
-<span class="kn">import</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">as</span> <span class="nn">scol</span>
-<span class="kn">import</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">as</span> <span class="nn">tcol</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
-<span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">service_view</span>
-<span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
-
-<span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-<span class="n">ServiceUpgradeRequest_schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/ServiceUpgradeRequest_schema.json&#39;</span><span class="p">))</span>
-<span class="n">ServiceUpgradeRequest_schema_resolver</span> <span class="o">=</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">RefResolver</span><span class="p">(</span>
-    <span class="s1">&#39;file://&#39;</span> <span class="o">+</span> <span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/&#39;</span><span class="p">,</span> <span class="n">ServiceUpgradeRequest_schema</span><span class="p">)</span>
-<span class="n">ServiceUpgradeRequest_schema_validator</span> <span class="o">=</span> <span class="n">Draft4Validator</span><span class="p">(</span>
-    <span class="n">ServiceUpgradeRequest_schema</span><span class="p">,</span>
-    <span class="n">resolver</span><span class="o">=</span><span class="n">ServiceUpgradeRequest_schema_resolver</span><span class="p">)</span>
+<span class="n">_url_pattern_ssh</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^(git)@(.*?):(.*?)/(.*?)/?$&#39;</span><span class="p">)</span>
+<span class="n">_url_pattern_ssh2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^(git)@(.*?)/(.*?)/(.*?)/?$&#39;</span><span class="p">)</span>
+<span class="n">_url_pattern_ssh3</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^ssh://(git)@(.*?)/(.*?)/(.*?)/?$&#39;</span><span class="p">)</span>
+<span class="n">_url_pattern_http</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^(https?)://(.*?)/(.*?)/(.*?)/?$&#39;</span><span class="p">)</span>
+<span class="n">_url_patterns</span> <span class="o">=</span> <span class="p">(</span><span class="n">_url_pattern_ssh</span><span class="p">,</span> <span class="n">_url_pattern_ssh2</span><span class="p">,</span> <span class="n">_url_pattern_ssh3</span><span class="p">,</span> <span class="n">_url_pattern_http</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">UpgradeServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return (protocol, repository_host, repository_account, repository_name)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">_url_patterns</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">m</span>
+            <span class="k">break</span>
 
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Url is invalid. Must be in the form of &#39;http(s)://hostname/account/repo&#39;, &#39;git@hostname:account/repo&#39; or &#39;ssh://git@hostname/account/repo&#39; </span><span class="se">\n</span><span class="s2">now:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">ServiceUpgradeRequest_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;bad request body&quot;</span><span class="p">}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+    <span class="n">repository_name</span> <span class="o">=</span> <span class="n">repository_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">repository_host</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">splitport</span><span class="p">(</span><span class="n">repository_host</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
-            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">new_template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-        <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)}),</span> \
-            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+<span class="k">def</span> <span class="nf">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return the location on the filesystem where a git repo would be cloned</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(codedir)s</span><span class="s1">/</span><span class="si">%(type)s</span><span class="s1">/</span><span class="si">%(account)s</span><span class="s1">/</span><span class="si">%(repo_name)s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">{</span>
+        <span class="s1">&#39;codedir&#39;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">CODEDIR</span><span class="p">,</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">host</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s1">&#39;account&#39;</span><span class="p">:</span> <span class="n">account</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s1">&#39;repo_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">dest</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">)),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="n">protocol</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="s1">&#39;git&#39;</span><span class="p">):</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">url</span><span class="p">,</span> <span class="bp">None</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span><span class="p">:</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span>
+
+    <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">scheme</span><span class="o">+</span><span class="s1">&#39;://&#39;</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">netloc</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">branch</span>
 </pre></div>
 
   </div>
@@ -1131,77 +1143,108 @@ table {
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.server.handlers.UpgradeServiceHandler.ServiceUpgradeRequest_schema" class="name">var <span class="ident">ServiceUpgradeRequest_schema</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.server.handlers.UpgradeServiceHandler.ServiceUpgradeRequest_schema_resolver" class="name">var <span class="ident">ServiceUpgradeRequest_schema_resolver</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.server.handlers.UpgradeServiceHandler.ServiceUpgradeRequest_schema_validator" class="name">var <span class="ident">ServiceUpgradeRequest_schema_validator</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.server.handlers.UpgradeServiceHandler.dir_path" class="name">var <span class="ident">dir_path</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.server.handlers.UpgradeServiceHandler.UpgradeServiceHandler">
-    <p>def <span class="ident">UpgradeServiceHandler</span>(</p><p>service_guid)</p>
+    <div class="name def" id="zerorobot.git.url.git_path">
+    <p>def <span class="ident">git_path</span>(</p><p>url)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>return the location on the filesystem where a git repo would be cloned</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.git.url.git_path', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.git.url.git_path" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return the location on the filesystem where a git repo would be cloned</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(codedir)s</span><span class="s1">/</span><span class="si">%(type)s</span><span class="s1">/</span><span class="si">%(account)s</span><span class="s1">/</span><span class="si">%(repo_name)s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">{</span>
+        <span class="s1">&#39;codedir&#39;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">CODEDIR</span><span class="p">,</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">host</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s1">&#39;account&#39;</span><span class="p">:</span> <span class="n">account</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s1">&#39;repo_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">dest</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.git.url.parse">
+    <p>def <span class="ident">parse</span>(</p><p>url)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>return (protocol, repository_host, repository_account, repository_name)</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.git.url.parse', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.git.url.parse" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return (protocol, repository_host, repository_account, repository_name)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">_url_patterns</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">m</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Url is invalid. Must be in the form of &#39;http(s)://hostname/account/repo&#39;, &#39;git@hostname:account/repo&#39; or &#39;ssh://git@hostname/account/repo&#39; </span><span class="se">\n</span><span class="s2">now:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+
+    <span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+    <span class="n">repository_name</span> <span class="o">=</span> <span class="n">repository_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">repository_host</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">splitport</span><span class="p">(</span><span class="n">repository_host</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.git.url.parse_template_repo_url">
+    <p>def <span class="ident">parse_template_repo_url</span>(</p><p>url)</p>
     </div>
     
 
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.UpgradeServiceHandler.UpgradeServiceHandler', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.server.handlers.UpgradeServiceHandler.UpgradeServiceHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">UpgradeServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.git.url.parse_template_repo_url', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.git.url.parse_template_repo_url" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="bp">None</span>
 
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+    <span class="n">protocol</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">ServiceUpgradeRequest_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;bad request body&quot;</span><span class="p">}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="s1">&#39;git&#39;</span><span class="p">):</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">url</span><span class="p">,</span> <span class="bp">None</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
-            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span><span class="p">:</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">new_template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-        <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_template_uid</span><span class="p">)}),</span> \
-            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-
-    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">)),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">scheme</span><span class="o">+</span><span class="s1">&#39;://&#39;</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">netloc</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">branch</span>
 </pre></div>
 
   </div>

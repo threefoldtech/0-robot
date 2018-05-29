@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.server.handlers.AddTaskToListHandler API documentation</title>
+    <title>zerorobot.robot.loader API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1043,10 +1043,7 @@ table {
     <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema">TaskCreate_schema</a></li>
-    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema_resolver">TaskCreate_schema_resolver</a></li>
-    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema_validator">TaskCreate_schema_validator</a></li>
-    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.dir_path">dir_path</a></li>
+    <li class="mono"><a href="#zerorobot.robot.loader.logger">logger</a></li>
   </ul>
 
     </li>
@@ -1054,7 +1051,7 @@ table {
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler">AddTaskToListHandler</a></li>
+    <li class="mono"><a href="#zerorobot.robot.loader.load_services">load_services</a></li>
   </ul>
 
     </li>
@@ -1071,58 +1068,90 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.server.handlers.AddTaskToListHandler</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.robot.loader</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.AddTaskToListHandler', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.server.handlers.AddTaskToListHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.loader', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.loader" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">gevent</span>
 
-<span class="kn">import</span> <span class="nn">jsonschema</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
-<span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
-
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
-<span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">task_view</span>
-<span class="kn">from</span> <span class="nn">zerorobot.template.base</span> <span class="kn">import</span> <span class="n">ActionNotFoundError</span><span class="p">,</span> <span class="n">BadActionArgumentError</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span><span class="p">,</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
 
-<span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
-
-<span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-<span class="n">TaskCreate_schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/TaskCreate_schema.json&#39;</span><span class="p">))</span>
-<span class="n">TaskCreate_schema_resolver</span> <span class="o">=</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">RefResolver</span><span class="p">(</span><span class="s1">&#39;file://&#39;</span> <span class="o">+</span> <span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/&#39;</span><span class="p">,</span> <span class="n">TaskCreate_schema</span><span class="p">)</span>
-<span class="n">TaskCreate_schema_validator</span> <span class="o">=</span> <span class="n">Draft4Validator</span><span class="p">(</span><span class="n">TaskCreate_schema</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">TaskCreate_schema_resolver</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
 
-<span class="nd">@auth.service.login_required</span>
-<span class="k">def</span> <span class="nf">AddTaskToListHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Add a task to the task list</span>
-<span class="sd">    It is handler for POST /services/&lt;service_guid&gt;/task_list</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">TaskCreate_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)),</span> <span class="mi">400</span>
+<span class="k">def</span> <span class="nf">load_services</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">),</span> <span class="mi">404</span>
+    <span class="k">for</span> <span class="n">srv_dir</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listDirsInDir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="n">info_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">info_path</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">info_path</span><span class="p">)</span>
 
-    <span class="n">args</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">],</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">ActionNotFoundError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;action &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]),</span> <span class="mi">400</span>
-    <span class="k">except</span> <span class="n">BadActionArgumentError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;the argument passed in the requests, doesn&#39;t match the signature of the action&quot;</span><span class="p">),</span> <span class="mi">400</span>
+        <span class="n">tmpl_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmpl_uid</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">tcol</span><span class="o">.</span><span class="n">TemplateNotFoundError</span><span class="p">:</span>
+            <span class="c1"># template of the service not found, could be we have the template but not the same version</span>
+            <span class="c1"># try to get the template without specifiying version</span>
+            <span class="n">tmplClasses</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="o">=</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmplClasses</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;more then one template version found, this should never happens&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># if the template is not found, try to add the repo using the info of the service template uid</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">tmpl_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="n">tmpl_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
+                <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+                <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># template of another version found, use newer version to load the service</span>
+                <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tmplClasses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)),</span> <span class="mi">201</span>
+        <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">srv_dir</span><span class="p">)</span>
+
+    <span class="n">loading_failed</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;fail to load </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)))</span>
+            <span class="c1"># the service is not going to process its task list until it can</span>
+            <span class="c1"># execute validate() without problem</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
+            <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_try_load_service</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    this method tries to execute `validate` method on the services that failed to load</span>
+<span class="sd">    when the robot started.</span>
+<span class="sd">    Once all failed services are back to normal, this function will exit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">[:]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;try to load </span><span class="si">%s</span><span class="s2"> again&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;loading succeeded for </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+                <span class="c1"># validate passed, service is healthy again</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
+                <span class="n">services</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;loading failed again for </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># fixme: why 10 ? why not?</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1132,31 +1161,7 @@ table {
   <section id="section-items">
     <h2 class="section-title" id="header-variables">Module variables</h2>
       <div class="item">
-      <p id="zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema" class="name">var <span class="ident">TaskCreate_schema</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema_resolver" class="name">var <span class="ident">TaskCreate_schema_resolver</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema_validator" class="name">var <span class="ident">TaskCreate_schema_validator</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.server.handlers.AddTaskToListHandler.dir_path" class="name">var <span class="ident">dir_path</span></p>
+      <p id="zerorobot.robot.loader.logger" class="name">var <span class="ident">logger</span></p>
       
   
   <div class="source_cont">
@@ -1167,44 +1172,60 @@ table {
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler">
-    <p>def <span class="ident">AddTaskToListHandler</span>(</p><p>*args, **kwargs)</p>
+    <div class="name def" id="zerorobot.robot.loader.load_services">
+    <p>def <span class="ident">load_services</span>(</p><p>data_dir)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Add a task to the task list
-It is handler for POST /services/<service_guid>/task_list</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@auth.service.login_required</span>
-<span class="k">def</span> <span class="nf">AddTaskToListHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Add a task to the task list</span>
-<span class="sd">    It is handler for POST /services/&lt;service_guid&gt;/task_list</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">TaskCreate_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)),</span> <span class="mi">400</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.loader.load_services', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.loader.load_services" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load_services</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">),</span> <span class="mi">404</span>
+    <span class="k">for</span> <span class="n">srv_dir</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listDirsInDir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="n">info_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">info_path</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">info_path</span><span class="p">)</span>
 
-    <span class="n">args</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">],</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">ActionNotFoundError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;action &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]),</span> <span class="mi">400</span>
-    <span class="k">except</span> <span class="n">BadActionArgumentError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;the argument passed in the requests, doesn&#39;t match the signature of the action&quot;</span><span class="p">),</span> <span class="mi">400</span>
+        <span class="n">tmpl_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmpl_uid</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">tcol</span><span class="o">.</span><span class="n">TemplateNotFoundError</span><span class="p">:</span>
+            <span class="c1"># template of the service not found, could be we have the template but not the same version</span>
+            <span class="c1"># try to get the template without specifiying version</span>
+            <span class="n">tmplClasses</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="o">=</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmplClasses</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;more then one template version found, this should never happens&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># if the template is not found, try to add the repo using the info of the service template uid</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">tmpl_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="n">tmpl_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
+                <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+                <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># template of another version found, use newer version to load the service</span>
+                <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tmplClasses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)),</span> <span class="mi">201</span>
+        <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">srv_dir</span><span class="p">)</span>
+
+    <span class="n">loading_failed</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;fail to load </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)))</span>
+            <span class="c1"># the service is not going to process its task list until it can</span>
+            <span class="c1"># execute validate() without problem</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
+            <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>
 </pre></div>
 
   </div>

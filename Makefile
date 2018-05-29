@@ -33,10 +33,8 @@ test: clean
 test-ui: clean
 	pytest --cov=./ --cov-report=html tests -v
 
-# usage: make release version=0.5.0 js=development
+# usage: make release version=0.5.0
 release:
-	git checkout -b $(version)
-	./utils/scripts/release.sh $(version) $(js)
 	git commit -a -m "release  v$(version)"
 	git tag -s v$(version) -m "Release v$(version)"
 	git push origin $(version)

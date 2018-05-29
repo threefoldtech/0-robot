@@ -1044,6 +1044,7 @@ table {
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
+    <li class="mono"><a href="#zerorobot.cli.blueprint.print_services">print_services</a></li>
     <li class="mono"><a href="#zerorobot.cli.blueprint.print_tasks">print_tasks</a></li>
   </ul>
 
@@ -1097,10 +1098,22 @@ table {
     <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="n">content</span><span class="p">}</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">tasks</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">blueprints</span><span class="o">.</span><span class="n">ExecuteBlueprint</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">response</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">blueprints</span><span class="o">.</span><span class="n">ExecuteBlueprint</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># save secret of the service inside config manager</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">services</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">secret</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;secrets_&#39;</span><span class="p">]:</span>
+                <span class="n">secrets</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;secrets_&#39;</span><span class="p">]</span>
+                <span class="n">secrets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">secret</span><span class="p">)</span>
+        <span class="c1"># force re-creation of the connection with new secret added in the Authorization header</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="bp">None</span>
+
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;blueprint executed&quot;</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;list of tasks created with this blueprint:&quot;</span><span class="p">)</span>
-        <span class="n">print_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;list of services created:&#39;</span><span class="p">)</span>
+        <span class="n">print_services</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">services</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;list of tasks created:&quot;</span><span class="p">)</span>
+        <span class="n">print_tasks</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;error during execution of the blueprint: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
@@ -1117,6 +1130,15 @@ table {
             <span class="s1">&#39;task uid&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
         <span class="p">})</span>
     <span class="k">print</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">to_print</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">print_services</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{template} - {guid} - {name}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">template</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">template</span>
+        <span class="p">))</span>
 </pre></div>
 
   </div>
@@ -1126,6 +1148,32 @@ table {
   <section id="section-items">
 
     <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.cli.blueprint.print_services">
+    <p>def <span class="ident">print_services</span>(</p><p>services)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.blueprint.print_services', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.blueprint.print_services" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">print_services</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{template} - {guid} - {name}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">template</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">template</span>
+        <span class="p">))</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
       
   <div class="item">
     <div class="name def" id="zerorobot.cli.blueprint.print_tasks">
