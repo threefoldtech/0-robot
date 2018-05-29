@@ -18,7 +18,7 @@ if ! grep -q ^en_US /etc/locale.gen; then
 fi
 
 # install jumpscale
-export BRANCH="v9.3.1-rc3"
+export BRANCH="development"
 
 for target in /usr/local /opt /opt/cfg /opt/code/github/jumpscale /opt/code/github/zero-os /opt/var/capnp /opt/var/log $HOME/js9host/cfg; do
     mkdir -p $target
@@ -49,6 +49,7 @@ cp -r /0-robot /opt/code/github/zero-os
 pushd /opt/code/github/zero-os/0-robot
 pip3 install -e .
 cp utils/scripts/autobuild/startup.toml /.startup.toml
+cp utils/scripts/autobuild/startup.py /.startup.py
 popd
 
 tar -cpzf "/tmp/archives/0-robot-autostart.tar.gz" --exclude tmp --exclude dev --exclude sys --exclude proc  /

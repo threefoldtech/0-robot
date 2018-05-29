@@ -9,7 +9,7 @@ from zerorobot.server.handlers.views import service_view
 from zerorobot.server import auth
 
 
-@auth.admin.login_required
+@auth.all.login_required
 def listServicesHandler():
     '''
     List all the services known by the ZeroRobot.
@@ -22,16 +22,16 @@ def listServicesHandler():
             kwargs[x] = val
 
     allowed_services = extract_guid_from_headers(request.headers)
-    services = [service_view(s) for s in scol.find(**kwargs) if s.guid in allowed_services]
+    services = [service_view(s) for s in scol.find(**kwargs) if s.guid in allowed_services or scol.is_service_public(s.guid) is True]
     return json.dumps(services), 200, {"Content-type": 'application/json'}
 
 
 def extract_guid_from_headers(headers):
-    if 'Zrobot' not in request.headers:
+    if 'ZrobotSecret' not in request.headers:
         return []
 
     services_guids = []
-    ss = headers['Zrobot'].split(None, 1)
+    ss = headers['ZrobotSecret'].split(None, 1)
     if len(ss) != 2:
         return []
 
