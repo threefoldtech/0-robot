@@ -37,7 +37,6 @@ test-ui: clean
 release:
 	git commit -a -m "release  v$(version)"
 	git tag -s v$(version) -m "Release v$(version)"
-	git push origin $(version)
 	git push origin v$(version)
 
 clean:
