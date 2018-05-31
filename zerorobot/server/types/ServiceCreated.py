@@ -42,7 +42,7 @@ class ServiceCreated(object):
         data_types = [string_types]
         self.name = client_support.set_property('name', data, data_types, False, [], False, True, class_name)
         data_types = [bool]
-        self.public = client_support.set_property('public', data, data_types, False, [], False, True, class_name)
+        self.public = client_support.set_property('public', data, data_types, False, [], False, False, class_name)
         data_types = [string_types]
         self.secret = client_support.set_property('secret', data, data_types, False, [], False, True, class_name)
         data_types = [ServiceState]

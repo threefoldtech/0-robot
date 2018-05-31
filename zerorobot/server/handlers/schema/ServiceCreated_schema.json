@@ -9,7 +9,10 @@
 			"type": "string"
 		},
 		"public": {
-			"type": "boolean"
+			"type": [
+				"boolean",
+				"null"
+			]
 		},
 		"secret": {
 			"type": "string"
@@ -31,7 +34,6 @@
 		"secret",
 		"guid",
 		"name",
-		"public",
 		"state",
 		"template",
 		"version"
