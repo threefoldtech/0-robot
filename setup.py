@@ -46,8 +46,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'JumpScale9>=v9.3.1-rc3 ',
-        'JumpScale9Lib>=v9.3.1-rc3',
+        'JumpScale9>=v9.3.1',
+        'JumpScale9Lib>=v9.3.1',
         'gevent>=1.2.2',
         'Flask>=0.12.2',
         'Flask-Inputs>=0.2.0',
