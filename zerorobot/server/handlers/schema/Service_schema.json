@@ -9,7 +9,10 @@
 			"type": "string"
 		},
 		"public": {
-			"type": "boolean"
+			"type": [
+				"boolean",
+				"null"
+			]
 		},
 		"state": {
 			"type": "array",
@@ -27,7 +30,6 @@
 	"required": [
 		"guid",
 		"name",
-		"public",
 		"state",
 		"template",
 		"version"

@@ -41,7 +41,7 @@ class Service(object):
         data_types = [string_types]
         self.name = client_support.set_property('name', data, data_types, False, [], False, True, class_name)
         data_types = [bool]
-        self.public = client_support.set_property('public', data, data_types, False, [], False, True, class_name)
+        self.public = client_support.set_property('public', data, data_types, False, [], False, False, class_name)
         data_types = [ServiceState]
         self.state = client_support.set_property('state', data, data_types, False, [], True, True, class_name)
         data_types = [string_types]
