@@ -44,7 +44,7 @@ def init(path=None, key=None):
             key = tmp
         else:
             # no key configured, generate a new one
-            key = '/root/.ssh/%s' % j.data.idgenerator.generateXCharID(8)
+            key = os.path.expanduser(os.path.join('~/.ssh',  j.data.idgenerator.generateXCharID(8)))
             j.sal.ubuntu.sshkeys_generate(path=key)
     else:
         # key is specified, ensure it actually exists
@@ -73,7 +73,7 @@ def _is_key_configured():
     if myconfig:
         key_name = myconfig.get('sshkeyname')
         if key_name:
-            key_path = os.path.join(j.dirs.HOMEDIR,'.ssh', key_name)
+            key_path = os.path.expanduser(os.path.join('~/.ssh', key_name))
             if os.path.exists(key_path):
                 key = key_path
     return key
