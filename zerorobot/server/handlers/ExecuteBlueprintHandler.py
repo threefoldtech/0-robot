@@ -46,7 +46,7 @@ def ExecuteBlueprintHandler():
 
     services_created, err_code, err_msg = instantiate_services(services)
     if err_code or err_msg:
-        return jsonify(code=err_code, msg=err_msg), err_code
+        return jsonify(code=err_code, message=err_msg), err_code
 
     services_2b_schedules = _find_services_to_be_scheduled(actions)
     allowed_services = _extract_user_secrets(request) + [s['guid'] for s in services_created]
@@ -101,9 +101,9 @@ def instantiate_services(services):
             err_code = 400
             err_msg = err.args[0]
             break
-        except:
+        except Exception as err:
             err_code = 500
-            err_msg = 'unexpected error'
+            err_msg = str(err)
             break
 
     if err_code or err_msg:

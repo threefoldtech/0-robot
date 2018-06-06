@@ -137,8 +137,8 @@ class TestBlueprintExecution(unittest.TestCase):
         ]
 
         service_created, err_code, err_msg = instantiate_services(services)
-        assert err_code is not None
-        assert err_msg is not None
+        assert err_code == 500
+        assert err_msg == 'required need to be specified in the data'
         assert len(service_created) == 1
 
         assert len(scol.list_services()) == 0, "service created during a failed blueprint, should be deleted"
