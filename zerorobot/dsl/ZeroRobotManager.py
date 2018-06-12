@@ -122,7 +122,7 @@ class ServicesMgr:
         if i > 1:
             raise TooManyResults("%d services found" % i)
         elif i <= 0:
-            raise ServiceNotFoundError()
+            raise ServiceNotFoundError("service not found: query was: %s" % str(kwargs))
         return results[0]
 
     def create(self, template_uid, service_name=None, data=None, public=False):
