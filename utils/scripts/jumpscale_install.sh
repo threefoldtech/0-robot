@@ -3,7 +3,7 @@ set -e
 
 # settings
 
-export BRANCH="v9.4.0-rc3"
+export BRANCH="v9.4.0-rc4"
 
 for target in /usr/local /opt /opt/cfg /opt/code/github/jumpscale /opt/var/capnp /opt/var/log $HOME/js9host/cfg; do
     mkdir -p $target
