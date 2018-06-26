@@ -26,7 +26,7 @@ class FakeService:
 class TestTaskList(unittest.TestCase):
 
     def setUp(self):
-        config.DATA_DIR = tempfile.mkdtemp(prefix='0robottest')
+        config.data_repo = config.DataRepo(tempfile.mkdtemp(prefix='0robottest'))
         scol.drop_all()
         tmpl = self._load_template('node')
         s = tmpl(name='test')
@@ -38,8 +38,8 @@ class TestTaskList(unittest.TestCase):
         try:
             self.tl._done.close()
         finally:
-            if os.path.exists(config.DATA_DIR):
-                shutil.rmtree(config.DATA_DIR)
+            if os.path.exists(config.data_repo.path):
+                shutil.rmtree(config.data_repo.path)
 
     def _load_template(self, name):
         """

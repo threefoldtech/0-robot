@@ -1,11 +1,12 @@
-from gevent import monkey
 # need to patch sockets to make requests async
+from gevent import monkey
 monkey.patch_all(subprocess=False)
 
 import os
 import shutil
 import unittest
 import uuid
+
 
 from js9 import j
 from JumpScale9.errorhandling.ErrorConditionObject import ErrorConditionObject
@@ -22,22 +23,21 @@ class TestServiceProxy(unittest.TestCase):
 
     def setUp(self):
         # make sure this test instance client exists
-        config.DATA_DIR = None
         j.clients.zrobot.get('test', {'url': 'http://localhost:6600'})
         self.cl = ZeroRobotManager('test')
         self.robot = Robot()
         self.robot.set_data_repo(j.sal.fs.getTmpDirPath())
         self.robot.add_template_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
+        if os.path.exists(config.data_repo.path):
+            shutil.rmtree(config.data_repo.path)
         # make sure we don't have any service loaded
         scol.drop_all()
         self.robot.start(listen='127.0.0.1:6600', block=False, testing=True)
 
     def tearDown(self):
         self.robot.stop()
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
+        if os.path.exists(config.data_repo.path):
+            shutil.rmtree(config.data_repo.path)
         j.clients.zrobot.delete('test')
 
     def _create_proxy(self, public=False):

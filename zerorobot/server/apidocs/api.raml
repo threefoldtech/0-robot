@@ -197,6 +197,11 @@ types:
       public:
         type: boolean
         required: false
+      data:
+        type: object
+        required: false
+        description:
+          When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates
     example:
       guid: 7040fda3-08e1-4109-829c-925a907809f9
       template: github.com/jumpscale/0-robot/node/0.0.1
@@ -363,6 +368,108 @@ types:
   ServiceFilter:
     description: type used in the query parameters of the ListService method
     properties:
+
+  Repository:
+    description: description of a configuration repository. Can be for 0-robot data repository or jumpscale configuration repository
+    properties:
+      url:
+        type: string
+      last_pushed:
+        type: datetime
+        required: false
+
+  RobotInfo:
+    properties:
+      repositories:
+        type: object
+        properties:
+          config: Repository
+          data: Repository
+      type:
+        enum: [ node, digitalme ]
+        required: false
+
+  Metrics:
+    description: simple metrics of the robot
+    properties:
+      cpu:
+        type: object
+        properties:
+          user: number
+          nice: number
+          system: number
+          idle: number
+          iowait: number
+          irq: number
+          softirq: number
+      memory:
+        type: object
+        properties:
+          total: number
+          active: number
+          free: number
+          cached: number
+          swap_total: number
+          swap_free: number
+      nr_services:
+        type: integer
+
+  WebHook:
+    description: information about a web hook
+    properties:
+      id:
+        type: string
+        required: false
+      kind:
+        enum: [ eco ]
+        required: true
+      url:
+        type: string
+        required: true
+
+/robot:
+  description: This endpoint expose different information about the robot health and status
+  /info:
+    get:
+      displayName: GetRobotInfo
+      responses:
+        200:
+          body:
+            type: RobotInfo
+  /metrics:
+    get:
+      displayName: GetMetrics
+      responses:
+        200:
+          body:
+            type: Metrics
+
+  /webhooks:
+    description: Allow to managed web hook where the Error condition happening in the task are pushed
+    get:
+      description: List all configured web hooks
+      displayName: ListWebHooks
+      responses:
+        200:
+          body:
+            type: WebHook[]
+    post:
+      description: Add a new web hook configuration
+      displayName: AddWebHook
+      body:
+        type: WebHook
+      responses:
+        201:
+          description: web hook created
+          body:
+            type: WebHook
+    /{id}:
+      delete:
+        description: delete a web hook configuration
+        displayName: DeleteWebHook
+        responses:
+          204:
+            description: web hook deleted
 
 
 /blueprints:
@@ -560,3 +667,12 @@ types:
               description: Not task found in the task list with this guid
               body:
                 type: Error
+    /logs:
+      get:
+        securedBy: [zrobot]
+        description: returns the logs of the services tasks
+        displayName: GetLogs
+        responses:
+          200:
+            body:
+              type: string

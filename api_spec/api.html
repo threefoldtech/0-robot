@@ -209,6 +209,1762 @@
           
             <div class="panel panel-default">
               <div class="panel-heading">
+                <h3 id="robot" class="panel-title">/robot</h3>
+              </div>
+
+              <div class="panel-body">
+                
+                  <div class="top-resource-description">
+<p>This endpoint expose different information about the robot health and status</p>
+
+                  </div>
+                
+
+                <div class="panel-group">
+                  
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_robot_info">
+          <span class="parent">/robot</span>/info
+        </a>
+
+        <span class="methods">
+          
+            <a href="#robot_info_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_robot_info" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#robot_info_get'" class="list-group-item">
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+              <div class="method_description">
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="robot_info_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                <span class="parent">/robot</span>/info
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b></b>
+                      
+                      
+                    </div>
+                  
+                
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+
+                
+                  <li class="active">
+                    <a href="#robot_info_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#robot_info_get_securedby" data-toggle="tab">Security</a>
+                  </li>
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+
+                
+                  <div class="tab-pane active" id="robot_info_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>repositories</strong>:
+
+    
+      <em>required (object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>config</strong>:
+
+    
+      <em>required (object)
+      </em>
+    
+  
+
+<p>description of a configuration repository. Can be for 0-robot data repository or jumpscale configuration repository</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>url</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>last_pushed</strong>:
+
+    
+      <em>(datetime)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>data</strong>:
+
+    
+      <em>required (object)
+      </em>
+    
+  
+
+<p>description of a configuration repository. Can be for 0-robot data repository or jumpscale configuration repository</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>url</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>last_pushed</strong>:
+
+    
+      <em>(datetime)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>type</strong>:
+
+    
+      <em>(one of node, digitalme)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="robot_info_get_securedby">
+                    
+                      
+                      <h1>Secured by </h1>
+
+                      
+
+                      
+
+                      
+
+                    
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_robot_metrics">
+          <span class="parent">/robot</span>/metrics
+        </a>
+
+        <span class="methods">
+          
+            <a href="#robot_metrics_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_robot_metrics" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#robot_metrics_get'" class="list-group-item">
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+              <div class="method_description">
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="robot_metrics_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                <span class="parent">/robot</span>/metrics
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b></b>
+                      
+                      
+                    </div>
+                  
+                
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+
+                
+                  <li class="active">
+                    <a href="#robot_metrics_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#robot_metrics_get_securedby" data-toggle="tab">Security</a>
+                  </li>
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+
+                
+                  <div class="tab-pane active" id="robot_metrics_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>cpu</strong>:
+
+    
+      <em>required (object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>user</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>nice</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>system</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>idle</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>iowait</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>irq</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>softirq</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>memory</strong>:
+
+    
+      <em>required (object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>total</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>active</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>free</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>cached</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>swap_total</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>swap_free</strong>:
+
+    
+      <em>required (number)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>nr_services</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="robot_metrics_get_securedby">
+                    
+                      
+                      <h1>Secured by </h1>
+
+                      
+
+                      
+
+                      
+
+                    
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_robot_webhooks">
+          <span class="parent">/robot</span>/webhooks
+        </a>
+
+        <span class="methods">
+          
+            <a href="#robot_webhooks_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+            </a>
+          
+            <a href="#robot_webhooks_post"><!-- modal shown by hashchange event -->
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_robot_webhooks" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+            <div class="resource-description">
+<p>Allow to managed web hook where the Error condition happening in the task are pushed</p>
+
+            </div>
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#robot_webhooks_get'" class="list-group-item">
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+              <div class="method_description">
+<p>List all configured web hooks</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+            <div onclick="window.location.href = '#robot_webhooks_post'" class="list-group-item">
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+              <div class="method_description">
+<p>Add a new web hook configuration</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="robot_webhooks_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                <span class="parent">/robot</span>/webhooks
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>List all configured web hooks</p>
+
+                </div>
+              
+
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b></b>
+                      
+                      
+                    </div>
+                  
+                
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+
+                
+                  <li class="active">
+                    <a href="#robot_webhooks_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#robot_webhooks_get_securedby" data-toggle="tab">Security</a>
+                  </li>
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+
+                
+                  <div class="tab-pane active" id="robot_webhooks_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: array of WebHook</p>
+                              
+                            
+                          
+
+                          
+
+                          
+                            
+
+                            
+                              <p><strong>Items</strong>: WebHook</p>
+
+                              
+                                <div class="items">
+                                  
+                                    <ul>
+                                      
+                                        <li>
+  <strong>id</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>kind</strong>:
+
+    
+      <em>required (eco)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>url</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                    </ul>
+                                  
+
+                                  
+                                  
+                                  
+                                </div>
+                              
+                            
+                          
+
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="robot_webhooks_get_securedby">
+                    
+                      
+                      <h1>Secured by </h1>
+
+                      
+
+                      
+
+                      
+
+                    
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="modal fade" tabindex="0" id="robot_webhooks_post">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                <span class="parent">/robot</span>/webhooks
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Add a new web hook configuration</p>
+
+                </div>
+              
+
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b></b>
+                      
+                      
+                    </div>
+                  
+                
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#robot_webhooks_post_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#robot_webhooks_post_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#robot_webhooks_post_securedby" data-toggle="tab">Security</a>
+                  </li>
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="robot_webhooks_post_request">
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                      <h3>Body</h3>
+                      
+                        <p><strong>Media type</strong>: application/json</p>
+
+                        
+                          
+                            
+                              <p><strong>Type</strong>: object</p>
+                            
+                          
+                        
+
+                        
+
+                        
+
+                        
+                          <strong>Properties</strong>
+                          <ul>
+                            
+                              <li>
+  <strong>id</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                              <li>
+  <strong>kind</strong>:
+
+    
+      <em>required (eco)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                              <li>
+  <strong>url</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                          </ul>
+                        
+
+                        
+                        
+                        
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="robot_webhooks_post_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2>
+<p>web hook created</p>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>id</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>kind</strong>:
+
+    
+      <em>required (eco)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>url</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="robot_webhooks_post_securedby">
+                    
+                      
+                      <h1>Secured by </h1>
+
+                      
+
+                      
+
+                      
+
+                    
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_robot_webhooks__id_">
+          <span class="parent">/robot/webhooks</span>/{id}
+        </a>
+
+        <span class="methods">
+          
+            <a href="#robot_webhooks__id__delete"><!-- modal shown by hashchange event -->
+              <span class="badge badge_delete">delete <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_robot_webhooks__id_" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#robot_webhooks__id__delete'" class="list-group-item">
+              <span class="badge badge_delete">delete <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+              <div class="method_description">
+<p>delete a web hook configuration</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="robot_webhooks__id__delete">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_delete">delete <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                <span class="parent">/robot/webhooks</span>/{id}
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>delete a web hook configuration</p>
+
+                </div>
+              
+
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b></b>
+                      
+                      
+                    </div>
+                  
+                
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#robot_webhooks__id__delete_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#robot_webhooks__id__delete_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#robot_webhooks__id__delete_securedby" data-toggle="tab">Security</a>
+                  </li>
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="robot_webhooks__id__delete_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>id</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="robot_webhooks__id__delete_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/204" target="_blank">204</a></h2>
+<p>web hook deleted</p>
+
+
+                      
+
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="robot_webhooks__id__delete_securedby">
+                    
+                      
+                      <h1>Secured by </h1>
+
+                      
+
+                      
+
+                      
+
+                    
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+
+
+
+
+
+                </div>
+              </div>
+            </div>
+          
+            <div class="panel panel-default">
+              <div class="panel-heading">
                 <h3 id="blueprints" class="panel-title">/blueprints</h3>
               </div>
 
@@ -1743,6 +3499,37 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
   
 
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
   
 
   
@@ -3687,6 +5474,37 @@ Need to be under one of these format</p>
 </li>
 
                                       
+                                        <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
                                     </ul>
                                   
 
@@ -4286,6 +6104,37 @@ Need to be under one of these format</p>
 
                               
                                 <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
   <strong>secret</strong>:
 
     
@@ -4841,6 +6690,37 @@ body:
 
   
 
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
   
 
   
@@ -9291,6 +11171,212 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
 
 
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid__logs">
+          <span class="parent">/services/{service_guid}</span>/logs
+        </a>
+
+        <span class="methods">
+          
+            <a href="#services__service_guid__logs_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_services__service_guid__logs" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#services__service_guid__logs_get'" class="list-group-item">
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+              <div class="method_description">
+<p>returns the logs of the services tasks</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="services__service_guid__logs_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                <span class="parent">/services/{service_guid}</span>/logs
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>returns the logs of the services tasks</p>
+
+                </div>
+              
+
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b></b>
+                      
+                      
+                    </div>
+                  
+                
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services__service_guid__logs_get_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__logs_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__logs_get_securedby" data-toggle="tab">Security</a>
+                  </li>
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services__service_guid__logs_get_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__logs_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: string</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__logs_get_securedby">
+                    
+                      
+                      <h1>Secured by </h1>
+
+                      
+
+                      
+
+                      
+
+                    
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+
+
 
 
 
@@ -9303,6 +11389,8 @@ a task that failed to execute and/or is being retried is in state error.</p>
         <div class="col-md-3">
           <div id="sidebar" class="hidden-print affix" role="complementary">
             <ul class="nav nav-pills nav-stacked">
+              
+                <li><a href="#robot">/robot</a></li>
               
                 <li><a href="#blueprints">/blueprints</a></li>
               

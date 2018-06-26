@@ -2,6 +2,11 @@
 
 
 from .ExecuteBlueprintHandler import ExecuteBlueprintHandler
+from .ListWebHooksHandler import ListWebHooksHandler
+from .AddWebHookHandler import AddWebHookHandler
+from .DeleteWebHookHandler import DeleteWebHookHandler
+from .GetRobotInfoHandler import GetRobotInfoHandler
+from .GetMetricsHandler import GetMetricsHandler
 from .listServicesHandler import listServicesHandler
 from .createServiceHandler import createServiceHandler
 from .GetServiceHandler import GetServiceHandler
@@ -10,6 +15,7 @@ from .ListActionsHandler import ListActionsHandler
 from .getTaskListHandler import getTaskListHandler
 from .AddTaskToListHandler import AddTaskToListHandler
 from .GetTaskHandler import GetTaskHandler
+from .GetLogsHandler import GetLogsHandler
 from .ListTemplatesHandler import ListTemplatesHandler
 from .AddTemplateRepoHandler import AddTemplateRepoHandler
 from .CheckoutVersionTemplateRepoHandler import CheckoutVersionTemplateRepoHandler

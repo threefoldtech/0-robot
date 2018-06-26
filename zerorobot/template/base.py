@@ -17,9 +17,10 @@ import gevent
 
 from js9 import j
 from zerorobot import service_collection as scol
-from zerorobot import config
+from zerorobot import webhooks
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.prometheus.robot import task_latency
+from zerorobot import config
 from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
                             Task, TaskList)
 from zerorobot.task.utils import wait_all
@@ -124,7 +125,7 @@ class TemplateBase:
         self._public = False
         # location on the filesystem where to store the service
         self._path = os.path.join(
-            config.DATA_DIR,
+            config.data_repo.path,
             self.template_uid.host,
             self.template_uid.account,
             self.template_uid.repo,
@@ -197,6 +198,7 @@ class TemplateBase:
         while True:
             try:
                 task = self.task_list.get()
+                task.service = self
                 try:
                     task.execute()
                 finally:

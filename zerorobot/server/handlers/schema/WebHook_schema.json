@@ -1,0 +1,25 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"id": {
+			"type": [
+				"string",
+				"null"
+			]
+		},
+		"kind": {
+			"type": "string",
+			"enum": [
+				"eco"
+			]
+		},
+		"url": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"kind",
+		"url"
+	]
+}
