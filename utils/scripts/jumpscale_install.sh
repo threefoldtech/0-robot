@@ -3,7 +3,9 @@ set -e
 
 # settings
 
-export BRANCH="v9.4.0-rc4"
+export CORE_REVISION="c76a0f192050b3d518fb28a71848a1421472755d"
+export LIB_REVISION="e10809b7eb6d2d21c516dcc979ae742a546db299"
+export PREFAB_REVISION="8cd3d2a7a8e15e8b9aa3ec7b3d6965e13b85e060"
 
 for target in /usr/local /opt /opt/cfg /opt/code/github/jumpscale /opt/var/capnp /opt/var/log $HOME/js9host/cfg; do
     mkdir -p $target
@@ -14,12 +16,20 @@ done
 pushd /opt/code/github/jumpscale
 
 # cloning source code
-for target in core9 lib9; do
-    git clone https://github.com/jumpscale/${target}
-    pushd ${target}
-    git checkout $BRANCH
-    popd
-done
+git clone https://github.com/jumpscale/core9
+pushd core9
+git checkout $CORE_REVISION
+popd
+
+git clone https://github.com/jumpscale/lib9
+pushd lib9
+git checkout $LIB_REVISION
+popd
+
+git clone https://github.com/jumpscale/prefab9
+pushd prefab9
+git checkout $PREFAB_REVISION
+popd
 
 # installing core and plugins
 for target in core9 lib9; do

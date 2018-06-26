@@ -37,9 +37,9 @@ class develop(_develop):
 
 setup(
     name='ZeroRobot',
-    version='0.7.2',
+    version='0.8.0',
     description='Automation framework for cloud workloads',
-    url='https://github.com/Jumpscale/zerorobot',
+    url='https://github.com/zero-os/0-robot',
     author='Christophe de Carvalho',
     author_email='christophe@gig.tech',
     license='Apache',
