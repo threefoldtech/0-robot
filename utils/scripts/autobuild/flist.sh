@@ -19,9 +19,9 @@ if ! grep -q ^en_US /etc/locale.gen; then
 fi
 
 # install jumpscale
-export CORE_REVISION="c76a0f192050b3d518fb28a71848a1421472755d"
-export LIB_REVISION="e10809b7eb6d2d21c516dcc979ae742a546db299"
-export PREFAB_REVISION="8cd3d2a7a8e15e8b9aa3ec7b3d6965e13b85e060"
+export CORE_REVISION="development"
+export LIB_REVISION="development"
+export PREFAB_REVISION="development"
 
 for target in /usr/local /opt /opt/cfg /opt/code/github/jumpscale /opt/code/github/zero-os /opt/var/capnp /opt/var/log $HOME/js9host/cfg; do
     mkdir -p $target
