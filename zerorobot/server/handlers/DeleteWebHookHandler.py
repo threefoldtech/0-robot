@@ -3,7 +3,10 @@
 from flask import jsonify, request
 from zerorobot import config
 
+from zerorobot.server import auth
 
+
+@auth.admin.login_required
 def DeleteWebHookHandler(id):
 
     webhooks = config.webhooks

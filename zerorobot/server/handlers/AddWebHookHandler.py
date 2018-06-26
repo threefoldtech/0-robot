@@ -9,6 +9,7 @@ from jsonschema import Draft4Validator
 import os
 
 from zerorobot import config
+from zerorobot.server import auth
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 WebHook_schema = JSON.load(open(dir_path + '/schema/WebHook_schema.json'))
@@ -16,6 +17,7 @@ WebHook_schema_resolver = jsonschema.RefResolver('file://' + dir_path + '/schema
 WebHook_schema_validator = Draft4Validator(WebHook_schema, resolver=WebHook_schema_resolver)
 
 
+@auth.admin.login_required
 def AddWebHookHandler():
 
     inputs = request.get_json()
