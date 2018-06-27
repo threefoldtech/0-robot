@@ -58,3 +58,7 @@ class TestWebHooks(unittest.TestCase):
                 if wha.id == whb.id:
                     assert wha.url == whb.url
                     assert wha.kind == whb.kind
+
+    def test_load_empty_file(self):
+        os.truncate(self.storage._path, 0)
+        self.storage.load()
