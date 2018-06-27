@@ -45,7 +45,7 @@ class Storage:
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
         if not os.path.exists(self._path):
-            j.data.serializer.yaml.dump(self._path, self.webhooks)
+            j.data.serializer.yaml.dump(self._path, [])
 
     def add(self, url, type):
         webhook = WebHook(url, type)
@@ -75,7 +75,7 @@ class Storage:
 
     def load(self):
         self.webhooks = {}
-        data = j.data.serializer.yaml.load(self._path)
+        data = j.data.serializer.yaml.load(self._path) or []
         for item in data:
             wb = WebHook(item['url'], Kind(item['kind']))
             self.webhooks[wb.id] = wb
