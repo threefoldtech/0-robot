@@ -38,9 +38,9 @@ class AutoPusher:
         meant to be run as gevent greenlet/coroutine
         """
         while True:
-            self.logger.debug("waiting interval")
-            # gevent.sleep(seconds=self.interval*60)
-            gevent.sleep(seconds=self.interval)
+            sleep = self.interval * 60
+            self.logger.debug("waiting interval (%s)" % sleep)
+            gevent.sleep(seconds=sleep)
             if self.logger is not None:
                 self.logger.debug("saving services and pushing data repo")
             _load_ssh_key()
