@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export CORE_REVISION="a2a65b3caac2c919bfeeb3c18dc53d370bc8d0c1"
+export LIB_REVISION="a7bb5e3fdc3d92d338ce9024ddb260fbb163ce5c"
+export PREFAB_REVISION="6021f7536cd10f4d05a5cb9fb00751ade308f2ad"
