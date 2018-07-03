@@ -33,7 +33,7 @@ def verify(service_guid, token):
         if claims == expected:
             return True
     except Exception as err:
-        logger.error('error decoding user secret: %s', str(err))
+        logger.debug('error decoding user secret: %s', str(err))
 
     return False
 
