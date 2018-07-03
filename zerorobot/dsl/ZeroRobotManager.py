@@ -58,10 +58,6 @@ class ServicesMgr:
             srv._data = data.as_dict()
         return srv
 
-    def _get(self, guid=None):
-        service, _ = self._client.api.services.GetService(guid)
-        return self._instantiate(service)
-
     @property
     def names(self):
         """

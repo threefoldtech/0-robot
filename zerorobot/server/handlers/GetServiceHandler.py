@@ -10,7 +10,7 @@ from zerorobot.server.handlers.views import service_view
 from zerorobot.server import auth
 
 
-@auth.all.login_required
+@auth.service.login_required
 def GetServiceHandler(service_guid):
     '''
     Get the detail of a service

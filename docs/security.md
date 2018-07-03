@@ -45,7 +45,7 @@ ZrobotSecret: Bearer <token> <token> <token> ...
 |add task to task list  |service|
 |delete service         |admin, user, service|
 |execute blueprint      |admin, user, service|
-|get service            |admin, user, service|
+|get service            |service|
 |get task               |service|
 |list tasks             |service|
 |list actions           |service|
