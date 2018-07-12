@@ -87,7 +87,7 @@ class TestServiceTemplate(unittest.TestCase):
             self.assertTrue(k in service_info, "%s should be present in service.yaml" % k)
 
         srv.delete()
-        self.assertFalse(os.path.exists(srv_dir), "directory of the saved service not should exists anymore")
+        self.assertFalse(os.path.exists(os.path.dirname(srv_dir)), "directory of the saved service not should exists anymore")
 
         log_file_pattern = os.path.join(j.dirs.LOGDIR, 'zrobot', srv.guid) + '*'
         log_files = glob.glob(log_file_pattern)

@@ -315,7 +315,7 @@ class TemplateBase:
 
         # remove data from disk
         if self._path and os.path.exists(self._path):
-            shutil.rmtree(self._path)
+            shutil.rmtree(os.path.dirname(self._path))
 
         # remove logs from disk
         log_file = os.path.join(j.dirs.LOGDIR, 'zrobot', self.guid)
