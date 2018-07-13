@@ -33,7 +33,7 @@ class TestZRobotClient(unittest.TestCase):
         self.robot.start(listen='127.0.0.1:6600', block=False, testing=True)
 
     def tearDown(self):
-        self.robot.stop()
+        self.robot.stop(timeout=1)
         if os.path.exists(config.data_repo.path):
             shutil.rmtree(config.data_repo.path)
         # make sure we don't have any service loaded

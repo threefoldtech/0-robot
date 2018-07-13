@@ -38,7 +38,7 @@ class RobotContext:
         return self.cl
 
     def __exit__(self, type, value, tb):
-        self.robot.stop()
+        self.robot.stop(timeout=1)
         if os.path.exists(config.data_repo.path):
             shutil.rmtree(config.data_repo.path)
         j.clients.zrobot.delete('test')

@@ -37,7 +37,7 @@ class TestRobot(unittest.TestCase):
             robot.set_data_repo(data_dir)
             robot.start(listen="localhost:6600", block=False)
             self.assertEqual(robot.address, ('127.0.0.1', 6600))
-            robot.stop()
+            robot.stop(timeout=1)
         self.assertIsNone(robot.address)
 
     def test_template_url(self):

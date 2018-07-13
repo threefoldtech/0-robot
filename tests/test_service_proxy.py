@@ -35,7 +35,7 @@ class TestServiceProxy(unittest.TestCase):
         self.robot.start(listen='127.0.0.1:6600', block=False, testing=True)
 
     def tearDown(self):
-        self.robot.stop()
+        self.robot.stop(timeout=1)
         if os.path.exists(config.data_repo.path):
             shutil.rmtree(config.data_repo.path)
         j.clients.zrobot.delete('test')
