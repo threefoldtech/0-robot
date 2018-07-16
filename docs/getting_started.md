@@ -73,14 +73,14 @@ URL or absolute path of the configuration repository.
 Absolute path to ssh key to secure configuration data, which is committed and pushed (see auto-push) in the configuration repo. If omitted, the robot will try to use the key configured key in jumpscale if any or will generate a new ssh key.
 - `--debug`:  
 Sets the logger output level to debug
-- `auto-push`:  
+- `--auto-push`:  
 Enables automatic committing and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details
 - `--auto-push-interval`:  
 Define a custom interval in minutes for `auto-push` if enabled (default: 60)
 
 ### example:
 ```bash
-zrobot server start --listen :6601 --template-repo https://github.com/zero-os/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602 --organization myOrg
+zrobot server start --listen :6601 --template-repo https://github.com/zero-os/0-templates.git --data-repo https://github.com/user/zrobot1.git
 ```
 ### Note regarding security:
 0-robot REST API uses different secrets to authenticate the requests. You MUST run the 0-robot API behind HTTPS, failing to do so would allow hackers to gather your secrets and usurp your identity. More detail about the different secrets: [security.md](security.md)
@@ -109,7 +109,7 @@ When the server is started, a greenlet is started that for each interval will co
 
 ### example:
 ```bash
-zrobot server start -D git@github.com:user/zrobot-data.git -C git@github.com:user/zrobot-config.git -T git@github.com:openvcloud/0-templates.git --auto-push --auto-push-interval 120
+zrobot server start --data-repo git@github.com:user/zrobot-data.git --config-repo git@github.com:user/zrobot-config.git --template-repo https://github.com/zero-os/0-templates.git --auto-push --auto-push-interval 120
 ```
 
 This call of zrobot server start would enable auto pushing of the data repository (git@github.com:user/zrobot-data.git) every 120 minutes.
