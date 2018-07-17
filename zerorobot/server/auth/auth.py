@@ -4,8 +4,8 @@ from flask import jsonify, request
 from jose import jwt
 from js9 import j
 from zerorobot import service_collection as scol
-
-from . import user_jwt
+from zerorobot import config
+from . import user_jwt, god_jwt
 from .flask_httpauth import HTTPTokenAuth, MultiAuth
 
 logger = j.logger.get('zrobot')
@@ -29,6 +29,9 @@ all = MultiAuth(admin, user, service)
 
 
 def _verify_token(token, organization):
+    if god_jwt.verify(token):
+        return True
+
     if organization is None:
         return True
 
@@ -67,7 +70,7 @@ def _verify_secret_token(tokens):
         return False
 
     for token in tokens.split(' '):
-        if user_jwt.verify(service_guid, token):
+        if god_jwt.verify(token) or user_jwt.verify(service_guid, token):
             return True
 
     try:

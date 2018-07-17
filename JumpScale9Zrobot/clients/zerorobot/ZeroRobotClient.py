@@ -11,6 +11,7 @@ _template = """
 url = "http://localhost:6600"
 jwt_ = ""
 secrets_ = []
+god_token_ = ""
 """
 
 
@@ -49,11 +50,28 @@ class ZeroRobotClient(JSConfigClientBase):
 
         if self._api is None:
             self._api = Client(base_uri=self.config.data["url"])
-            if self.config.data.get('jwt_'):
+            if self.config.data.get('god_token_'):
+                header = 'Bearer %s' % self.config.data['god_token_']
+                self._api.security_schemes.passthrough_client_user.set_zrobotuser_header(header)
+                self._api.security_schemes.passthrough_client_admin.set_zrobotadmin_header(header)
+
+            elif self.config.data.get('jwt_'):
                 header = 'Bearer %s' % self.config.data['jwt_']
                 self._api.security_schemes.passthrough_client_user.set_zrobotuser_header(header)
                 self._api.security_schemes.passthrough_client_admin.set_zrobotadmin_header(header)
-            if self.config.data.get('secrets_'):
+
+            if self.config.data.get('secrets_') or self.config.data.get('god_token_'):
                 header = 'Bearer %s' % ' '.join(self.config.data['secrets_'])
-                self._api.security_schemes.passthrough_client_service.set_zrobotsecret_header(header)
+                header += ' %s' % self.config.data.get('god_token_')
+                self._api.security_schemes.passthrough_client_service.set_zrobotsecret_header(header.strip())
+
         return self._api
+
+    def god_token_set(self, god_token):
+        """ Add god token of robot  at client config
+
+        Arguments:
+            god_token {sting} -- god token of robot
+        """
+        self.config.data_set('god_token_', god_token)
+        self._api = None  # force reload of the api with new god token header

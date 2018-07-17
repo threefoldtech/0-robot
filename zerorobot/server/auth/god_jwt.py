@@ -1,6 +1,7 @@
 from functools import wraps
 import os
 
+from zerorobot import config
 from jose import jwt
 from js9 import j
 
@@ -8,14 +9,12 @@ logger = j.logger.get('zrobot')
 _token_prefix = "Bearer "
 
 
-def create(claims):
-    """create a JWT with the claims pass as argument
-
-    Arguments:
-        claims {dict} -- dict of claims to include in the JWT
+def create():
+    """create a JWT with the claims
     """
+    claims = {'authentication': 'god_token'}
     key = _get_key()
-    return jwt.encode(claims, key, algorithm='HS256')
+    return jwt.encode(claims, key, algorithm='HS256')  # using HS256 algorithm
 
 
 def decode(token):
@@ -23,29 +22,32 @@ def decode(token):
     return jwt.decode(token, key, algorithms='HS256')
 
 
-def verify(service_guid, token):
-    if not token:
+def verify(token):
+    if not token or not config.god:
         return False
 
-    expected = {'service_guid': service_guid}
+    expected = {'authentication': 'god_token'}
     try:
         claims = decode(token)
         if claims == expected:
             return True
     except Exception as err:
-        logger.debug('error decoding user secret: %s', str(err))
+        logger.error('error decoding god token: %s', str(err))
 
     return False
 
 
-def extract_service_guid(request):
-    if 'ZrobotSecret' not in request.headers:
-        return []
+def check_god_token(request):
+    # if god mode is not enabled on the service, no point going further
+    if not config.god:
+        return False
 
-    services_guids = []
+    if 'ZrobotSecret' not in request.headers:
+        return False
+
     ss = request.headers['ZrobotSecret'].split(' ', 1)
     if len(ss) != 2:
-        return []
+        return False
 
     auth_type = ss[0]
     tokens = ss[1]
@@ -53,15 +55,10 @@ def extract_service_guid(request):
         return []
 
     for token in tokens.split(' '):
-        try:
-            claims = decode(token)
-            guid = claims.get('service_guid')
-            if guid:
-                services_guids.append(guid)
-        except:
-            continue
+        if verify(token):
+            return True
 
-    return services_guids
+    return False
 
 
 def _get_key():

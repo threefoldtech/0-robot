@@ -1,17 +1,17 @@
 # THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.
 
 import os
-
+from flask import request
 from flask import jsonify, request, Response
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import config
+from zerorobot.server import auth
 
 
 def GetLogsHandler(service_guid):
-
-    if config.god is False:
-        return jsonify(code=400, message="god mode is not enable on the 0-robot, logs are not accessible"), 400
+    if not auth.god_jwt.check_god_token(request):
+        return jsonify(code=400, message='god mode is not enabled on the service, you cannot read the logs'), 400
 
     try:
         service = scol.get_by_guid(service_guid)

@@ -1,6 +1,7 @@
+import json
+
 from zerorobot import service_collection as scol
 from zerorobot import config
-import json
 
 
 def service_view(service):
@@ -13,7 +14,6 @@ def service_view(service):
         "actions": [],
         "public": scol.is_service_public(service.guid)
     }
-
     if config.god:
         s['data'] = service.data
     return s
