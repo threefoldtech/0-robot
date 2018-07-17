@@ -24,7 +24,7 @@ def configure_local_client():
     """)
 
 
-def get_admin_organization():
+def get_admin_organization(kernel_args):
     """
     decide which organization to use to protect admin endpoint of the 0-robot API
 
@@ -35,7 +35,6 @@ def get_admin_organization():
     """
 
     org = None
-    kernel_args = read_kernel()
     token = kernel_args.get('farmer_id')
     if token:
         try:
@@ -55,8 +54,7 @@ def get_admin_organization():
     return org
 
 
-def get_user_organization():
-    kernel_args = read_kernel()
+def get_user_organization(kernel_args):
     return kernel_args.get('user_organization')
 
 
@@ -74,19 +72,25 @@ def read_kernel():
         ss = kv.split('=', 1)
         if len(ss) == 2:
             args[ss[0]] = ss[1]
+        elif len(ss) <= 1:
+            args[ss[0]] = None
     return args
 
 
 def start_robot():
+    kernel_args = read_kernel()
     args = ['zrobot', 'server', 'start', '--mode', 'node']
 
-    admin_org = get_admin_organization()
+    admin_org = get_admin_organization(kernel_args)
     if admin_org:
         args.extend(['--admin-organization', admin_org])
 
-    user_org = get_user_organization()
+    user_org = get_user_organization(kernel_args)
     if user_org:
         args.extend(['--user-organization', user_org])
+
+    if 'development' in kernel_args:
+        args.append('--god')
 
     print('starting node robot: %s' ' '.join(args))
 
