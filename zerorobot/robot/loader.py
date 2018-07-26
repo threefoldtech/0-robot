@@ -30,7 +30,7 @@ def load_services(config):
                 # if the template is not found, try to add the repo using the info of the service template uid
                 url = "http://%s/%s/%s" % (tmpl_uid.host, tmpl_uid.account, tmpl_uid.repo)
                 tcol.add_repo(url)
-                tmplClass = tcol.get(service_details['template'])
+                tmplClass = tcol.get(service_details['service']['template'])
             else:
                 # template of another version found, use newer version to load the service
                 tmplClass = tmplClasses[0]
