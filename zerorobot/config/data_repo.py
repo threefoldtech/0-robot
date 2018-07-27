@@ -45,10 +45,9 @@ class DataRepo:
                     path = j.clients.git.pullGitRepo(url)
             except ValueError:
                 # not a zdb url, try absolute path
-                pass
+                path = url
 
             # path is not an URL, we expect an absolute path
-            path = url
             if not os.path.isabs(path):
                 raise ValueError("path value is not valid. Need to be a valid git url or an absolute path on the local filesystem")
 
