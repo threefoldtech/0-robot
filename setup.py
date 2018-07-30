@@ -5,10 +5,10 @@ import os
 
 
 def _post_install(libname, libpath):
-    from js9 import j
+    from jumpscale import j
     # add this plugin to the config
     c = j.core.state.configGet('plugins', defval={})
-    c[libname] = "%s/github/zero-os/0-robot/JumpScale9Zrobot" % j.dirs.CODEDIR
+    c[libname] = "%s/github/threefoldtech/0-robot/JumpscaleZrobot" % j.dirs.CODEDIR
     j.core.state.configSet('plugins', c)
     j.tools.jsloader.generate()
 
@@ -46,8 +46,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'JumpScale9>=v9.3.1',
-        'JumpScale9Lib>=v9.3.1',
+        'Jumpscale>=v9.3.1',
+        'JumpscaleLib>=v9.3.1',
         'gevent>=1.2.2',
         'Flask>=0.12.2',
         'Flask-Inputs>=0.2.0',

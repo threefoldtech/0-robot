@@ -6,7 +6,7 @@ import os
 import tempfile
 import unittest
 
-from js9 import j
+from jumpscale import j
 
 from zerorobot.robot import Robot
 from zerorobot import config
@@ -43,14 +43,14 @@ class TestRobot(unittest.TestCase):
     def test_template_url(self):
         tt = (
             {
-                'url': 'http://github.com/zero-os/0-templates',
-                'repo': 'http://github.com/zero-os/0-templates',
+                'url': 'http://github.com/threefoldtech/0-templates',
+                'repo': 'http://github.com/threefoldtech/0-templates',
                 'branch': None,
                 'exception': None,
             },
             {
-                'url': 'http://github.com/zero-os/0-templates#anotherbranch',
-                'repo': 'http://github.com/zero-os/0-templates',
+                'url': 'http://github.com/threefoldtech/0-templates#anotherbranch',
+                'repo': 'http://github.com/threefoldtech/0-templates',
                 'branch': 'anotherbranch',
                 'exception': None,
             },

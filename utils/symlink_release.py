@@ -1,4 +1,4 @@
-from js9 import j
+from jumpscale import j
 
 FLIST_HASH = '679d829a0d'
 VERSION = '0.7.2'

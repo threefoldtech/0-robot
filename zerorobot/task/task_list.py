@@ -7,7 +7,7 @@ import requests
 from gevent.lock import Semaphore
 from gevent.queue import PriorityQueue
 
-from js9 import j
+from jumpscale import j
 from zerorobot.prometheus.robot import nr_task_waiting
 
 from . import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,

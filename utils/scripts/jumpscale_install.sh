@@ -7,32 +7,32 @@ export CORE_REVISION="development"
 export LIB_REVISION="development"
 export PREFAB_REVISION="development"
 
-for target in /usr/local /opt /opt/cfg /opt/code/github/jumpscale /opt/var/capnp /opt/var/log $HOME/js9host/cfg; do
+for target in /usr/local /opt /opt/cfg /opt/code/github/threefoldtech /opt/var/capnp /opt/var/log $HOME/js9host/cfg; do
     mkdir -p $target
     sudo chown -R $USER:$USER $target
 done
 
 
-pushd /opt/code/github/jumpscale
+pushd /opt/code/github/threefoldtech
 
 # cloning source code
-git clone https://github.com/jumpscale/core9
-pushd core9
+git clone https://github.com/threefoldtech/jumpscale_core
+pushd jumpscale_core
 git checkout $CORE_REVISION
 popd
 
-git clone https://github.com/jumpscale/lib9
-pushd lib9
+git clone https://github.com/threefoldtech/jumpscale_lib
+pushd jumpscale_lib
 git checkout $LIB_REVISION
 popd
 
-git clone https://github.com/jumpscale/prefab9
-pushd prefab9
+git clone https://github.com/threefoldtech/jumpscale_prefab
+pushd jumpscale_prefab
 git checkout $PREFAB_REVISION
 popd
 
 # installing core and plugins
-for target in core9 lib9; do
+for target in jumpscale_core jumpscale_lib jumpscale_prefab; do
     pushd ${target}
     pip3 install .
     popd

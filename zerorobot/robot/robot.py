@@ -9,7 +9,7 @@ from gevent import GreenletExit
 from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
 
-from js9 import j
+from jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import config, webhooks
