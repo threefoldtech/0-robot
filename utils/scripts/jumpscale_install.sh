@@ -7,7 +7,7 @@ export CORE_REVISION="development"
 export LIB_REVISION="development"
 export PREFAB_REVISION="development"
 
-for target in /usr/local /opt /opt/cfg /opt/code/github/threefoldtech /opt/var/capnp /opt/var/log $HOME/js9host/cfg; do
+for target in /usr/local /opt /opt/cfg /opt/code/github/threefoldtech /opt/var/capnp /opt/var/log $HOME/jumpscale/cfg; do
     mkdir -p $target
     sudo chown -R $USER:$USER $target
 done
@@ -50,4 +50,4 @@ ssh-add ~/.ssh/id_rsa
 mkdir -p /opt/code/config_test
 git init /opt/code/config_test
 touch /opt/code/config_test/.jsconfig
-js9_config init --silent --path /opt/code/config_test/ --key ~/.ssh/id_rsa
+js_config init --silent --path /opt/code/config_test/ --key ~/.ssh/id_rsa
