@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.cli.task API documentation</title>
+    <title>zerorobot.storage.base API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1041,15 +1041,22 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
-    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-      
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.storage.base.ServiceStorageBase">ServiceStorageBase</a></span>
+        
+          
   <ul>
-    <li class="mono"><a href="#zerorobot.cli.task.print_task">print_task</a></li>
-    <li class="mono"><a href="#zerorobot.cli.task.sort_by_created">sort_by_created</a></li>
+    <li class="mono"><a href="#zerorobot.storage.base.ServiceStorageBase.delete">delete</a></li>
+    <li class="mono"><a href="#zerorobot.storage.base.ServiceStorageBase.list">list</a></li>
+    <li class="mono"><a href="#zerorobot.storage.base.ServiceStorageBase.save">save</a></li>
   </ul>
 
+        </li>
+      </ul>
     </li>
-
 
     </ul>
   </div>
@@ -1062,126 +1069,93 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.cli.task</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.storage.base</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.task', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.task" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.base', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.base" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ServiceStorageBase</span><span class="p">:</span>
 
-<span class="kn">import</span> <span class="nn">click</span>
-<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
-<span class="kn">from</span> <span class="nn">zerorobot.cli</span> <span class="kn">import</span> <span class="n">utils</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        save a service object</span>
 
+<span class="sd">        :param service: service</span>
+<span class="sd">        :type service: zerorobot.template.base</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">print_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="n">state</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span>
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        yield all the services data found in the storage</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{created} - {guid} - {action} - {state}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">created</span><span class="o">=</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">epoch2HRDateTime</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">),</span>
-        <span class="n">guid</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">tb</span> <span class="ow">and</span> <span class="n">state</span> <span class="o">==</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span>
-        <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
+<span class="sd">        this method yield a dict containing all the data of a service</span>
+<span class="sd">        example of such a dict:</span>
+<span class="sd">        {</span>
+<span class="sd">            &#39;service&#39;:{</span>
+<span class="sd">                &#39;template&#39;: &#39;&#39;,</span>
+<span class="sd">                &#39;version&#39;: &#39;&#39;,</span>
+<span class="sd">                &#39;name&#39;: &#39;&#39;,</span>
+<span class="sd">                &#39;guid&#39;: &#39;&#39;,</span>
+<span class="sd">                &#39;public&#39;: &#39;&#39;,</span>
+<span class="sd">            },</span>
+<span class="sd">            &#39;states&#39;:{</span>
+<span class="sd">                &#39;category1&#39;:{</span>
+<span class="sd">                    &#39;name&#39;: &#39;state&#39;,</span>
+<span class="sd">                },</span>
+<span class="sd">                &#39;category2&#39;:{</span>
+<span class="sd">                    &#39;name&#39;: &#39;state&#39;,</span>
+<span class="sd">                }</span>
+<span class="sd">            },</span>
+<span class="sd">            &#39;data&#39;: {</span>
+<span class="sd">                ...</span>
+<span class="sd">            },</span>
+<span class="sd">            &#39;tasks&#39;: [</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;guid&quot;:: &#39;&#39;,</span>
+<span class="sd">                    &quot;action_name&quot;: &#39;&#39;,</span>
+<span class="sd">                    &quot;args&quot;: &#39;&#39;,</span>
+<span class="sd">                    &quot;state&quot;: &#39;&#39;,</span>
+<span class="sd">                    &quot;eco&quot;: &#39;&#39;,</span>
+<span class="sd">                    &quot;created&quot;: &#39;&#39;,</span>
+<span class="sd">                }</span>
+<span class="sd">            ]</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-
-<span class="k">def</span> <span class="nf">sort_by_created</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
-
-
-<span class="nd">@click.group</span><span class="p">()</span>
-<span class="k">def</span> <span class="nf">task</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    group of command to manage task list of a service</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-
-
-<span class="nd">@task.command</span><span class="p">()</span>
-<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;guid&#39;</span><span class="p">)</span>
-<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">)</span>
-<span class="c1"># @click.option(&#39;data&#39;, help) TODO: find a way to pass data from CLI</span>
-<span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    schedule an action on a service</span>
-<span class="sd">    and prints the guid of the task created</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">guid</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service guid specified&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">action</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no action specified&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service found with guid=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;task created - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
 
-<span class="nd">@task.command</span><span class="p">()</span>
-<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;guid&#39;</span><span class="p">)</span>
-<span class="nd">@click.option</span><span class="p">(</span><span class="s1">&#39;--all&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;also return task already executed tasks&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="nb">all</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    list all task of a service</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">guid</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service guid specified&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service found with guid=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">tasks</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="nb">all</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">sort_by_created</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{created} - {guid} - {action} - {state}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">created</span><span class="o">=</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">epoch2HRDateTime</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">),</span>
-            <span class="n">guid</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="n">action</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-            <span class="n">state</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">_serialize_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;service&#39;</span><span class="p">:</span> <span class="n">_serialize_service_info</span><span class="p">(</span><span class="n">service</span><span class="p">),</span>
+        <span class="s1">&#39;states&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">categories</span><span class="p">,</span>
+        <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+        <span class="s1">&#39;tasks&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">_serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="bp">False</span><span class="p">)]</span>
+    <span class="p">}</span>
 
 
-<span class="nd">@task.command</span><span class="p">()</span>
-<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;guid&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;task&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="nd">@click.option</span><span class="p">(</span><span class="s1">&#39;--tb&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;print traceback in case state is error&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">tb</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    print the detail of a task</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">guid</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service guid specified&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_serialize_service_info</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;template&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
+        <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s1">&#39;public&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">_public</span><span class="p">,</span>
+    <span class="p">}</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">task</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no task guid specified&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">cl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no service found with guid=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get_task_by_guid</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;no task with guid </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">task</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">print_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">tb</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
+        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+        <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">json</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
+    <span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1190,29 +1164,95 @@ table {
 
   <section id="section-items">
 
-    <h2 class="section-title" id="header-functions">Functions</h2>
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
       
+      <div class="item">
+      <p id="zerorobot.storage.base.ServiceStorageBase" class="name">class <span class="ident">ServiceStorageBase</span></p>
+      
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.base.ServiceStorageBase', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.base.ServiceStorageBase" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ServiceStorageBase</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        save a service object</span>
+
+<span class="sd">        :param service: service</span>
+<span class="sd">        :type service: zerorobot.template.base</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        yield all the services data found in the storage</span>
+
+<span class="sd">        this method yield a dict containing all the data of a service</span>
+<span class="sd">        example of such a dict:</span>
+<span class="sd">        {</span>
+<span class="sd">            &#39;service&#39;:{</span>
+<span class="sd">                &#39;template&#39;: &#39;&#39;,</span>
+<span class="sd">                &#39;version&#39;: &#39;&#39;,</span>
+<span class="sd">                &#39;name&#39;: &#39;&#39;,</span>
+<span class="sd">                &#39;guid&#39;: &#39;&#39;,</span>
+<span class="sd">                &#39;public&#39;: &#39;&#39;,</span>
+<span class="sd">            },</span>
+<span class="sd">            &#39;states&#39;:{</span>
+<span class="sd">                &#39;category1&#39;:{</span>
+<span class="sd">                    &#39;name&#39;: &#39;state&#39;,</span>
+<span class="sd">                },</span>
+<span class="sd">                &#39;category2&#39;:{</span>
+<span class="sd">                    &#39;name&#39;: &#39;state&#39;,</span>
+<span class="sd">                }</span>
+<span class="sd">            },</span>
+<span class="sd">            &#39;data&#39;: {</span>
+<span class="sd">                ...</span>
+<span class="sd">            },</span>
+<span class="sd">            &#39;tasks&#39;: [</span>
+<span class="sd">                {</span>
+<span class="sd">                    &quot;guid&quot;:: &#39;&#39;,</span>
+<span class="sd">                    &quot;action_name&quot;: &#39;&#39;,</span>
+<span class="sd">                    &quot;args&quot;: &#39;&#39;,</span>
+<span class="sd">                    &quot;state&quot;: &#39;&#39;,</span>
+<span class="sd">                    &quot;eco&quot;: &#39;&#39;,</span>
+<span class="sd">                    &quot;created&quot;: &#39;&#39;,</span>
+<span class="sd">                }</span>
+<span class="sd">            ]</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.storage.base.ServiceStorageBase">ServiceStorageBase</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
   <div class="item">
-    <div class="name def" id="zerorobot.cli.task.print_task">
-    <p>def <span class="ident">print_task</span>(</p><p>task, tb=False)</p>
+    <div class="name def" id="zerorobot.storage.base.ServiceStorageBase.delete">
+    <p>def <span class="ident">delete</span>(</p><p>self, service)</p>
     </div>
     
 
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.task.print_task', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.task.print_task" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">print_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="n">state</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span>
-
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{created} - {guid} - {action} - {state}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">created</span><span class="o">=</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">epoch2HRDateTime</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">),</span>
-        <span class="n">guid</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">tb</span> <span class="ow">and</span> <span class="n">state</span> <span class="o">==</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span>
-        <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.base.ServiceStorageBase.delete', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.base.ServiceStorageBase.delete" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1220,20 +1260,88 @@ table {
 
   </div>
   
-      
+            
   <div class="item">
-    <div class="name def" id="zerorobot.cli.task.sort_by_created">
-    <p>def <span class="ident">sort_by_created</span>(</p><p>tasks)</p>
+    <div class="name def" id="zerorobot.storage.base.ServiceStorageBase.list">
+    <p>def <span class="ident">list</span>(</p><p>self)</p>
     </div>
     
 
     
   
+    <div class="desc"><p>yield all the services data found in the storage</p>
+<p>this method yield a dict containing all the data of a service
+example of such a dict:
+{
+    'service':{
+        'template': '',
+        'version': '',
+        'name': '',
+        'guid': '',
+        'public': '',
+    },
+    'states':{
+        'category1':{
+            'name': 'state',
+        },
+        'category2':{
+            'name': 'state',
+        }
+    },
+    'data': {
+        ...
+    },
+    'tasks': [
+        {
+            "guid":: '',
+            "action_name": '',
+            "args": '',
+            "state": '',
+            "eco": '',
+            "created": '',
+        }
+    ]
+}</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.task.sort_by_created', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.task.sort_by_created" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">sort_by_created</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.base.ServiceStorageBase.list', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.base.ServiceStorageBase.list" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    yield all the services data found in the storage</span>
+<span class="sd">    this method yield a dict containing all the data of a service</span>
+<span class="sd">    example of such a dict:</span>
+<span class="sd">    {</span>
+<span class="sd">        &#39;service&#39;:{</span>
+<span class="sd">            &#39;template&#39;: &#39;&#39;,</span>
+<span class="sd">            &#39;version&#39;: &#39;&#39;,</span>
+<span class="sd">            &#39;name&#39;: &#39;&#39;,</span>
+<span class="sd">            &#39;guid&#39;: &#39;&#39;,</span>
+<span class="sd">            &#39;public&#39;: &#39;&#39;,</span>
+<span class="sd">        },</span>
+<span class="sd">        &#39;states&#39;:{</span>
+<span class="sd">            &#39;category1&#39;:{</span>
+<span class="sd">                &#39;name&#39;: &#39;state&#39;,</span>
+<span class="sd">            },</span>
+<span class="sd">            &#39;category2&#39;:{</span>
+<span class="sd">                &#39;name&#39;: &#39;state&#39;,</span>
+<span class="sd">            }</span>
+<span class="sd">        },</span>
+<span class="sd">        &#39;data&#39;: {</span>
+<span class="sd">            ...</span>
+<span class="sd">        },</span>
+<span class="sd">        &#39;tasks&#39;: [</span>
+<span class="sd">            {</span>
+<span class="sd">                &quot;guid&quot;:: &#39;&#39;,</span>
+<span class="sd">                &quot;action_name&quot;: &#39;&#39;,</span>
+<span class="sd">                &quot;args&quot;: &#39;&#39;,</span>
+<span class="sd">                &quot;state&quot;: &#39;&#39;,</span>
+<span class="sd">                &quot;eco&quot;: &#39;&#39;,</span>
+<span class="sd">                &quot;created&quot;: &#39;&#39;,</span>
+<span class="sd">            }</span>
+<span class="sd">        ]</span>
+<span class="sd">    }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1241,7 +1349,37 @@ table {
 
   </div>
   
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.storage.base.ServiceStorageBase.save">
+    <p>def <span class="ident">save</span>(</p><p>self, service)</p>
+    </div>
+    
 
+    
+  
+    <div class="desc"><p>save a service object</p>
+<p>:param service: service
+:type service: zerorobot.template.base</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.base.ServiceStorageBase.save', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.base.ServiceStorageBase.save" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    save a service object</span>
+<span class="sd">    :param service: service</span>
+<span class="sd">    :type service: zerorobot.template.base</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      </div>
+      </div>
 
   </section>
 
