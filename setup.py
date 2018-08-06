@@ -39,7 +39,7 @@ setup(
     name='ZeroRobot',
     version='0.8.0',
     description='Automation framework for cloud workloads',
-    url='https://github.com/zero-os/0-robot',
+    url='https://github.com/threefoldtech/0-robot',
     author='Christophe de Carvalho',
     author_email='christophe@gig.tech',
     license='Apache',

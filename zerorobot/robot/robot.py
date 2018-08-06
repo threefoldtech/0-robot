@@ -187,13 +187,13 @@ class Robot:
 
 
 def _create_node_service():
-    service_found = scol.find(template_host='github.com', template_account='zero-os', template_name='node')
+    service_found = scol.find(template_host='github.com', template_account='threefoldtech', template_name='node')
     if not service_found:
-        template_found = tcol.find(host='github.com', account='zero-os', name='node')
+        template_found = tcol.find(host='github.com', account='threefoldtech', name='node')
         if not template_found:
-            tcol.add_repo("https://github.com/zero-os/0-templates")
+            tcol.add_repo("https://github.com/threefoldtech/0-templates")
 
-        template_found = tcol.find(host='github.com', account='zero-os', name='node')
+        template_found = tcol.find(host='github.com', account='threefoldtech', name='node')
         if not template_found:
             raise RuntimeError("cannot create node service and --mode node is set")
 

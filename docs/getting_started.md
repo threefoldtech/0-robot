@@ -114,7 +114,7 @@ When the server is started, a greenlet is started that for each interval will co
 
 ### example:
 ```bash
-zrobot server start --data-repo git@github.com:user/zrobot-data.git --config-repo git@github.com:user/zrobot-config.git --template-repo https://github.com/zero-os/0-templates.git --auto-push --auto-push-interval 120
+zrobot server start --data-repo git@github.com:user/zrobot-data.git --config-repo git@github.com:user/zrobot-config.git --template-repo https://github.com/threefoldtech/0-templates.git --auto-push --auto-push-interval 120
 ```
 
 This call of zrobot server start would enable auto pushing of the data repository (`git@github.com:user/zrobot-data.git`) every 120 minutes.
