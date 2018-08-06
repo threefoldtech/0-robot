@@ -54,7 +54,7 @@ for target in jumpscale_core jumpscale_lib jumpscale_prefab; do
 done
 popd
 
-mv /0-robot /opt/code/github/threefoldtech
+cp -r /0-robot /opt/code/github/threefoldtech
 # install 0-robot
 pushd /opt/code/github/threefoldtech/0-robot
 pip3 install -e .
