@@ -20,7 +20,7 @@ class ServiceData(dict):
         path = os.path.join(service.template_dir, 'schema.capnp')
         if os.path.exists(path):
             schema_str = j.sal.fs.fileGetContents(path)
-            msg = j.data.capnp3.getObj(schema_str)
+            msg = j.data.capnp.getObj(schema_str)
             self.update(msg.to_dict(verbose=True))
 
     def update_secure(self, data):
