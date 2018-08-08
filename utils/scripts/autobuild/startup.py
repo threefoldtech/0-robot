@@ -12,8 +12,8 @@ MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAES5X8XrfKdx9gYayFITc89wad4usrk0n2
 
 
 def configure_local_client():
-    j.sal.fs.createDir('/opt/code/local/stdorg/config/j.clients.zos')
-    j.sal.fs.writeFile('/opt/code/local/stdorg/config/j.clients.zos/local.toml', """
+    j.sal.fs.createDir('/opt/code/local/stdorg/config/j.clients.zos_protocol')
+    j.sal.fs.writeFile('/opt/code/local/stdorg/config/j.clients.zos_protocol/local.toml', """
     db = 0
     host = '127.0.0.1'
     password_ = ''
