@@ -20,7 +20,6 @@ telegram_chat_id = ""
 auto_push = false
 auto_push_interval = 10
 organization = ""
-block = true
 """
 JSConfigBase = j.tools.configmanager.base_class_config
 
@@ -36,7 +35,7 @@ class ZeroRobotServer(JSConfigBase):
         if self._robot:
             return self._robot.address
 
-    def start(self):
+    def geventserver_get(self):
         """
         start the 0-robot daemon.
         this will start the REST API on address and port specified by --listen and block
@@ -68,7 +67,6 @@ class ZeroRobotServer(JSConfigBase):
         auto_push = self.config.data.get('auto_push', False)
         auto_push_interval = self.config.data.get('auto_push_interval', False)
         organization = self.config.data.get('organization') or None
-        block = self.config.data.get('block', True)
 
         level = "INFO"
         if debug:
