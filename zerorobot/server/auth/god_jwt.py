@@ -63,7 +63,7 @@ def check_god_token(request):
 
 def _get_key():
     """return the signing key to create JWT
-    the key is the one used by the config manager of JumpScale
+    the key is the one used by the config manager of Jumpscale
 
     Raises:
         SigningKeyNotFoundError -- [raised if signin key is not found]

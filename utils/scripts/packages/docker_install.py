@@ -58,7 +58,7 @@ def build_container_zrobot(name, jsbranch, zrbranch, push=True):
         print("done!\n0-robot build successfully!")
 
 def build_container_jumpscale(name, jsbranch, push=True):
-    "Build and push docker image for JumpScale"
+    "Build and push docker image for Jumpscale"
     print("Starting docker container ... ", end='')
     container = _container_create(name, ssh=False)
     ex = j.tools.executor.getLocalDocker(container.id)
@@ -71,20 +71,20 @@ def build_container_jumpscale(name, jsbranch, push=True):
         prefab.system.package.install("python3-dev,git,curl,language-pack-en")
         print("done!\nInstalling jumpscale ... ", end='')
         _install_js(prefab, jsbranch)
-        print("done!\nCommiting JumpScale docker image ... ", end='')
+        print("done!\nCommiting Jumpscale docker image ... ", end='')
         container.commit("jumpscale/js9-full")
     except Exception as e:
         print(e)
-        print('JumpScale installation failed, will delete created docker')
+        print('Jumpscale installation failed, will delete created docker')
         container.stop()
         container.destroy()
         return
     if push:
         print("done!\nPushing docker image ... ")
         j.sal.docker.client.push("jumpscale/js9-full")
-        print("JumpScale build and published successfully!")
+        print("Jumpscale build and published successfully!")
     else:
-        print("done!\nJumpScale build successfully!")
+        print("done!\nJumpscale build successfully!")
 
 from IPython import embed
 embed()
