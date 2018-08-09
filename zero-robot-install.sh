@@ -114,6 +114,18 @@ apt-get install -y python3-unidecode
 apt-get install -y lsb-release
 #apt-get install -y pssh
 
+# for testing
+apt-get install -y python3-serial
+apt-get install -y python3-msgpack
+apt-get install -y python3-watchdog
+apt-get install -y python3-future
+apt-get install -y python3-pytoml
+apt-get install -y python3-toml
+apt-get install -y python3-dateutil
+apt-get install -y python3-ipython
+apt-get install -y python3-httplib2
+apt-get install -y python3-jedi
+
 # lots of python packages that aren't packaged in debian...
 python_git_repo https://github.com/capnproto/pycapnp.git pycapnp \
                                         --force-bundled-libcapnp
