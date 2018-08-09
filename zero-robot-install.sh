@@ -141,6 +141,8 @@ apt-get install -y python3-pymongo
 apt-get install -y python3-pypandoc
 apt-get install -y python3-psycopg2
 apt-get install -y python3-html2text
+apt-get install -y python3-libvirt
+apt-get install -y python3-aioredis
 apt-get install -y librocksdb-dev
 apt-get install -y libsnappy-dev
 apt-get install -y libbz2-dev
@@ -148,6 +150,7 @@ apt-get install -y liblz4-dev
 apt-get install -y tarantool
 
 
+python_git_repo https://github.com/kragniz/python-etcd3.git python-etcd3
 python_git_repo https://github.com/tehmaze/ipcalc.git ipcalc
 python_git_repo https://github.com/dchest/pyblake2.git pyblake2
 python_git_repo https://github.com/warner/python-ed25519.git python-ed25519
