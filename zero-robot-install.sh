@@ -140,6 +140,7 @@ apt-get install -y python3-kubernetes
 apt-get install -y python3-pymongo
 apt-get install -y python3-pypandoc
 apt-get install -y python3-psycopg2
+apt-get install -y python3-html2text
 apt-get install -y librocksdb-dev
 apt-get install -y libsnappy-dev
 apt-get install -y libbz2-dev
