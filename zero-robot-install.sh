@@ -125,6 +125,17 @@ apt-get install -y python3-dateutil
 apt-get install -y python3-ipython
 apt-get install -y python3-httplib2
 apt-get install -y python3-jedi
+apt-get install -y python3-pytest
+apt-get install -y python3-blosc
+apt-get install -y python3-snappy
+apt-get install -y python3-asyncssh
+apt-get install -y python3-numpy
+apt-get install -y tarantool
+
+python_git_repo https://github.com/patx/pickledb.git pickledb
+python_git_repo https://github.com/fancycode/pylzma.git pylzma
+python_git_repo https://github.com/tarantool/tarantool-python.git \
+					tarantool-python
 
 # lots of python packages that aren't packaged in debian...
 python_git_repo https://github.com/capnproto/pycapnp.git pycapnp \
