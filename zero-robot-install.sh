@@ -150,6 +150,8 @@ apt-get install -y liblz4-dev
 apt-get install -y tarantool
 
 
+
+python_git_repo https://github.com/jgelens/gevent-websocket.git gevent-websocket
 python_git_repo https://github.com/kragniz/python-etcd3.git python-etcd3
 python_git_repo https://github.com/tehmaze/ipcalc.git ipcalc
 python_git_repo https://github.com/dchest/pyblake2.git pyblake2
