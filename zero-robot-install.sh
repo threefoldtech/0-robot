@@ -131,6 +131,10 @@ apt-get install -y python3-snappy
 apt-get install -y python3-asyncssh
 apt-get install -y python3-numpy
 apt-get install -y python3-docker
+apt-get install -y librocksdb-dev
+apt-get install -y libsnappy-dev
+apt-get install -y libbz2-dev
+apt-get install -y liblz4-dev
 apt-get install -y tarantool
 
 python_git_repo https://github.com/twmht/python-rocksdb.git rocksdb
