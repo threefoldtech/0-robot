@@ -108,6 +108,7 @@ apt-get install -y python3-requests
 apt-get install -y python3-msgpack
 apt-get install -y python3-git
 apt-get install -y python3-netaddr
+apt-get install -y python3-github
 apt-get install -y cython3
 apt-get install -y libcapnp-dev
 apt-get install -y python3-unidecode
@@ -152,10 +153,13 @@ python_git_repo https://github.com/ParallelSSH/parallel-ssh parallel-ssh
 python_git_repo https://github.com/staticshock/colored-traceback.py \
                                                colored-traceback.py
 
+python_git_repo https://github.com/tinyerp/erppeek.git erppeek
 python_git_repo https://github.com/npcole/npyscreen.git npyscreen
 python_git_repo https://github.com/jaraco/path.py.git path.py
 python_git_repo https://github.com/mpdavis/python-jose.git python-jose
 python_git_repo https://github.com/trezor/python-mnemonic.git python-mnemonic
+python_git_repo https://github.com/lagerfeuer/cryptocompare.git \
+						cryptocompare
 
 # electrum 3.2.2 is a critical dependency of jumpscale_lib ??? moo???
 apt-get install -y python3-qrcode
