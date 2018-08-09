@@ -220,6 +220,9 @@ python_git_repo https://github.com/threefoldtech/jumpscale_lib jumpscale_lib
 python_git_repo https://github.com/threefoldtech/jumpscale_prefab \
                                                     jumpscale_prefab
 
+# and zerotier TODO, threefoldtech variant of this?
+python_git_repo https://github.com/zero-os/zerotier_client.git zerotier-client
+
 # now... at last... finally...
 mk_hack_symlink 0-robot
 python_git_repo https://github.com/threefoldtech/0-robot 0-robot
