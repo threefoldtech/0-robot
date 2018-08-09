@@ -131,6 +131,7 @@ apt-get install -y python3-snappy
 apt-get install -y python3-asyncssh
 apt-get install -y python3-numpy
 apt-get install -y python3-docker
+apt-get install -y python3-parameterized
 apt-get install -y librocksdb-dev
 apt-get install -y libsnappy-dev
 apt-get install -y libbz2-dev
