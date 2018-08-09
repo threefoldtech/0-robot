@@ -32,17 +32,18 @@ EOF
 python_git_repo_v() {
  
     echo "installing" into $2, $1
+    curr_dir=`pwd`
     if [ ! -d $2 ]; then
         git clone $1
     else
         cd $2
         git pull
-        cd ..
+        cd $curr_dir
     fi
     cd $2
     git checkout $3
     python3 setup.py install
-    cd ..
+    cd $curr_dir
 }
 
 # checks out / pulls the default version of a git branch
@@ -50,16 +51,17 @@ python_git_repo_v() {
 python_git_repo() {
  
     echo "installing" into $2, $1
+    curr_dir=`pwd`
     if [ ! -d $2 ]; then
         git clone $1
     else
         cd $2
         git pull
-        cd ..
+        cd $curr_dir
     fi
     cd $2
     python3 setup.py install $3
-    cd ..
+    cd $curr_dir
 }
 
 mk_hack_symlink () {
@@ -144,6 +146,8 @@ apt-get install -y libbz2-dev
 apt-get install -y liblz4-dev
 apt-get install -y tarantool
 
+
+python_git_repo https://github.com/tehmaze/ipcalc.git ipcalc
 python_git_repo https://github.com/dchest/pyblake2.git pyblake2
 python_git_repo https://github.com/warner/python-ed25519.git python-ed25519
 python_git_repo https://github.com/sendgrid/sendgrid-python.git sendgrid-python
@@ -222,6 +226,7 @@ python_git_repo https://github.com/threefoldtech/jumpscale_prefab \
 
 # and zerotier TODO, threefoldtech variant of this?
 python_git_repo https://github.com/zero-os/zerotier_client.git zerotier-client
+python_git_repo https://github.com/threefoldtech/0-hub.git 0-hub/client
 
 # now... at last... finally...
 mk_hack_symlink 0-robot
