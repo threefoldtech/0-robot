@@ -144,8 +144,11 @@ apt-get install -y libbz2-dev
 apt-get install -y liblz4-dev
 apt-get install -y tarantool
 
-python_git_repo https://github.com/python-ovh.git python-ovh
-python_git_repo https://github.com/intercom.git python-intercom
+python_git_repo https://github.com/dchest/pyblake2.git pyblake2
+python_git_repo https://github.com/warner/python-ed25519.git python-ed25519
+python_git_repo https://github.com/sendgrid/sendgrid-python.git sendgrid-python
+python_git_repo https://github.com/ovh/python-ovh.git python-ovh
+python_git_repo https://github.com/intercom/python-intercom.git python-intercom
 python_git_repo https://github.com/twmht/python-rocksdb.git rocksdb
 python_git_repo https://github.com/patx/pickledb.git pickledb
 python_git_repo https://github.com/fancycode/pylzma.git pylzma
