@@ -175,7 +175,14 @@ apt-get install -y python3-ecdsa
 apt-get install -y python3-pbkdf2
 apt-get install -y python3-socks
 apt-get install -y python3-requests
+apt-get install -y protobuf-compiler
 python_git_repo_v https://github.com/spesmilo/electrum.git electrum 3.2.2
+
+# yeee godddds....
+cd electrum
+protoc --proto_path=lib/ --python_out=lib/ electrum/paymentrequest.proto
+python3 setup.py install
+cd ..
 
 # TODO....
 #ays9/.git/config:	url = https://github.com/jumpscale/ays9
