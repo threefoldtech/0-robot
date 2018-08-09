@@ -170,6 +170,7 @@ apt-get install -y python3-qrcode
 apt-get install -y python3-pyaes
 apt-get install -y python3-protobuf
 apt-get install -y python3-google-apputils
+apt-get install -y python3-oauth2client
 apt-get install -y python3-jsonrpclib-pelix
 apt-get install -y python3-dnspython
 apt-get install -y python3-ecdsa
