@@ -161,6 +161,10 @@ python_git_repo https://github.com/trezor/python-mnemonic.git python-mnemonic
 python_git_repo https://github.com/lagerfeuer/cryptocompare.git \
 						cryptocompare
 
+# honestly genuinely cannot be bothered to get all the dependencies for this
+python_git_repo https://github.com/google/google-api-python-client.git \
+						google-api-python-client
+
 # electrum 3.2.2 is a critical dependency of jumpscale_lib ??? moo???
 apt-get install -y python3-qrcode
 apt-get install -y python3-pyaes
