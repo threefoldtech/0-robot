@@ -130,8 +130,10 @@ apt-get install -y python3-blosc
 apt-get install -y python3-snappy
 apt-get install -y python3-asyncssh
 apt-get install -y python3-numpy
+apt-get install -y python3-docker
 apt-get install -y tarantool
 
+python_git_repo https://github.com/twmht/python-rocksdb.git rocksdb
 python_git_repo https://github.com/patx/pickledb.git pickledb
 python_git_repo https://github.com/fancycode/pylzma.git pylzma
 python_git_repo https://github.com/tarantool/tarantool-python.git \
