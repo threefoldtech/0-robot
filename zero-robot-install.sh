@@ -150,6 +150,10 @@ python_git_repo https://github.com/fancycode/pylzma.git pylzma
 python_git_repo https://github.com/tarantool/tarantool-python.git \
 					tarantool-python
 
+
+python_git_repo https://github.com/packethost/packet-python.git \
+					packet-python
+
 # lots of python packages that aren't packaged in debian...
 python_git_repo https://github.com/capnproto/pycapnp.git pycapnp \
                                         --force-bundled-libcapnp
