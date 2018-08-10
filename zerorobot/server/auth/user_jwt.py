@@ -4,7 +4,6 @@ import os
 from jose import jwt
 from jumpscale import j
 
-logger = j.logger.get('zrobot')
 _token_prefix = "Bearer "
 
 
@@ -33,6 +32,7 @@ def verify(service_guid, token):
         if claims == expected:
             return True
     except Exception as err:
+        logger = j.logger.get('zrobot')
         logger.debug('error decoding user secret: %s', str(err))
 
     return False
