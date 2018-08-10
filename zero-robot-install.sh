@@ -145,12 +145,16 @@ apt-get install -y python3-libvirt
 apt-get install -y python3-aioredis
 apt-get install -y python3-flask-login
 apt-get install -y python3-flask-sqlalchemy
+apt-get install -y python3-brotli
 apt-get install -y librocksdb-dev
 apt-get install -y libsnappy-dev
 apt-get install -y libbz2-dev
 apt-get install -y liblz4-dev
 apt-get install -y tarantool
 
+
+python_git_repo https://github.com/g8os/g8stor-client-pypi.git \
+						g8stor-client-pypi
 python_git_repo https://github.com/eoranged/rq-dashboard.git rq-dashboard
 python_git_repo https://github.com/heroku-python/flask-sockets.git flask-sockets
 python_git_repo https://github.com/jgelens/gevent-websocket.git gevent-websocket
