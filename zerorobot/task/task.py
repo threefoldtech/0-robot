@@ -23,7 +23,6 @@ from zerorobot.errors import ExpectedError
 from . import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                TASK_STATE_RUNNING)
 
-logger = j.logger.get('zerorobot')
 telegram_logger = logging.getLogger('telegram_logger')
 
 stacks = list()
@@ -126,6 +125,7 @@ class Task:
 
         if die is True and self.state == TASK_STATE_ERROR:
             if not self.eco:
+                logger = j.logger.get('zerorobot')
                 logger.critical('task is in error state, but no eco')
             else:
                 raise self.eco
@@ -167,6 +167,7 @@ class Task:
                 while len(stacks) > 1000:
                     stacks.pop(0)
             except:
+                logger = j.logger.get('zerorobot')
                 logger.exception("Failed to log error to telegram handler")
 
 
@@ -188,6 +189,7 @@ def _send_eco_webhooks(service, task):
         'eco': eco_data
     }
 
+    logger = j.logger.get('zerorobot')
     for wh in webhooks.list(kind='eco'):
         try:
             requests.post(wh.url, json=data)
