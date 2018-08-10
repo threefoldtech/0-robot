@@ -8,7 +8,6 @@ from zerorobot import template_collection as tcol
 from zerorobot import storage
 from zerorobot.template_uid import TemplateUID
 
-logger = j.logger.get('zerorobot')
 
 
 def load_services(config):
@@ -38,6 +37,7 @@ def load_services(config):
         scol.load(tmplClass, service_details)
 
     loading_failed = []
+    logger = j.logger.get('zerorobot')
     for service in scol.list_services():
         try:
             service.validate()
@@ -58,6 +58,7 @@ def _try_load_service(services):
     when the robot started.
     Once all failed services are back to normal, this function will exit
     """
+    logger = j.logger.get('zerorobot')
     size = len(services)
     while size > 0:
         for service in services[:]:
