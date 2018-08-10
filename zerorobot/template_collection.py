@@ -15,7 +15,6 @@ from zerorobot import git
 from zerorobot.service_collection import ServiceConflictError
 from zerorobot.template_uid import TemplateUID
 
-logger = j.logger.get('zerorobot')
 
 _templates = {}
 
@@ -137,6 +136,7 @@ def _load_template(url, template_dir):
 
     class_.template_dir = template_dir
     _templates[class_.template_uid] = class_
+    logger = j.logger.get('zerorobot')
     logger.debug("add template %s to collection" % class_.template_uid)
     return _templates[class_.template_uid]
 
@@ -160,6 +160,7 @@ def instantiate_service(template, name=None, data=None):
 
 
 def checkout_repo(url, revision='master'):
+    logger = j.logger.get('zerorobot')
     logger.info("checkout %s for repo %s", revision, url)
     dir_path = git.url.git_path(url)
 
