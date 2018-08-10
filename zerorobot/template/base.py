@@ -31,7 +31,6 @@ from zerorobot.task.utils import wait_all
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
 
-logger = j.logger.get('zerorobot')
 
 
 class BadActionArgumentError(Exception):
@@ -108,6 +107,7 @@ class GreenletsMgr:
             self.wait_all(timeout)
 
     def stop_recurring(self, wait=False, timeout=None):
+        logger = j.logger.get('zerorobot')
         for key, gl in self.gls.items():
             if key.startswith('recurring_'):
                 logger.info("kill %s" % key)
