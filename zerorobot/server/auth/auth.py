@@ -41,7 +41,7 @@ def _verify_token(token, organization):
     try:
         scope = jwt.decode(token, _oauth2_server_pub_key, audience=None)["scope"]
     except Exception as err:
-        logger = j.logger.get('zrobot')
+        logger = j.logging.get('zrobot')
         logger.error('error decoding JWT: %s', str(err))
         return False
 

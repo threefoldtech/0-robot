@@ -31,7 +31,7 @@ def verify(token):
         if claims == expected:
             return True
     except Exception as err:
-        logger = j.logger.get('zrobot')
+        logger = j.logging.get('zrobot')
         logger.error('error decoding god token: %s', str(err))
 
     return False
