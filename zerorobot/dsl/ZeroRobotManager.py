@@ -13,8 +13,6 @@ from zerorobot.template_collection import (TemplateConflictError,
                                            TemplateNotFoundError)
 from zerorobot.template_uid import TemplateUID
 
-logger = j.logger.get('zerorobot')
-
 
 class ServiceCreateError(Exception):
     """
@@ -167,6 +165,7 @@ class ServicesMgr:
                 raise TemplateNotFoundError(msg)
 
             e = err.response.json()
+            logger = j.logger.get('zerorobot')
             logger.error('fail to create service: %s' % e['message'])
             raise ServiceCreateError(e['message'], err)
 
