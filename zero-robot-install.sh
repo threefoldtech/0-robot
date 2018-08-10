@@ -146,6 +146,7 @@ apt-get install -y python3-aioredis
 apt-get install -y python3-flask-login
 apt-get install -y python3-flask-sqlalchemy
 apt-get install -y python3-brotli
+apt-get install -y python3-peewee
 apt-get install -y librocksdb-dev
 apt-get install -y libsnappy-dev
 apt-get install -y libbz2-dev
