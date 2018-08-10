@@ -8,7 +8,6 @@ from zerorobot import config
 from . import user_jwt, god_jwt
 from .flask_httpauth import HTTPTokenAuth, MultiAuth
 
-logger = j.logger.get('zrobot')
 
 _oauth2_server_pub_key = """-----BEGIN PUBLIC KEY-----
 MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAES5X8XrfKdx9gYayFITc89wad4usrk0n2
@@ -42,6 +41,7 @@ def _verify_token(token, organization):
     try:
         scope = jwt.decode(token, _oauth2_server_pub_key, audience=None)["scope"]
     except Exception as err:
+        logger = j.logger.get('zrobot')
         logger.error('error decoding JWT: %s', str(err))
         return False
 
