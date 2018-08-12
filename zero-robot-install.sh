@@ -148,7 +148,6 @@ apt-get install -y python3-flask-sqlalchemy
 apt-get install -y python3-brotli
 apt-get install -y python3-peewee
 apt-get install -y python3-nacl
-apt-get install -y python3-influxdb
 apt-get install -y librocksdb-dev
 apt-get install -y libsnappy-dev
 apt-get install -y libbz2-dev
