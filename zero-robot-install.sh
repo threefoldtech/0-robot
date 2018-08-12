@@ -167,7 +167,7 @@ python_git_repo https://github.com/warner/python-ed25519.git python-ed25519
 python_git_repo https://github.com/sendgrid/sendgrid-python.git sendgrid-python
 python_git_repo https://github.com/ovh/python-ovh.git python-ovh
 python_git_repo https://github.com/intercom/python-intercom.git python-intercom
-python_git_repo https://github.com/twmht/python-rocksdb.git rocksdb
+python_git_repo https://github.com/twmht/python-rocksdb.git python-rocksdb
 python_git_repo https://github.com/patx/pickledb.git pickledb
 python_git_repo https://github.com/fancycode/pylzma.git pylzma
 python_git_repo https://github.com/tarantool/tarantool-python.git \
@@ -239,7 +239,7 @@ python_git_repo https://github.com/threefoldtech/jumpscale_prefab \
                                                     jumpscale_prefab
 
 # and zerotier TODO, threefoldtech variant of this?
-python_git_repo https://github.com/zero-os/zerotier_client.git zerotier-client
+python_git_repo https://github.com/zero-os/zerotier_client.git zerotier_client
 python_git_repo https://github.com/threefoldtech/0-hub.git 0-hub/client
 
 # now... at last... finally...
