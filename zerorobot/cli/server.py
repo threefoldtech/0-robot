@@ -25,7 +25,7 @@ def server():
 @click.option('--listen', '-L', help='listen address (default :6600)', default=':6600')
 @click.option('--data-repo', '-D', required=False, help='URL of the git repository or absolute path where to save the data of the zero robot')
 @click.option('--template-repo', '-T', multiple=True, help='list of template repository URL. Use fragment URL to specify a branch: http://github.com/account/repo#branch')
-@click.option('--config-repo', '-C', required=False, help='URL of the configuration repository (https://github.com/Jumpscale/core9/blob/development/docs/config/configmanager.md)')
+@click.option('--config-repo', '-C', required=False, help='URL of the configuration repository (https://github.com/threefoldech/jumpscale_core/blob/development/docs/config/configmanager.md)')
 @click.option('--config-key', '-K', required=False, help='Absolute path to ssh key to secure configuration data, which is committed and pushed (see auto-push) in the configuration repo.\
  If omitted, the robot will try to use the key configured key in jumpscale if any or will generate a new ssh key.')
 @click.option('--debug', help='enable debug logging', is_flag=True, default=False)
