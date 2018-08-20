@@ -5,18 +5,13 @@ monkey.patch_all(subprocess=False)
 import os
 import shutil
 import unittest
-import uuid
 
 
 from jumpscale import j
-from Jumpscale.errorhandling.ErrorConditionObject import ErrorConditionObject
 from zerorobot import service_collection as scol
-from zerorobot import template_collection as tcol
 from zerorobot import config
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 from zerorobot.robot import Robot
-from zerorobot.service_proxy import ServiceProxy
-from zerorobot.task.task import TASK_STATE_ERROR, TASK_STATE_OK
 from zerorobot.server.auth import god_jwt
 from zerorobot.server import auth
 

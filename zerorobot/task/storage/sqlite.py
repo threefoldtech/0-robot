@@ -143,7 +143,7 @@ class TaskStorageSqlite(TaskStorageBase):
             'result': task.result,
             "created": task.created,
             'duration': task.duration,
-            'eco': j.data.serializer.json.loads(task.eco.json) if task.eco else None,
+            'eco': task.eco._ddict if task.eco else None,
             'state': task.state
         })
 

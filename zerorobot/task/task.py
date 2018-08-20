@@ -82,7 +82,8 @@ class Task:
             self.state = TASK_STATE_ERROR
             # capture stacktrace and exception
             exc_type, exc, exc_traceback = sys.exc_info()
-            self._eco = j.core.errorhandler.parsePythonExceptionObject(exc, tb=exc_traceback)
+            trace = j.errorhandler._trace_get(exc_type, exc, exc_traceback)
+            self._eco = j.tools.alerthandler.log(exc, trace)
             if not isinstance(exc, ExpectedError):
                 gevent.spawn(self._report_telegram, exc_type, exc, exc_traceback)
                 gevent.spawn(_send_eco_webhooks, self.service, self)
@@ -128,7 +129,7 @@ class Task:
             if not self.eco:
                 logger.critical('task is in error state, but no eco')
             else:
-                raise self.eco
+                raise RuntimeError(self.eco.message)
 
         return self
 
@@ -177,15 +178,11 @@ def _send_eco_webhooks(service, task):
     webhooks = config.webhooks
 
     # TODO: send concurrently from a pool of greenlet
-    task.eco.key  # make sure uniquekey is filled
-    eco_data = task.eco.__dict__.copy()
-    eco_data.pop('tb', None)
-
     data = {
         'service': service.guid,
         'action_name': task.action_name,
         'args': task._args,
-        'eco': eco_data
+        'eco': task.eco._ddict,
     }
 
     for wh in webhooks.list(kind='eco'):
