@@ -60,4 +60,4 @@ pushd /opt/code/github/threefoldtech/0-robot
 pip3 install -e .
 popd
 
-tar -cpzf "/tmp/archives/0-robot-autostart.tar.gz" --exclude tmp --exclude dev --exclude sys --exclude proc  /
+tar -cpzf "/tmp/archives/0-robot.tar.gz" --exclude tmp --exclude dev --exclude sys --exclude proc  /
