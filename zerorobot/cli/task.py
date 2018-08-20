@@ -14,7 +14,7 @@ def print_task(task, tb=False):
         action=task.action_name,
         state=state))
     if tb and state == 'error':
-        task.eco.printTraceback()
+        print(task.eco.trace)
 
 
 def sort_by_created(tasks):

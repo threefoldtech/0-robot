@@ -313,57 +313,25 @@ types:
       Error conditions, is a custom error format that allow to investigate
       an exceptions. It is used to serialize the error happening during task execution
     properties:
-      appname:
+      cat:
         type: string
-      epoch:
+        description: category of the alert
+      count:
         type: integer
-      errormessagePub:
+        description: Number of time this alert happened
+      message:
         type: string
-      type:
+      message_pub:
         type: string
-      state:
-        type: string
-      data:
-        type: object
-        required: false
-      jid:
+      time_first:
         type: integer
-      masterjid:
+        description: epoch of the first occurrence of this alert
+      time_last:
         type: integer
-      errormessage:
+        description: epoch of the last occurrence of this alert
+      trace:
         type: string
-      uniquekey:
-        type: string
-      category:
-        type: string
-      exceptionclassname:
-        type: string
-      funcfilename:
-        type: string
-      closetime:
-        type: integer
-      level:
-        type: integer
-      _limit:
-        type: integer
-      lasttime:
-        type: integer
-      code:
-        type: string
-      guid:
-        type: string
-      tags:
-        type: string
-      funclinenr:
-        type: integer
-      _traceback:
-        type: string
-      funcname:
-        type: string
-      pid:
-        type: integer
-      occurrences:
-        type: integer
+        description: stack trace of the alert
 
   ServiceFilter:
     description: type used in the query parameters of the ListService method
@@ -426,6 +394,10 @@ types:
       url:
         type: string
         required: true
+
+  Logs:
+    properties:
+      logs: string
 
 /robot:
   description: This endpoint expose different information about the robot health and status
@@ -675,4 +647,4 @@ types:
         responses:
           200:
             body:
-              type: string
+              type: Logs

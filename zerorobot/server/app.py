@@ -31,9 +31,10 @@ def home():
 
 @app.errorhandler(500)
 def internal_error(err):
-    _, _, exc_traceback = sys.exc_info()
-    eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
-    return jsonify(code=500, message=eco.errormessage, stack_trace=eco.traceback), 500
+    exc_type, exc, exc_traceback = sys.exc_info()
+    trace = j.errorhandler._trace_get(exc_type, exc, exc_traceback)
+    eco = j.tools.alerthandler.log(exc, trace)
+    return jsonify(code=500, message=eco.message, stack_trace=eco.trace), 500
 
 
 if __name__ == "__main__":

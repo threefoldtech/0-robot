@@ -77,6 +77,6 @@ def _serialize_task(task):
         "action_name": task.action_name,
         "args": task._args,
         "state": task.state,
-        "eco": j.data.serializer.json.loads(task.eco.json) if task.eco else None,
+        "eco": task.eco._ddict if task.eco else None,
         "created": task.created,
     }
