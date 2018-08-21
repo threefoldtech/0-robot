@@ -154,7 +154,7 @@ class Task:
 
         stacktrace = ''.join(traceback.format_tb(tb))
         stacktrace_hash = hashlib.md5(stacktrace.encode('utf8')).digest()
-        if not stacktrace_hash in stacks:
+        if stacktrace_hash not in stacks:
             try:
                 telegram_logger.error(
                     "Error type: %s\nError message:\n\t%s\nStacktrace:\n%s\n\nTask arguments:\n%s\n\nLocal values:\n%s" % (
@@ -176,8 +176,6 @@ def _send_eco_webhooks(service, task):
         return
 
     webhooks = config.webhooks
-
-    # TODO: send concurrently from a pool of greenlet
     data = {
         'service': service.guid,
         'action_name': task.action_name,

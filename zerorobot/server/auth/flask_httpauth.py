@@ -98,10 +98,7 @@ class HTTPTokenAuth(HTTPAuth):
         return f
 
     def authenticate(self, auth, stored_password):
-        if auth:
-            token = auth['token']
-        else:
-            token = ""
+        token = auth['token'] if auth else ""
         if self.verify_token_callback:
             return self.verify_token_callback(token)
         return False

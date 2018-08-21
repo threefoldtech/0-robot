@@ -22,4 +22,4 @@ def monitor_robot_metrics():
     nr_services.set_function(lambda: len(scol.list_services()))
     # memory
     robot_memory = Gauge('robot_total_memory_bytes', "Memory used by 0-robot")
-    robot_memory.set_function(lambda: memory_usage_resource())
+    robot_memory.set_function(memory_usage_resource())

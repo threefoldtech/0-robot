@@ -35,7 +35,3 @@ def internal_error(err):
     trace = j.errorhandler._trace_get(exc_type, exc, exc_traceback)
     eco = j.tools.alerthandler.log(exc, trace)
     return jsonify(code=500, message=eco.message, stack_trace=eco.trace), 500
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
