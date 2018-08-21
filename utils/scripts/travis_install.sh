@@ -6,7 +6,7 @@ sudo chown -R $USER:$USER /opt/code/github/threefoldtech
 cp -r . /opt/code/github/threefoldtech/0-robot
 
 pushd /opt/code/github/threefoldtech/0-robot
-pip3 install .
+pip3 install -e .
 popd
 
 
