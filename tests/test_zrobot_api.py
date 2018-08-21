@@ -121,8 +121,8 @@ class TestZRobotAPI(unittest.TestCase):
         self.assertEqual(type(node), ServiceProxy, "service create on remote robot should return ServiceProxy")
         self.assertEqual(len(robot.services.guids), 1)
         # ensure we can access the remote service from the robot object
-        robot.services.names[node.name]
-        robot.services.guids[node.guid]
+        assert robot.services.names[node.name]
+        assert robot.services.guids[node.guid]
 
     def test_service_create_name(self):
         # make sure we don't have any template loaded in the current process
@@ -150,8 +150,8 @@ class TestZRobotAPI(unittest.TestCase):
         self.assertEqual(type(node), ServiceProxy, "service create on remote robot should return ServiceProxy")
         self.assertEqual(len(robot.services.guids), 1)
         # ensure we can access the remote service from the robot object
-        robot.services.names[node.name]
-        robot.services.guids[node.guid]
+        assert robot.services.names[node.name]
+        assert robot.services.guids[node.guid]
 
     def test_service_search(self):
         # load template in current process

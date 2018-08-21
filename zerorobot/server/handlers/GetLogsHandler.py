@@ -1,7 +1,6 @@
 # THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.
 
 import os
-from flask import request
 from flask import jsonify, request, Response
 from jumpscale import j
 from zerorobot import service_collection as scol

@@ -11,7 +11,7 @@ import os
 def monitor_host_metrics():
     # cpu
     process_cpu_usage_percents = Gauge('process_cpu_usage_percents', 'CPU Usage in percents')
-    process_cpu_usage_percents.set_function(lambda: psutil.cpu_percent())
+    process_cpu_usage_percents.set_function(psutil.cpu_percent())
     process_cpu_time_user_mode = Gauge('process_cpu_time_user_mode', '')
     process_cpu_time_user_mode.set_function(lambda: psutil.cpu_times().user)
     process_cpu_time_system_mode = Gauge('process_cpu_time_system_mode', '')
@@ -85,10 +85,10 @@ def monitor_host_metrics():
 
     # disk IO
     DISK_READ = Gauge('host_disk_reads', 'Total reads for all disks')
-    DISK_READ.set_function(lambda: disk_stat.disk_reads_persec())
+    DISK_READ.set_function(disk_stat.disk_reads_persec())
 
     DISK_WRITE = Gauge('host_disk_writes', 'Total writes for all disks')
-    DISK_WRITE.set_function(lambda: disk_stat.disk_writes_persec())
+    DISK_WRITE.set_function(disk_stat.disk_writes_persec())
 
     host_disk_total = Gauge('host_disk_total', '')
     host_disk_total.set_function(lambda: psutil.disk_usage("/").total)
