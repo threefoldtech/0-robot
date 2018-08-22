@@ -211,7 +211,7 @@ class TemplateBase:
                     # notify the task list that this task is done
                     self.task_list.done(task)
                     if task.state == TASK_STATE_ERROR and task.eco:
-                        self.logger.error("error executing action %s:\n%s" % (task.action_name, task.eco.traceback))
+                        self.logger.error("error executing action %s:\n%s" % (task.action_name, task.eco.trace))
 
             except gevent.GreenletExit:
                 # TODO: gracefull shutdown

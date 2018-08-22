@@ -9,7 +9,6 @@ import uuid
 
 
 from jumpscale import j
-from Jumpscale.errorhandling.ErrorConditionObject import ErrorConditionObject
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import config
@@ -103,7 +102,7 @@ class TestServiceProxy(unittest.TestCase):
         # task.wait should not raise is state is error but die is False
         proxy_task.wait(die=False)
 
-        with self.assertRaises(ErrorConditionObject, message='task.wait should raise if state is error and die is True'):
+        with self.assertRaises(RuntimeError, message='task.wait should raise if state is error and die is True'):
             proxy_task.wait(die=True)
 
     def test_delete(self):

@@ -80,6 +80,6 @@ class TestServiceCollection(unittest.TestCase):
     def test_set_service_public(self):
         s1 = FakeService('111', 's1')
         scol.add(s1)
-        assert scol.is_service_public(s1.guid) == False
+        assert scol.is_service_public(s1.guid) is False
         scol.set_service_public(s1.guid)
-        assert scol.is_service_public(s1.guid) == True
+        assert scol.is_service_public(s1.guid)

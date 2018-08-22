@@ -7,6 +7,22 @@ from . import handlers
 robot_api = Blueprint('robot_api', __name__)
 
 
+@robot_api.route('/robot/info', methods=['GET'])
+def GetRobotInfo():
+    """
+    It is handler for GET /robot/info
+    """
+    return handlers.GetRobotInfoHandler()
+
+
+@robot_api.route('/robot/metrics', methods=['GET'])
+def GetMetrics():
+    """
+    It is handler for GET /robot/metrics
+    """
+    return handlers.GetMetricsHandler()
+
+
 @robot_api.route('/robot/webhooks', methods=['GET'])
 def ListWebHooks():
     """
@@ -32,19 +48,3 @@ def DeleteWebHook(id):
     It is handler for DELETE /robot/webhooks/<id>
     """
     return handlers.DeleteWebHookHandler(id)
-
-
-@robot_api.route('/robot/info', methods=['GET'])
-def GetRobotInfo():
-    """
-    It is handler for GET /robot/info
-    """
-    return handlers.GetRobotInfoHandler()
-
-
-@robot_api.route('/robot/metrics', methods=['GET'])
-def GetMetrics():
-    """
-    It is handler for GET /robot/metrics
-    """
-    return handlers.GetMetricsHandler()

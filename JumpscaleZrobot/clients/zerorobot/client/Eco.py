@@ -16,31 +16,13 @@ class Eco(object):
     @staticmethod
     def create(**kwargs):
         """
-        :type _limit: int
-        :type _traceback: string_types
-        :type appname: string_types
-        :type category: string_types
-        :type closetime: int
-        :type code: string_types
-        :type data: dict
-        :type epoch: int
-        :type errormessage: string_types
-        :type errormessagePub: string_types
-        :type exceptionclassname: string_types
-        :type funcfilename: string_types
-        :type funclinenr: int
-        :type funcname: string_types
-        :type guid: string_types
-        :type jid: int
-        :type lasttime: int
-        :type level: int
-        :type masterjid: int
-        :type occurrences: int
-        :type pid: int
-        :type state: string_types
-        :type tags: string_types
-        :type type: string_types
-        :type uniquekey: string_types
+        :type cat: string_types
+        :type count: int
+        :type message: string_types
+        :type message_pub: string_types
+        :type time_first: int
+        :type time_last: int
+        :type trace: string_types
         :rtype: Eco
         """
 
@@ -54,63 +36,22 @@ class Eco(object):
         data = json or kwargs
 
         # set attributes
+        data_types = [string_types]
+        self.cat = client_support.set_property('cat', data, data_types, False, [], False, True, class_name)
         data_types = [int]
-        self._limit = client_support.set_property('_limit', data, data_types, False, [], False, True, class_name)
+        self.count = client_support.set_property('count', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]
-        self._traceback = client_support.set_property(
-            '_traceback', data, data_types, False, [], False, True, class_name)
+        self.message = client_support.set_property('message', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]
-        self.appname = client_support.set_property('appname', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.category = client_support.set_property('category', data, data_types, False, [], False, True, class_name)
+        self.message_pub = client_support.set_property(
+            'message_pub', data, data_types, False, [], False, True, class_name)
         data_types = [int]
-        self.closetime = client_support.set_property('closetime', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.code = client_support.set_property('code', data, data_types, False, [], False, True, class_name)
-        data_types = [dict]
-        self.data = client_support.set_property('data', data, data_types, False, [], False, False, class_name)
+        self.time_first = client_support.set_property(
+            'time_first', data, data_types, False, [], False, True, class_name)
         data_types = [int]
-        self.epoch = client_support.set_property('epoch', data, data_types, False, [], False, True, class_name)
+        self.time_last = client_support.set_property('time_last', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]
-        self.errormessage = client_support.set_property(
-            'errormessage', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.errormessagePub = client_support.set_property(
-            'errormessagePub', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.exceptionclassname = client_support.set_property(
-            'exceptionclassname', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.funcfilename = client_support.set_property(
-            'funcfilename', data, data_types, False, [], False, True, class_name)
-        data_types = [int]
-        self.funclinenr = client_support.set_property(
-            'funclinenr', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.funcname = client_support.set_property('funcname', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.guid = client_support.set_property('guid', data, data_types, False, [], False, True, class_name)
-        data_types = [int]
-        self.jid = client_support.set_property('jid', data, data_types, False, [], False, True, class_name)
-        data_types = [int]
-        self.lasttime = client_support.set_property('lasttime', data, data_types, False, [], False, True, class_name)
-        data_types = [int]
-        self.level = client_support.set_property('level', data, data_types, False, [], False, True, class_name)
-        data_types = [int]
-        self.masterjid = client_support.set_property('masterjid', data, data_types, False, [], False, True, class_name)
-        data_types = [int]
-        self.occurrences = client_support.set_property(
-            'occurrences', data, data_types, False, [], False, True, class_name)
-        data_types = [int]
-        self.pid = client_support.set_property('pid', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.state = client_support.set_property('state', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.tags = client_support.set_property('tags', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.type = client_support.set_property('type', data, data_types, False, [], False, True, class_name)
-        data_types = [string_types]
-        self.uniquekey = client_support.set_property('uniquekey', data, data_types, False, [], False, True, class_name)
+        self.trace = client_support.set_property('trace', data, data_types, False, [], False, True, class_name)
 
     def __str__(self):
         return self.as_json(indent=4)

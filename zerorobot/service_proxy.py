@@ -181,9 +181,7 @@ class TaskProxy(Task):
         if self._eco is None:
             task, _ = self.service._zrobot_client.api.services.GetTask(task_guid=self.guid, service_guid=self.service.guid)
             if task.eco:
-                d_eco = task.eco.as_dict()
-                d_eco['_traceback'] = task.eco._traceback
-                self._eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
+                self._eco = j.tools.alerthandler.schema_alert.get(task.eco.as_dict())
         return self._eco
 
 
@@ -191,8 +189,8 @@ def _task_proxy_from_api(task, service):
     t = TaskProxy(task.guid, service, task.action_name, task.args, task.created)
     if task.duration:
         t._duration = task.duration
+
     if task.eco:
-        d_eco = task.eco.as_dict()
-        d_eco['_traceback'] = task.eco._traceback
-        t._eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
+        t._eco = j.tools.alerthandler.schema_alert.get(task.eco.as_dict())
+
     return t

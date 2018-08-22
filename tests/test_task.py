@@ -1,7 +1,6 @@
 import time
 import unittest
 
-from Jumpscale.errorhandling.ErrorConditionObject import ErrorConditionObject
 from zerorobot.task.task import (TASK_STATE_ERROR, TASK_STATE_NEW,
                                  TASK_STATE_OK, TASK_STATE_RUNNING, Task)
 from zerorobot.template.decorator import timeout
@@ -49,5 +48,5 @@ class TestTask(unittest.TestCase):
         # task.wait should not raise is state is error but die is False
         t.wait(die=False)
 
-        with self.assertRaises(ErrorConditionObject, message='task.wait should raise if state is error and die is True'):
+        with self.assertRaises(RuntimeError, message='task.wait should raise if state is error and die is True'):
             t.wait(die=True)
