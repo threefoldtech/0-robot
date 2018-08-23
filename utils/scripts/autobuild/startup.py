@@ -77,6 +77,12 @@ def read_kernel():
     return args
 
 
+def migrate_from_zeroos_to_threefold():
+    zeroos_services = '/opt/var/data/zrobot/zrobot_data/github.com/zero-os'
+    if j.sal.fs.exists(zeroos_services):
+        j.sal.fs.removeDirTree(zeroos_services)
+
+
 def start_robot():
     kernel_args = read_kernel()
     args = ['zrobot', 'server', 'start', '--mode', 'node']
@@ -103,6 +109,7 @@ def start_robot():
 
 
 def main():
+    migrate_from_zeroos_to_threefold()
     configure_local_client()
     start_robot()
 

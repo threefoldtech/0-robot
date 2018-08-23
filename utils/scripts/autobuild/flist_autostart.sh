@@ -45,7 +45,7 @@ done
 # install jumpscale
 for target in jumpscale_core jumpscale_lib jumpscale_prefab digital_me; do
     pushd ${target}
-    pip3 install .
+    pip3 install -e .
     popd
 done
 
@@ -55,6 +55,8 @@ cp -r /0-robot /opt/code/github/threefoldtech
 # install 0-robot
 pushd /opt/code/github/threefoldtech/0-robot
 pip3 install -e .
+cp utils/scripts/autobuild/startup.toml /.startup.toml
+cp utils/scripts/autobuild/startup.py /.startup.py
 popd
 
 tar -cpzf "/tmp/archives/0-robot-autostart.tar.gz" --exclude tmp --exclude dev --exclude sys --exclude proc  /

@@ -94,7 +94,7 @@ class ServicesMgr:
         template = tcol.get(template_uid)
         service = tcol.instantiate_service(template, service_name, data)
         if public:
-            scol.set_service_public(service)
+            scol.set_service_public(service.guid)
         return service
 
     def find_or_create(self, template_uid, service_name, data, public=False):
