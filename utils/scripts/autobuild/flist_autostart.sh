@@ -45,7 +45,7 @@ done
 # install jumpscale
 for target in jumpscale_core jumpscale_lib jumpscale_prefab digital_me; do
     pushd ${target}
-    pip3 install .
+    pip3 install -e .
     popd
 done
 
