@@ -58,7 +58,7 @@ setup(
         'jsonschema>=2.5.1',
         'six>=1.10.0',
         'python-jose>=2.0.1',
-        'greenlet == 0.4.13', #important because gevent otherwise crashes in this build
+        'gevent >= 1.2.2',
         'psutil>=5.4.3',
         'prometheus_client>=0.1.1',
         'netifaces>=0.10.6',
