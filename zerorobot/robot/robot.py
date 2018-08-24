@@ -108,7 +108,7 @@ class Robot:
         # instantiate webhooks manager and load the configured webhooks
         config.webhooks = webhooks.get(config)
 
-        logger = j.logging.get('zerorobot')
+        logger = j.logger.get('zerorobot')
         logger.info("data directory: %s" % config.data_repo.path)
         logger.info("config directory: %s" % j.tools.configmanager.path)
         logger.info("sshkey used: %s" % os.path.expanduser(os.path.join('~/.ssh', j.tools.configmanager.keyname)))
@@ -166,7 +166,7 @@ class Robot:
         5. serialize all services state to disk
         6. exit the process
         """
-        logger = j.logging.get('zerorobot')
+        logger = j.logger.get('zerorobot')
         logger.info('stopping robot')
 
         # prevent the signal handler to be called again if
@@ -203,7 +203,7 @@ class Robot:
 
 
 def _create_node_service():
-    logger = j.logging.get('zerorobot')
+    logger = j.logger.get('zerorobot')
     service_found = scol.find(template_host='github.com', template_account='threefoldtech', template_name='node')
     if not service_found:
         template_found = tcol.find(host='github.com', account='threefoldtech', name='node')
@@ -232,7 +232,7 @@ def _trim_tasks(period=7200):  # default 2 hours ago
     then 'period'
     This is to limit the amount of storage used to keep track of the tasks
     """
-    logger = j.logging.get('zerorobot')
+    logger = j.logger.get('zerorobot')
     while True:
         try:
             time.sleep(20*60)  # runs every 20 minutes
@@ -264,7 +264,7 @@ def _split_hostport(hostport):
 
 
 def _configure_authentication(admin_organization, user_organization):
-    logger = j.logging.get('zerorobot')
+    logger = j.logger.get('zerorobot')
     if admin_organization:
         auth.auth.admin_organization = admin_organization
         logger.info("admin JWT authentication enabled for organization: %s" % auth.auth.admin_organization)

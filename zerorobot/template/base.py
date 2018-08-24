@@ -107,7 +107,7 @@ class GreenletsMgr:
             self.wait_all(timeout)
 
     def stop_recurring(self, wait=False, timeout=None):
-        logger = j.logging.get('zerorobot')
+        logger = j.logger.get('zerorobot')
         for key, gl in self.gls.items():
             if key.startswith('recurring_'):
                 logger.info("kill %s" % key)

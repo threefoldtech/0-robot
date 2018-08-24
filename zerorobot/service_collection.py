@@ -20,7 +20,7 @@ def add(service):
     _guid_index[service.guid] = service
     _sqlite_index.add_service(service)
 
-    logger = j.logging.get('zerorobot')
+    logger = j.logger.get('zerorobot')
     logger.debug("add service %s to collection" % service)
 
 
@@ -72,7 +72,7 @@ def delete(service):
         del _guid_index[service.guid]
     _sqlite_index.delete_service(service)
 
-    logger = j.logging.get('zerorobot')
+    logger = j.logger.get('zerorobot')
     logger.debug("delete service %s from collection" % service)
 
 
@@ -106,7 +106,7 @@ def upgrade(service, new_template, force=False):
         # nothing to do
         return service
 
-    logger = j.logging.get('zerorobot')
+    logger = j.logger.get('zerorobot')
     logger.info("upgrade service %s (%s) to %s", service.name, service.guid, new_template.template_uid)
     service.template_uid = new_template.template_uid
 
