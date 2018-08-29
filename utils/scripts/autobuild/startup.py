@@ -4,6 +4,10 @@ from jose import jwt
 
 from jumpscale import j
 
+from zerorobot.config.data_repo import _parse_zdb
+
+logger = j.logger.get('zrobot_statup')
+
 iyo_pub_key = """-----BEGIN PUBLIC KEY-----
 MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAES5X8XrfKdx9gYayFITc89wad4usrk0n2
 7MjiGYvqalizeSWTHEpnd7oea9IQ8T5oJjMVH5cc0H5tFSKilFFeh//wngxIyny6
@@ -40,8 +44,16 @@ def get_admin_organization(kernel_args):
         try:
             claims = jwt.decode(token, iyo_pub_key)
         except jwt.ExpiredSignatureError:
-            token = j.clients.itsyouonline.refresh_jwt_token(token)
+            logger.info("farmer_id expired, trying to refresh")
+            try:
+                token = j.clients.itsyouonline.refresh_jwt_token(token)
+            except Exception as err:
+                logger.error('fail to refresh farmer_id. \
+                To fix this, generate a new farmer id, update your kernel with it and reboot the machine')
+                raise
+
             claims = jwt.decode(token, iyo_pub_key)
+
         for scope in claims.get('scope'):
             if scope.find('user:memberof:') != -1:
                 org = scope[len('user:memberof:'):]
@@ -51,11 +63,15 @@ def get_admin_organization(kernel_args):
         if not org:
             org = kernel_args.get('organization')
 
+    logger.info("admin organization found: %s" % org)
     return org
 
 
 def get_user_organization(kernel_args):
-    return kernel_args.get('user_organization')
+    org = kernel_args.get('user_organization')
+    if org:
+        logger.info("user organization found: %s" % org)
+    return org
 
 
 def read_kernel():
@@ -83,6 +99,35 @@ def migrate_from_zeroos_to_threefold():
         j.sal.fs.removeDirTree(zeroos_services)
 
 
+def read_config_repo_config():
+    """
+    detect if zdb data repository is configured and return the url to the zdb if any
+
+    :return: zdb url or None if not configured
+    :rtype: str or None
+    """
+
+    logger.info("detect if zdb data repository is configured")
+
+    data_path = '/opt/var/data/zrobot/zrobot_data/data_repo.yaml'
+    if not j.sal.fs.exists(data_path):
+        logger.info("no zdb data repository configuration found")
+        return None
+
+    repo = j.data.serializer.yaml.load(data_path)
+    zdb_url = repo.get('zdb_url')
+    if not zdb_url:
+        logger.error("wrong format in zdb data repository configuration")
+        return None
+
+    try:
+        _parse_zdb(zdb_url)
+        return zdb_url
+    except ValueError:
+        logger.error("zdb url has wrong format in zdb data repository configuration: %s", zdb_url)
+        return None
+
+
 def start_robot():
     kernel_args = read_kernel()
     args = ['zrobot', 'server', 'start', '--mode', 'node']
@@ -101,9 +146,13 @@ def start_robot():
     if 'development' in kernel_args:
         args.append('--god')
 
+    zdb_url = read_config_repo_config()
+    if zdb_url:
+        args.extend(['--data-repo', zdb_url])
+
     args.extend(['--template-repo', template_repo])
 
-    print('starting node robot: %s' ' '.join(args))
+    logger.info('starting node robot: %s' ' '.join(args))
 
     os.execv('usr/local/bin/zrobot', args)
 
