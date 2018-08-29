@@ -27,27 +27,28 @@ class DataRepo:
         path = j.sal.fs.joinPaths(j.core.dirs.DATADIR, 'zrobot')
 
         # test if url points to a zdb
-        try:
-            self.username, self.password, self.hostname, self.port, self.namespace = _parse_zdb(url)
-            self.type = 'zdb'
-            # needed cause some code expect to have a path always set,
-            # even if we're not going to actually save data there
-            self.path = path
-            return
-        except ValueError:
-            # not a zdb url, try git url
-            pass
+        if url:
+            try:
+                self.username, self.password, self.hostname, self.port, self.namespace = _parse_zdb(url)
+                self.type = 'zdb'
+                # needed cause some code expect to have a path always set,
+                # even if we're not going to actually save data there
+                self.path = path
+                return
+            except ValueError:
+                # not a zdb url, try git url
+                pass
 
-        try:
-            # try to see of path is a git URL
-            path = giturl.git_path(url)
-            self.url = url
-            # if the repo is not clone yet, clone it now
-            if not os.path.exists(path):
-                path = j.clients.git.pullGitRepo(url)
-        except ValueError:
-            # not a zdb url, try absolute path
-            path = url
+            try:
+                # try to see of path is a git URL
+                path = giturl.git_path(url)
+                self.url = url
+                # if the repo is not clone yet, clone it now
+                if not os.path.exists(path):
+                    path = j.clients.git.pullGitRepo(url)
+            except ValueError:
+                # not a zdb url, try absolute path
+                path = url
 
         # path is not an URL, we expect an absolute path
         if not os.path.isabs(path):
