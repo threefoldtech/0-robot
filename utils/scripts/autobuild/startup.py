@@ -152,7 +152,7 @@ def start_robot():
 
     args.extend(['--template-repo', template_repo])
 
-    logger.info('starting node robot: %s' ' '.join(args))
+    logger.info('starting node robot: %s', ' '.join(args))
 
     os.execv('usr/local/bin/zrobot', args)
 
