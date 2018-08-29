@@ -23,33 +23,34 @@ class DataRepo:
         self.port = None
         self.type = None
 
-        if not url:
-            # no path/url specify, we create one
-            path = j.sal.fs.joinPaths(j.core.dirs.DATADIR, 'zrobot')
-        else:
-            # url points to a zdb
-            try:
-                self.username, self.password, self.hostname, self.port = _parse_zdb(url)
-                self.type = 'zdb'
-                return
-            except ValueError:
-                # not a zdb url, try git url
-                pass
+        path = j.sal.fs.joinPaths(j.core.dirs.DATADIR, 'zrobot')
 
-            try:
-                # try to see of path is a git URL
-                path = giturl.git_path(url)
-                self.url = url
-                # if the repo is not clone yet, clone it now
-                if not os.path.exists(path):
-                    path = j.clients.git.pullGitRepo(url)
-            except ValueError:
-                # not a zdb url, try absolute path
-                path = url
+        # test if url points to a zdb
+        try:
+            self.username, self.password, self.hostname, self.port = _parse_zdb(url)
+            self.type = 'zdb'
+            # needed cause some code expect to have a path always set,
+            # even if we're not going to actually save data there
+            self.path = path
+            return
+        except ValueError:
+            # not a zdb url, try git url
+            pass
 
-            # path is not an URL, we expect an absolute path
-            if not os.path.isabs(path):
-                raise ValueError("path value is not valid. Need to be a valid git url or an absolute path on the local filesystem")
+        try:
+            # try to see of path is a git URL
+            path = giturl.git_path(url)
+            self.url = url
+            # if the repo is not clone yet, clone it now
+            if not os.path.exists(path):
+                path = j.clients.git.pullGitRepo(url)
+        except ValueError:
+            # not a zdb url, try absolute path
+            path = url
+
+        # path is not an URL, we expect an absolute path
+        if not os.path.isabs(path):
+            raise ValueError("path value is not valid. Need to be a valid git url or an absolute path on the local filesystem")
 
         path = os.path.join(path, 'zrobot_data')
 
