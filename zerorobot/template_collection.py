@@ -31,7 +31,7 @@ def add_repo(url, branch=None, directory='templates'):
     if not os.path.exists(dir_path):
         if branch is None:
             branch = 'master'
-        dir_path = j.clients.git.pullGitRepo(url, branch=branch)
+        dir_path = j.clients.git.pullGitRepo(url, branch=branch, ssh=False)
     else:
         # if we didn't specify the branch and we already have the repo locally,
         # don't switch branch, this is usefull when developping on different branches
