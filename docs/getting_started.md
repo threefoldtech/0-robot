@@ -66,12 +66,13 @@ e.g: `0.0.0.0:8080`
 
 When using the filesystem `--data-repo` can be the URL of a git repository or the absolute path of a directory on the local file system where the data of your services will be stored. If not specified, a directory is automatically created `{j.dirs.DATADIR}/zrobot`  
 
-When using 0-db, `--data-repo` need to be an url under the form: `zdb://admin_passwd:encryption_key@hostname:port`. The only required field being the hostname, all the other are optional.
+When using 0-db, `--data-repo` need to be an url under the form: `zdb://admin_passwd:encryption_key@hostname:port/namespace`. The only required field being the hostname, all the other are optional.
 Here is a list of all possiblities:
 - `zdb://hostname`
 - `zdb://hostname:port`
 - `zdb://admin_passwd@hostname:port`
 - `zdb://admin_passwd:encryption_key@hostname:port`
+- `zdb://admin_passwd:encryption_key@hostname:port/namespace`
 
 
 When starting, the robot also loads all the services present in this repository.  

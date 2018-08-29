@@ -21,13 +21,14 @@ class DataRepo:
         self.password = None
         self.hostname = None
         self.port = None
+        self.namespace = None
         self.type = None
 
         path = j.sal.fs.joinPaths(j.core.dirs.DATADIR, 'zrobot')
 
         # test if url points to a zdb
         try:
-            self.username, self.password, self.hostname, self.port = _parse_zdb(url)
+            self.username, self.password, self.hostname, self.port, self.namespace = _parse_zdb(url)
             self.type = 'zdb'
             # needed cause some code expect to have a path always set,
             # even if we're not going to actually save data there
@@ -75,7 +76,7 @@ def _parse_zdb(line):
     """
     parse a zdb url
 
-    zdb://username:password@hostname:port'
+    zdb://username:password@hostname:port/namespace
 
     return (username, password, hostname, port)
     """
@@ -84,4 +85,6 @@ def _parse_zdb(line):
     if u.scheme != 'zdb':
         raise ValueError('scheme should be bcdb, not %s', u.scheme)
 
-    return (u.username, u.password, u.hostname, u.port)
+    path = u.path[1:] if u.path and u.path[0] == '/' else u.path
+
+    return (u.username, u.password, u.hostname, u.port, path)

@@ -9,6 +9,7 @@ def get(config):
     if data_repo.type == 'zdb':
         return ZDBServiceStorage(addr=data_repo.hostname,
                                  port=data_repo.port,
+                                 namespace=data_repo.namespace,
                                  admin_passwd=data_repo.username,
                                  encr_key=data_repo.password)
 

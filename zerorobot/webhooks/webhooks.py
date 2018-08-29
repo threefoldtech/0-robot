@@ -93,7 +93,9 @@ class FSStorage:
 
 class ZDBStorage:
 
-    def __init__(self, addr, port, admin_passwd='', encr_key=''):
+    def __init__(self, addr, port, namespace=None, admin_passwd='', encr_key=''):
+        if not namespace:
+            namespace = 'zrobot_webhooks'
         zdb = j.clients.zdb.configure(instance='zrobot',
                                       secrets='',
                                       addr=addr,
@@ -102,7 +104,7 @@ class ZDBStorage:
                                       mode='user',
                                       encryptionkey=encr_key or '')
 
-        self._ns = zdb.namespace_new('zrobot_webhooks')
+        self._ns = zdb.namespace_new(namespace)
 
     def save(self, webhooks):
         self._ns.set(
