@@ -8,7 +8,7 @@ class Repo:
 
     @classmethod
     def clone(cls, url, branch='master'):
-        path = j.clients.git.pullGitRepo(url, branch=branch)
+        path = j.clients.git.pullGitRepo(url, branch=branch, ssh=False)
         return cls(path)
 
     def branch_or_tag(self):
