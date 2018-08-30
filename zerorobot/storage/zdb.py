@@ -9,7 +9,7 @@ from .base import ServiceStorageBase, _serialize_service
 
 class ZDBServiceStorage(ServiceStorageBase):
 
-    def __init__(self, addr, port, namespace=None, admin_passwd='', encr_key=''):
+    def __init__(self, addr, port, namespace=None, admin_passwd=''):
         super().__init__()
         if not namespace:
             namespace = 'zrobot_data'
@@ -18,8 +18,7 @@ class ZDBServiceStorage(ServiceStorageBase):
                                       addr=addr,
                                       port=port,
                                       adminsecret=admin_passwd or '',
-                                      mode='user',
-                                      encryptionkey=encr_key or '')
+                                      mode='user')
 
         self._ns = zdb.namespace_new(namespace)
 

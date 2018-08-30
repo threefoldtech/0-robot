@@ -10,7 +10,6 @@ def get(config):
         return ZDBServiceStorage(addr=data_repo.hostname,
                                  port=data_repo.port,
                                  namespace=data_repo.namespace,
-                                 admin_passwd=data_repo.username,
-                                 encr_key=data_repo.password)
+                                 admin_passwd=data_repo.username)
 
     raise RuntimeError("unsupported storage type for service %s", data_repo.type)

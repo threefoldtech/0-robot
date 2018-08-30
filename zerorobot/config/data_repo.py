@@ -29,7 +29,7 @@ class DataRepo:
         # test if url points to a zdb
         if url:
             try:
-                self.username, self.password, self.hostname, self.port, self.namespace = _parse_zdb(url)
+                self.password, self.hostname, self.port, self.namespace = _parse_zdb(url)
                 self.type = 'zdb'
                 # needed cause some code expect to have a path always set,
                 # even if we're not going to actually save data there
@@ -77,9 +77,9 @@ def _parse_zdb(line):
     """
     parse a zdb url
 
-    zdb://username:password@hostname:port/namespace
+    zdb://admin_password@hostname:port/namespace
 
-    return (username, password, hostname, port)
+    return (admin_password, hostname, port, namespace)
     """
 
     u = urlparse(line)
@@ -88,4 +88,4 @@ def _parse_zdb(line):
 
     path = u.path[1:] if u.path and u.path[0] == '/' else u.path
 
-    return (u.username, u.password, u.hostname, u.port, path)
+    return (u.password, u.hostname, u.port, path)

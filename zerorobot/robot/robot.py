@@ -22,7 +22,6 @@ from zerorobot.server.app import app
 from . import loader
 
 
-
 class Robot:
     """
     A robot is the main context where the templates and service lives.
@@ -120,7 +119,8 @@ class Robot:
          # configure authentication middleware
         _configure_authentication(admin_organization, user_organization)
 
-        self._sig_handler.append(gevent.signal(signal.SIGINT, self.stop))
+        for sig in [signal.SIGINT, signal.SIGTERM]:
+            self._sig_handler.append(gevent.signal(sig, self.stop))
 
         # configure logger
         app._logger = logger

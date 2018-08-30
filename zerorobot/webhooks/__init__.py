@@ -9,7 +9,6 @@ def get(config):
         store = ZDBStorage(addr=data_repo.hostname,
                            port=data_repo.port,
                            namespace=data_repo.namespace,
-                           admin_passwd=data_repo.username or '',
-                           encr_key=data_repo.password or '')
+                           admin_passwd=data_repo.username or '')
     mgr = Manager(store)
     return mgr
