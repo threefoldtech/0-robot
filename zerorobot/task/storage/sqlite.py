@@ -38,9 +38,8 @@ class TaskStorageSqlite(TaskStorageBase):
         db_path = os.path.join(self.service._path, 'tasks.db')
         if not os.path.exists(self.service._path):
             os.makedirs(self.service._path)
-        conn = sqlite3.connect(db_path)
+        self.conn = sqlite3.connect(db_path)
         self._opened = True
-        self._cursor = conn.cursor()
         self._create_table()
 
     @property
@@ -48,27 +47,30 @@ class TaskStorageSqlite(TaskStorageBase):
         return self._opened
 
     def _create_table(self):
-        self._cursor.execute(_create_table_stmt)
+        cursor = self.conn.cursor()
+        cursor.execute(_create_table_stmt)
         for stmt in _create_index_stmts:
-            self._cursor.execute(stmt)
+            cursor.execute(stmt)
 
     def add(self, task):
         """
         save a task to the storage
         """
+        cursor = self.conn.cursor()
         t = (task.guid,
              task.created,
              self._serialize_task(task))
-        self._cursor.execute(_add_task_stmt, t)
-        self._cursor.connection.commit()
+        cursor.execute(_add_task_stmt, t)
+        cursor.connection.commit()
 
     def get(self, guid):
         """
         find a task by guid
         """
+        cursor = self.conn.cursor()
         stmt = _find_task_stmt + ' WHERE guid=?'
-        self._cursor.execute(stmt, (guid,))
-        result = self._cursor.fetchone()
+        cursor.execute(stmt, (guid,))
+        result = cursor.fetchone()
         if not result:
             raise TaskNotFoundError("task %s not found" % guid)
         task = self._deserialize_task(result[2])
@@ -82,6 +84,7 @@ class TaskStorageSqlite(TaskStorageBase):
         from_timestamp: filter all task created before from_timetamp
         to_timestamp: filter all task created after to_timestamp
         """
+        cursor = self.conn.cursor()
         stmt = _find_task_stmt
         args = None
         if from_timestap and not to_timestap:
@@ -95,12 +98,12 @@ class TaskStorageSqlite(TaskStorageBase):
             args = (from_timestap, to_timestap)
 
         if args:
-            self._cursor.execute(stmt, args)
+            cursor.execute(stmt, args)
         else:
-            self._cursor.execute(stmt)
+            cursor.execute(stmt)
 
         tasks = []
-        for result in self._cursor.fetchall():
+        for result in cursor.fetchall():
             task = self._deserialize_task(result[2])
             task['guid'] = result[0]
             task = _instantiate_task(task, self.service)
@@ -111,30 +114,34 @@ class TaskStorageSqlite(TaskStorageBase):
         """
         return the number of task stored
         """
-        return self._cursor.execute(_count_tasks_stmt).fetchone()[0]
+        cursor = self.conn.cursor()
+        return cursor.execute(_count_tasks_stmt).fetchone()[0]
 
     def close(self):
         """
         gracefully close storage
         """
+        cursor = self.conn.cursor()
         if self.is_open:
-            conn = self._cursor.connection
-            self._cursor.close()
+            conn = cursor.connection
+            cursor.close()
             conn.close()
             self._opened = False
 
     def delete_until(self, to_timestap):
-        self._cursor.execute(_delete_task_stmt, (to_timestap,))
-        self._cursor.connection.commit()
+        cursor = self.conn.cursor()
+        cursor.execute(_delete_task_stmt, (to_timestap,))
+        cursor.connection.commit()
         # call vacuum to reclaim disk space after deletion of a bunch of tasks
-        self._cursor.execute("VACUUM")
+        cursor.execute("VACUUM")
 
     def drop(self):
         """
         delete all the tasks
         """
-        self._cursor.execute(_drop_stmt)
-        self._cursor.connection.commit()
+        cursor = self.conn.cursor()
+        cursor.execute(_drop_stmt)
+        cursor.connection.commit()
 
     def _serialize_task(self, task):
         return msgpack.dumps({
