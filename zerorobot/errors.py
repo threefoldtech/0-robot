@@ -24,14 +24,14 @@ class Eco:
 
     @classmethod
     def from_dict(cls, d):
-        self = cls(d['trace'])
-        self.category = 'cat'
-        self.count = 'count'
-        self.message = 'message'
-        self.message_pub = 'message_pub'
-        self.time_first = 'time_first'
-        self.time_last = 'time_last'
-        self.trace = 'trace'
+        self = cls(d.get('trace'))
+        self.category = d.get('cat')
+        self.count = d.get('count')
+        self.message = d.get('message')
+        self.message_pub = d.get('message_pub')
+        self.time_first = d.get('time_first')
+        self.time_last = d.get('time_last')
+        self.trace = d.get('trace')
 
         return self
 
