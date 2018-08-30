@@ -13,12 +13,12 @@ class ExpectedError:
 class Eco:
 
     def __init__(self, traceback, **kwargs):
-        self.category = None
+        self.category = ''
         self.count = 1
-        self.message = None
-        self.message_pub = None
-        self.time_first = None
-        self.time_last = None
+        self.message = ''
+        self.message_pub = ''
+        self.time_first = 0
+        self.time_last = 0
         self.trace = traceback
         self.__dict__.update(kwargs)
 
@@ -49,7 +49,7 @@ class Eco:
 
 def eco_get(exception_type, exception, traceback):
     trace = _traceback.format_exception(exception_type, exception, traceback)
-    eco = Eco(trace)
+    eco = Eco('\n'.join(trace))
 
     args = [str(item) for item in exception.args]
     eco.message = "\n".join(args)
