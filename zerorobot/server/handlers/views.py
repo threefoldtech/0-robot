@@ -46,7 +46,7 @@ def task_view(task, service):
         'guid': task.guid,
         'created': task.created,
         'duration': task.duration,
-        'eco': task.eco._ddict if task.eco else None,
+        'eco': task.eco.to_dict() if task.eco else None,
         'result': result
     }
 

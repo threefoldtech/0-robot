@@ -77,6 +77,6 @@ def _serialize_task(task):
         "action_name": task.action_name,
         "args": task._args,
         "state": task.state,
-        "eco": task.eco._ddict if task.eco else None,
+        "eco": task.eco.to_dict() if task.eco else None,
         "created": task.created,
     }

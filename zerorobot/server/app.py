@@ -4,6 +4,7 @@ import sys
 from flask import Flask, jsonify, send_file, send_from_directory
 from jumpscale import j
 
+from zerorobot.errors import eco_get
 from .blueprints_api import blueprints_api
 from .services_api import services_api
 from .templates_api import templates_api
@@ -32,6 +33,5 @@ def home():
 @app.errorhandler(500)
 def internal_error(err):
     exc_type, exc, exc_traceback = sys.exc_info()
-    trace = j.errorhandler._trace_get(exc_type, exc, exc_traceback)
-    eco = j.tools.alerthandler.log(exc, trace)
+    eco = eco_get(exc_type, exc, exc_traceback)
     return jsonify(code=500, message=eco.message, stack_trace=eco.trace), 500

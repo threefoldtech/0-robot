@@ -15,6 +15,7 @@ from jumpscale import j
 from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                             TASK_STATE_RUNNING, Task, TaskNotFoundError)
 from zerorobot.template.state import ServiceState
+from zerorobot.errors import Eco
 
 
 class ServiceProxy():
@@ -181,7 +182,7 @@ class TaskProxy(Task):
         if self._eco is None:
             task, _ = self.service._zrobot_client.api.services.GetTask(task_guid=self.guid, service_guid=self.service.guid)
             if task.eco:
-                self._eco = j.tools.alerthandler.schema_alert.get(task.eco.as_dict())
+                self._eco = Eco.from_dict(task.eco.as_dict())
         return self._eco
 
 
@@ -191,6 +192,6 @@ def _task_proxy_from_api(task, service):
         t._duration = task.duration
 
     if task.eco:
-        t._eco = j.tools.alerthandler.schema_alert.get(task.eco.as_dict())
+        t._eco = Eco.from_dict(task.eco.as_dict())
 
     return t

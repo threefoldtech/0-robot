@@ -18,7 +18,7 @@ from gevent.lock import Semaphore
 
 from jumpscale import j
 from zerorobot import config
-from zerorobot.errors import ExpectedError
+from zerorobot.errors import ExpectedError, eco_get
 
 from . import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                TASK_STATE_RUNNING)
@@ -81,8 +81,7 @@ class Task:
             self.state = TASK_STATE_ERROR
             # capture stacktrace and exception
             exc_type, exc, exc_traceback = sys.exc_info()
-            trace = j.errorhandler._trace_get(exc_type, exc, exc_traceback)
-            self._eco = j.tools.alerthandler.log(exc, trace)
+            self._eco = eco_get(exc_type, exc, exc_traceback)
             if not isinstance(exc, ExpectedError):
                 gevent.spawn(self._report_telegram, exc_type, exc, exc_traceback)
                 gevent.spawn(_send_eco_webhooks, self.service, self)
@@ -181,7 +180,7 @@ def _send_eco_webhooks(service, task):
         'service': service.guid,
         'action_name': task.action_name,
         'args': task._args,
-        'eco': task.eco._ddict,
+        'eco': task.eco.to_dict(),
     }
 
     logger = j.logger.get('zerorobot')

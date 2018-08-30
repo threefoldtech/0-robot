@@ -4,6 +4,7 @@ from . import (PRIORITY_NORMAL, PRIORITY_RECURRING, PRIORITY_SYSTEM,
                TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                TASK_STATE_RUNNING)
 from .task import Task
+from zerorobot.errors import Eco
 
 
 def _instantiate_task(task, service):
@@ -15,7 +16,7 @@ def _instantiate_task(task, service):
         t.state = task['state']
     t.guid = task['guid']
     if task['eco']:
-        t._eco = j.tools.alerthandler.schema_alert.get(task['eco'])
+        t._eco = Eco.from_dict(task['eco'])
     t._result = task.get('result')
     t._created = task.get('created')
     t._duration = task.get('duration')
