@@ -49,7 +49,7 @@ class Eco:
 
 def eco_get(exception_type, exception, traceback):
     trace = _traceback.format_exception(exception_type, exception, traceback)
-    eco = Eco('\n'.join(trace))
+    eco = Eco(''.join(trace))
 
     args = [str(item) for item in exception.args]
     eco.message = "\n".join(args)
