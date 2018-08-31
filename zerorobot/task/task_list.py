@@ -51,9 +51,9 @@ class TaskList:
         with self._current_mu:
             self._current = value
 
-    def __del__(self):
-        if self._done:
-            self._done.close()
+    # def __del__(self):
+    #     if self._done:
+    #         self._done.close()
 
     def get(self, timeout=None):
         """
