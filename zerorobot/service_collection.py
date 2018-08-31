@@ -127,7 +127,7 @@ def upgrade(service, new_template, force=False):
     new_service._public = service._public
 
     new_service.state = service.state
-    new_service.task_list = service.task_list
+    # new_service.task_list = service.task_list
     add(new_service)
 
     new_service.save()
