@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -ex
 
 # make output directory
@@ -58,5 +57,7 @@ pip3 install -e .
 cp utils/scripts/autobuild/startup.toml /.startup.toml
 cp utils/scripts/autobuild/startup.py /.startup.py
 popd
+
+echo '# DNS unset during autobuild of 0-robot' > /etc/resolv.conf
 
 tar -cpzf "/tmp/archives/0-robot-autostart.tar.gz" --exclude tmp --exclude dev --exclude sys --exclude proc  /
