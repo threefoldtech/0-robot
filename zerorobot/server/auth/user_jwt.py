@@ -6,6 +6,8 @@ from jumpscale import j
 
 _token_prefix = "Bearer "
 
+logger = j.logger.get('zrobot')
+
 
 def create(claims):
     """create a JWT with the claims pass as argument
@@ -32,7 +34,6 @@ def verify(service_guid, token):
         if claims == expected:
             return True
     except Exception as err:
-        logger = j.logger.get('zrobot')
         logger.debug('error decoding user secret: %s', str(err))
 
     return False

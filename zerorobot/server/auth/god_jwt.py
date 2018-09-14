@@ -5,6 +5,8 @@ from zerorobot import config
 from jose import jwt
 from jumpscale import j
 
+logger = j.logger.get('zrobot')
+
 _token_prefix = "Bearer "
 
 
@@ -31,8 +33,7 @@ def verify(token):
         if claims == expected:
             return True
     except Exception as err:
-        logger = j.logger.get('zrobot')
-        logger.error('error decoding god token: %s', str(err))
+        logger.debug('error decoding god token: %s', str(err))
 
     return False
 
