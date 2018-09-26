@@ -90,7 +90,13 @@ class ServiceProxy():
         }
         if args:
             req["args"] = args
-        task, _ = self._zrobot_client.api.services.AddTaskToList(req, service_guid=self.guid)
+
+        try:
+            task, _ = self._zrobot_client.api.services.AddTaskToList(req, service_guid=self.guid)
+        except HTTPError as err:
+            if err.response.status_code == 400:
+                raise RuntimeError(err.response.json()['message'])
+            raise err
 
         return _task_proxy_from_api(task, self)
 

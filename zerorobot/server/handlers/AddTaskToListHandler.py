@@ -41,7 +41,7 @@ def AddTaskToListHandler(service_guid):
         task = service.schedule_action(action=inputs['action_name'], args=args)
     except ActionNotFoundError:
         return jsonify(code=400, message="action '%s' not found" % inputs['action_name']), 400
-    except BadActionArgumentError:
-        return jsonify(code=400, message="the argument passed in the requests, doesn't match the signature of the action"), 400
+    except BadActionArgumentError as err:
+        return jsonify(code=400, message=str(err)), 400
 
     return jsonify(task_view(task, service)), 201
