@@ -23,4 +23,30 @@ entry_point.add_command(blueprint)
 entry_point.add_command(godtoken)
 
 if __name__ == "__main__":
+    from urllib.parse import urlparse
+    def _parse_zdb(line):
+        """
+        parse a zdb url
+
+        zdb://admin_password@hostname:port/namespace
+
+        return (admin_password, hostname, port, namespace)
+        """
+
+        u = urlparse(line)
+        if u.scheme != 'zdb':
+            raise ValueError('scheme should be bcdb, not %s', u.scheme)
+
+        path = u.path[1:] if u.path and u.path[0] == '/' else u.path
+
+        return (u.username, u.hostname, u.port, path)
+
+    from jumpscale import j
+    CONFIG_PATH = '/opt/var/data/zrobot/zrobot_data/data_repo.yaml'
+
+    if j.sal.fs.exists(CONFIG_PATH):
+        zdburl = j.data.serializer.yaml.load(CONFIG_PATH)['zdb_url']
+        _, _, _, namespace = _parse_zdb(zdburl)
+        j.tools.configmanager.set_namespace(namespace)
+        
     entry_point()

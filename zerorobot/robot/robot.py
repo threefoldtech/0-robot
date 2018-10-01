@@ -97,10 +97,8 @@ class Robot:
 
         config.mode = mode
         config.god = god  # when true, this allow to get data and logs from services using the REST API
-
         if config.data_repo is None:
             raise RuntimeError("Not data repository set. Robot doesn't know where to save data.")
-
         if not j.tools.configmanager.path:
             raise RuntimeError("config manager is not configured, can't continue")
 
@@ -111,6 +109,7 @@ class Robot:
         logger.info("data directory: %s" % config.data_repo.path)
         logger.info("config directory: %s" % j.tools.configmanager.path)
         logger.info("sshkey used: %s" % os.path.expanduser(os.path.join('~/.ssh', j.tools.configmanager.keyname)))
+        logger.info("configmanager sshkeypath: "+ j.tools.configmanager.keypath)
 
         # configure prometheus monitoring
         if not kwargs.get('testing', False):
