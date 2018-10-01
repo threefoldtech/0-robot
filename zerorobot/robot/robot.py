@@ -182,7 +182,7 @@ class Robot:
         logger.info("waiting for services to stop")
         for service in scol.list_services():
             try:
-                service._gracefull_stop(timeout=None)
+                service._gracefull_stop(timeout=timeout)
             except Exception as err:
                 logger.warning('exception raised while waiting %s %s (%s) to finish: %s', service.template_uid.name, service.name, service.guid, err)
 

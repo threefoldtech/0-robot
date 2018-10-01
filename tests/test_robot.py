@@ -1,7 +1,3 @@
-from gevent import monkey
-# need to patch sockets to make requests async
-monkey.patch_all(subprocess=False)
-
 import os
 import tempfile
 import unittest

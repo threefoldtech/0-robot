@@ -9,7 +9,7 @@ class _ConfigLock:
     def __enter__(self):
         self._lock.acquire()
 
-    def __exit__(self, type, value, tb):
+    def __exit__(self, ttype, value, tb):
         self._lock.release()
 
 

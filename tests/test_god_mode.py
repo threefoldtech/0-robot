@@ -1,7 +1,3 @@
-# need to patch sockets to make requests async
-from gevent import monkey
-monkey.patch_all(subprocess=False)
-
 import os
 import shutil
 import unittest
@@ -36,7 +32,7 @@ class RobotContext:
         return self.cl
 
     def __exit__(self, type, value, tb):
-        self.robot.stop(timeout=1)
+        self.robot.stop(timeout=0)
         if os.path.exists(config.data_repo.path):
             shutil.rmtree(config.data_repo.path)
         j.clients.zrobot.delete('test')
