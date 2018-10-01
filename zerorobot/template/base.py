@@ -323,7 +323,7 @@ class TemplateBase:
             self.task_list.current.wait(timeout=timeout)
 
         if not self.task_list.empty():
-            logger.warning("service %s stop processing its task list, while some task remains in the queue")
+            self.logger.warning("service %s stop processing its task list, while some task remains in the queue")
 
         # schedule and wait for all the cleanup actions
         delete_tasks = []

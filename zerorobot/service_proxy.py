@@ -16,6 +16,7 @@ from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                             TASK_STATE_RUNNING, Task, TaskNotFoundError)
 from zerorobot.template.state import ServiceState
 from zerorobot.errors import Eco
+from zerorobot.sync import config_lock
 
 
 class ServiceProxy():
@@ -103,16 +104,19 @@ class ServiceProxy():
     def delete(self):
         self._zrobot_client.api.services.DeleteService(self.guid)
         # clean up secret from zrobot client
-        for secret in list(self._zrobot_client.config.data['secrets_']):
-            try:
-                claims = jwt.get_unverified_claims(secret)
-            except:
-                continue
-            else:
-                if claims.get('service_guid') == self.guid:
-                    self._zrobot_client.config.data['secrets_'].remove(secret)
-                    self._zrobot_client.config.save()
-                    return
+        with config_lock:
+            self._zrobot_client.config.load(reset=True)
+            secrets = self._zrobot_client.config.data['secrets_']
+            for secret in list(secrets):
+                try:
+                    claims = jwt.get_unverified_claims(secret)
+                except:
+                    continue
+                else:
+                    if claims.get('service_guid') == self.guid and secret in secrets:
+                        secrets.remove(secret)
+            self._zrobot_client.config.data_set('secrets_', secrets)
+            self._zrobot_client.config.save()
 
 
 class TaskListProxy:
