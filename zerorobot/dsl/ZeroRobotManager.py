@@ -12,6 +12,9 @@ from zerorobot.service_proxy import ServiceProxy
 from zerorobot.template_collection import (TemplateConflictError,
                                            TemplateNotFoundError)
 from zerorobot.template_uid import TemplateUID
+from zerorobot.sync import config_lock
+
+logger = j.logger.get(__name__)
 
 
 class ServiceCreateError(Exception):
@@ -41,12 +44,16 @@ class ServicesMgr:
         self._client = robot._client
 
     def _instantiate(self, data):
-
         if hasattr(data, 'secret') and data.secret:
-            if data.secret not in self._client.config.data['secrets_']:
+
+            with config_lock:
+                self._client.config.load(reset=True)
                 secrets = self._client.config.data['secrets_']
-                secrets.append(data.secret)
-                self._client.config.save()
+                if data.secret not in secrets:
+                    secrets.append(data.secret)
+                    self._client.config.data_set('secrets_', secrets)
+                    self._client.config.save()
+
             # force re-creation of the connection with new secret added in the Authorization header
             self._client._api = None
 
