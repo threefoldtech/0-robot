@@ -69,6 +69,18 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
         robot.add_template_repo(url)
 
     robot.set_data_repo(data_repo)
+    if not config_repo:
+        namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "")
+        if namespace_in_cfg:
+            config_repo_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg) 
+            if j.sal.fs.exists(config_repo_path):
+                config_repo = config_repo_path
+
+    if not config_key:
+        config_key_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg, "keys", "key")
+        if j.sal.fs.exists(config_key_path):
+            config_key = config_key_path
+    
     robot.set_config_repo(config_repo, config_key)
 
     robot.start(listen=listen,

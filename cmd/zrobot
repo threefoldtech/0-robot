@@ -23,14 +23,12 @@ entry_point.add_command(blueprint)
 entry_point.add_command(godtoken)
 
 if __name__ == "__main__":
-    from zerorobot.config.data_repo import _parse_zdb
-
     from jumpscale import j
-    CONFIG_PATH = '/opt/var/data/zrobot/zrobot_data/data_repo.yaml'
+    if  j.core.state.configGetFromDict("myconfig", "backend") == "db":
+        namespace =  j.core.state.configGetFromDict("myconfig", "namespace", "")
+        if namespace:
+           j.tools.configmanager.set_namespace(namespace)
+        else:
+            raise RuntimeError("Working in zdb backend mode and don't have a namespace")
 
-    if j.sal.fs.exists(CONFIG_PATH):
-        zdburl = j.data.serializer.yaml.load(CONFIG_PATH)['zdb_url']
-        _, _, _, namespace = _parse_zdb(zdburl)
-        j.tools.configmanager.set_namespace(namespace)
-        
     entry_point()
