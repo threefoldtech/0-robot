@@ -62,3 +62,22 @@ class TestZRobotClient(unittest.TestCase):
         node = self.cl.services.create('github.com/threefoldtech/0-robot/node/0.0.1', data=data)
         self.assertEqual(type(node), ServiceProxy, 'service type should be ServiceProxy')
         self.assertEqual(node.name, node.guid, "service name should be equal to service guid when created without name")
+
+    def test_service_creation_data_race(self):
+        def get_client():
+            return self.cl
+
+        def create_service(name):
+            robot = get_client()
+            data = {'ip': '127.0.0.1'}
+            service = self.cl.services.create('github.com/threefoldtech/0-robot/node/0.0.1', name, data=data)
+            print("service %s created", name)
+
+        N = 200
+        group = pool.Group()
+        expected_secrets = ["greenlet_%d" % i for i in range(N)]
+        group.map(create_service, expected_secrets)
+        group.join()
+
+        robot = get_client()
+        assert len(robot.services.find()) == N
