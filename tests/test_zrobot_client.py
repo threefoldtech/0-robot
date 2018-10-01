@@ -1,21 +1,16 @@
-
 import os
 import shutil
 import unittest
 import uuid
 
-from gevent import monkey
-
+from gevent import pool
 from jumpscale import j
+from zerorobot import config
 from zerorobot import service_collection as scol
 from zerorobot.dsl.ZeroRobotManager import (TemplateNotFoundError,
                                             ZeroRobotManager)
-from zerorobot import config
 from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
-
-# need to patch sockets to make requests async
-monkey.patch_all(subprocess=False)
 
 
 class TestZRobotClient(unittest.TestCase):
@@ -33,7 +28,7 @@ class TestZRobotClient(unittest.TestCase):
         self.robot.start(listen='127.0.0.1:6600', block=False, testing=True)
 
     def tearDown(self):
-        self.robot.stop(timeout=1)
+        self.robot.stop(timeout=0)
         if os.path.exists(config.data_repo.path):
             shutil.rmtree(config.data_repo.path)
         # make sure we don't have any service loaded

@@ -6,7 +6,6 @@ import unittest
 import uuid
 from multiprocessing import Process
 
-from gevent import monkey
 
 from jumpscale import j
 from zerorobot import service_collection as scol
@@ -16,9 +15,6 @@ from zerorobot import config
 from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
 from zerorobot.template.base import TemplateBase
-
-# need to patch sockets to make requests async
-monkey.patch_all(subprocess=False)
 
 
 class TestZRobotAPI(unittest.TestCase):

@@ -1,6 +1,3 @@
-# need to patch sockets to make requests async
-from gevent import monkey
-monkey.patch_all(subprocess=False)
 
 import os
 import shutil
@@ -34,7 +31,7 @@ class TestServiceProxy(unittest.TestCase):
         self.robot.start(listen='127.0.0.1:6600', block=False, testing=True)
 
     def tearDown(self):
-        self.robot.stop(timeout=1)
+        self.robot.stop(timeout=0)
         if os.path.exists(config.data_repo.path):
             shutil.rmtree(config.data_repo.path)
         j.clients.zrobot.delete('test')

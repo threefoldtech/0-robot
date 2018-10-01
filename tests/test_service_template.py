@@ -1,7 +1,3 @@
-# need to patch sockets to make requests async
-from gevent import monkey
-monkey.patch_all(subprocess=False)
-
 import glob
 import os
 import shutil
