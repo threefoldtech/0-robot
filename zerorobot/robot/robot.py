@@ -108,8 +108,10 @@ class Robot:
         logger = j.logger.get('zerorobot')
         logger.info("data directory: %s" % config.data_repo.path)
         logger.info("config directory: %s" % j.tools.configmanager.path)
-        logger.info("sshkey used: %s" % os.path.expanduser(os.path.join('~/.ssh', j.tools.configmanager.keyname)))
-        logger.info("configmanager sshkeypath: "+ j.tools.configmanager.keypath)
+        keypath = j.tools.configmanager.keypath
+        if not keypath:
+            keypath = os.path.expanduser(os.path.join('~/.ssh', j.tools.configmanager.keyname))
+        logger.info("sshkey used: %s" % keypath)
 
         # configure prometheus monitoring
         if not kwargs.get('testing', False):

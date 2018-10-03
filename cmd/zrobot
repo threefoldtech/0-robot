@@ -23,12 +23,4 @@ entry_point.add_command(blueprint)
 entry_point.add_command(godtoken)
 
 if __name__ == "__main__":
-    from jumpscale import j
-    if  j.core.state.configGetFromDict("myconfig", "backend") == "db":
-        namespace =  j.core.state.configGetFromDict("myconfig", "namespace", "")
-        if namespace:
-           j.tools.configmanager.set_namespace(namespace)
-        else:
-            raise RuntimeError("Working in zdb backend mode and don't have a namespace")
-
     entry_point()

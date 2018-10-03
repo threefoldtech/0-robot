@@ -15,6 +15,13 @@ from zerorobot.robot import Robot
 telegram_logger = logging.getLogger('telegram_logger')
 telegram_logger.disabled = True
 
+if  j.core.state.configGetFromDict("myconfig", "backend") == "db":
+    namespace =  j.core.state.configGetFromDict("myconfig", "namespace", "")
+    if namespace:
+        j.tools.configmanager.set_namespace(namespace)
+    else:
+        raise RuntimeError("Working in zdb backend mode and don't have a namespace")
+
 
 @click.group()
 def server():
@@ -69,14 +76,15 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
         robot.add_template_repo(url)
 
     robot.set_data_repo(data_repo)
-    if not config_repo:
+    backend =  j.core.state.configGetFromDict("myconfig", "backend", "")
+    if not config_repo and backend == "db" :
         namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "")
         if namespace_in_cfg:
             config_repo_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg) 
             if j.sal.fs.exists(config_repo_path):
                 config_repo = config_repo_path
 
-    if not config_key:
+    if not config_key and backend == "db" :
         config_key_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg, "keys", "key")
         if j.sal.fs.exists(config_key_path):
             config_key = config_key_path
