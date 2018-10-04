@@ -38,6 +38,13 @@ class ZeroRobotFactory(JSConfigFactoryBase):
         """
         return self._robots
 
+    def get_by_id(self, node_id):
+        directory = j.clients.threefold_directory.get()
+        node, resp = directory.api.GetCapacity(node_id)
+        resp.raise_for_status()
+        self.get(node_id, data={'url': node.robot_address})
+        return self.robots[node_id]
+
 
 class RobotLoader(collections.MutableMapping):
 
