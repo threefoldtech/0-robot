@@ -15,13 +15,6 @@ from zerorobot.robot import Robot
 telegram_logger = logging.getLogger('telegram_logger')
 telegram_logger.disabled = True
 
-if  j.core.state.configGetFromDict("myconfig", "backend") == "db":
-    namespace =  j.core.state.configGetFromDict("myconfig", "namespace", "")
-    if namespace:
-        j.tools.configmanager.set_namespace(namespace)
-    else:
-        raise RuntimeError("Working in zdb backend mode and don't have a namespace")
-
 
 @click.group()
 def server():
@@ -93,6 +86,16 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
 
     j.logger.handlers_level_set(level)
     j.logger.loggers_level_set(level)
+
+    # Check if configmanager is configured to zdb backend and has a namespace configured
+    if  j.core.state.configGetFromDict("myconfig", "backend") == "db":
+        namespace =  j.core.state.configGetFromDict("myconfig", "namespace", "")
+        if namespace:
+            j.tools.configmanager.set_namespace(namespace)
+        else:
+            raise RuntimeError("Working in zdb backend mode and don't have a namespace")
+
+
 
     if (telegram_bot_token and not telegram_chat_id) or (telegram_chat_id and not telegram_bot_token):
         raise ValueError("To enable telegram error logging, you need to specify both the --telegram-bot-token and the --telegram-chat-id options")
