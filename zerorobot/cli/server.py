@@ -28,6 +28,41 @@ def server():
     pass
 
 
+def get_db_config_repo():
+    """Gets config repo sandbox based on the configured namespace in jumpscale.toml
+    
+    Returns:
+        str or None: config_repo  
+    """
+    backend =  j.core.state.configGetFromDict("myconfig", "backend", "")
+    namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "")
+    config_repo = None
+
+    if backend == "db" :
+        if namespace_in_cfg:
+            config_repo_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg) 
+            if j.sal.fs.exists(config_repo_path):
+                config_repo = config_repo_path
+    return config_repo
+
+
+def get_db_config_key():
+    """Gets config key from sandbox based on the configured namespace in jumpscale.toml
+    
+    Returns:
+        str or None: config_key  
+    """
+    backend =  j.core.state.configGetFromDict("myconfig", "backend", "")
+    namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "")
+    config_key = None
+
+    if backend == "db" :
+        config_key_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg, "keys", "key")
+        if j.sal.fs.exists(config_key_path):
+            config_key = config_key_path
+    return config_key
+
+
 @server.command()
 @click.option('--listen', '-L', help='listen address (default :6600)', default=':6600')
 @click.option('--data-repo', '-D', required=False, help='URL of the git repository or absolute path where to save the data of the zero robot')
@@ -76,19 +111,10 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
         robot.add_template_repo(url)
 
     robot.set_data_repo(data_repo)
-    backend =  j.core.state.configGetFromDict("myconfig", "backend", "")
-    if not config_repo and backend == "db" :
-        namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "")
-        if namespace_in_cfg:
-            config_repo_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg) 
-            if j.sal.fs.exists(config_repo_path):
-                config_repo = config_repo_path
 
-    if not config_key and backend == "db" :
-        config_key_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg, "keys", "key")
-        if j.sal.fs.exists(config_key_path):
-            config_key = config_key_path
-    
+    config_repo = config_repo or get_db_config_repo()
+    config_key = config_key or get_db_config_key()
+
     robot.set_config_repo(config_repo, config_key)
 
     robot.start(listen=listen,
