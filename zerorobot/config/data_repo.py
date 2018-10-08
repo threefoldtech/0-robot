@@ -88,4 +88,4 @@ def _parse_zdb(line):
 
     path = u.path[1:] if u.path and u.path[0] == '/' else u.path
 
-    return (u.username, u.hostname, u.port, path)
+    return (u.password, u.hostname, u.port, path)
