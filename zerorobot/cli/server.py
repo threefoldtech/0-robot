@@ -27,8 +27,8 @@ def get_db_config_repo():
     Returns:
         str or None: config_repo  
     """
-    backend =  j.core.state.configGetFromDict("myconfig", "backend", "")
-    namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "")
+    backend =  j.core.state.configGetFromDict("myconfig", "backend", "file")
+    namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "default")
     config_repo = None
 
     if backend == "db" :
@@ -45,8 +45,8 @@ def get_db_config_key():
     Returns:
         str or None: config_key  
     """
-    backend =  j.core.state.configGetFromDict("myconfig", "backend", "")
-    namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "")
+    backend =  j.core.state.configGetFromDict("myconfig", "backend", "file")
+    namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "default")
     config_key = None
 
     if backend == "db" :
@@ -88,8 +88,8 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
     j.logger.loggers_level_set(level)
 
     # Check if configmanager is configured to zdb backend and has a namespace configured
-    if  j.core.state.configGetFromDict("myconfig", "backend") == "db":
-        namespace =  j.core.state.configGetFromDict("myconfig", "namespace", "")
+    if  j.core.state.configGetFromDict("myconfig", "backend", "file") == "db":
+        namespace =  j.core.state.configGetFromDict("myconfig", "namespace", "default")
         if namespace:
             j.tools.configmanager.set_namespace(namespace)
         else:
