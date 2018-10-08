@@ -74,4 +74,5 @@ class ZeroRobotClient(JSConfigClientBase):
             god_token {sting} -- god token of robot
         """
         self.config.data_set('god_token_', god_token)
+        self.config.save()
         self._api = None  # force reload of the api with new god token header
