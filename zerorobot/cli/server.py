@@ -27,6 +27,7 @@ def get_db_config_repo():
     Returns:
         str or None: config_repo  
     """
+    # configmanager will have file by default and on fresh jumpscale will have it in jumpscale.toml
     backend =  j.core.state.configGetFromDict("myconfig", "backend", "file")
     namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "default")
     config_repo = None
