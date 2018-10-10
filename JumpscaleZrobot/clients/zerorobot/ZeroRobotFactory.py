@@ -76,9 +76,7 @@ class RobotLoader(collections.MutableMapping):
         return ZeroRobotManager(key)
 
     def __repr__(self):
-        robots = {}
-        for instance in j.clients.zrobot.list():
-            robots[instance] = ZeroRobotManager(instance)
+        robots = {instance: "ZeroRobotManager" for instance in j.clients.zrobot.list()}
         return str(robots)
 
     __str__ = __repr__
