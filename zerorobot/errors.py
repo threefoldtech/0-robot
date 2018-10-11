@@ -1,4 +1,5 @@
 import traceback as _traceback
+import time
 
 
 class ExpectedError:
@@ -55,5 +56,6 @@ def eco_get(exception_type, exception, traceback):
     eco.message = "\n".join(args)
     name = str(exception.__class__).split("'")[1].strip()
     eco.category = "python.%s" % name
+    eco.time_last = time.time()
 
     return eco
