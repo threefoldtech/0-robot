@@ -4,6 +4,7 @@ import unittest
 
 import pytest
 from jumpscale import j
+from zerorobot.task.storage.base import TaskConflictError
 from zerorobot.task.storage.file import TaskStorageFile
 from zerorobot.task.task import Task
 from zerorobot.task.task_list import TaskList, TaskNotFoundError
@@ -25,12 +26,13 @@ class _FakeService:
         pass
 
 
-class TestTaskStorage(unittest.TestCase):
+class TestTaskStorageFile(unittest.TestCase):
 
     def setUp(self):
         self.service = _FakeService()
         self.task_list = TaskList(self.service)
         self.storage = TaskStorageFile(self.task_list)
+        self.task_list._done = self.storage
 
     def tearDown(self):
         j.sal.fs.removeDirTree(self.service._path)
@@ -76,7 +78,7 @@ class TestTaskStorage(unittest.TestCase):
             self.storage.get('no_exist')
 
         self.storage.add(expected)
-        with pytest.raises(RuntimeError):
+        with pytest.raises(TaskConflictError):
             self.storage.get(expected.guid)
 
     def test_list(self):

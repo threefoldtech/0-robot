@@ -48,3 +48,9 @@ class TaskStorageBase:
 
 class TaskNotFoundError(Exception):
     pass
+
+
+class TaskConflictError(Exception):
+    # raise when trying to store a task with a guid
+    # which already exists
+    pass

@@ -1,9 +1,11 @@
-from .base import TaskStorageBase, TaskNotFoundError
+from .base import TaskStorageBase, TaskNotFoundError, TaskConflictError
 from zerorobot.task.utils import _instantiate_task
 import os
 import sqlite3
 import msgpack
 from jumpscale import j
+
+logger = j.logger.get(__name__)
 
 _create_table_stmt = """
 CREATE TABLE IF NOT EXISTS tasks (
@@ -60,8 +62,11 @@ class TaskStorageSqlite(TaskStorageBase):
         t = (task.guid,
              task.created,
              self._serialize_task(task))
-        cursor.execute(_add_task_stmt, t)
-        cursor.connection.commit()
+        try:
+            cursor.execute(_add_task_stmt, t)
+            cursor.connection.commit()
+        except sqlite3.IntegrityError:
+            raise TaskConflictError("task %s already exists", task.guid)
 
     def get(self, guid):
         """

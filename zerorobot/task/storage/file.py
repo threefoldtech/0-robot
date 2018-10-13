@@ -2,7 +2,7 @@ import os
 
 from jumpscale import j
 
-from .base import TaskStorageBase, TaskNotFoundError
+from .base import TaskStorageBase, TaskNotFoundError, TaskConflictError
 from .import encoding
 
 
@@ -35,7 +35,7 @@ class TaskStorageFile(TaskStorageBase):
         if len(results) <= 0:
             raise TaskNotFoundError("task %s not found" % guid)
         if len(results) > 1:
-            raise RuntimeError("found 2 tasks with same guid, this should not happen")
+            raise TaskConflictError("found 2 tasks with same guid, this should not happen")
         return encoding.deserialize_task(j.sal.fs.readFile(results[0]), self.service)
 
     def list(self, from_timestap=None, to_timestap=None):
