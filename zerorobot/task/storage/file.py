@@ -1,8 +1,9 @@
-from .base import TaskStorageBase, TaskNotFoundError
-from zerorobot.task.utils import _instantiate_task
 import os
 
 from jumpscale import j
+
+from .base import TaskStorageBase, TaskNotFoundError
+from .import encoding
 
 
 class TaskStorageFile(TaskStorageBase):
@@ -24,8 +25,7 @@ class TaskStorageFile(TaskStorageBase):
         save a task to the storage
         """
         self._count += 1
-        path = os.path.join(self._root, "%d_%s" % (self._count, task.guid))
-        j.sal.fs.writeFile(path, self._serialize_task(task))
+        j.sal.fs.writeFile(self._task_path(task), encoding.serialize_task(task))
 
     def get(self, guid):
         """
@@ -36,7 +36,7 @@ class TaskStorageFile(TaskStorageBase):
             raise TaskNotFoundError("task %s not found" % guid)
         if len(results) > 1:
             raise RuntimeError("found 2 tasks with same guid, this should not happen")
-        return self._deserialize_task(j.sal.fs.readFile(results[0]))
+        return encoding.deserialize_task(j.sal.fs.readFile(results[0]), self.service)
 
     def list(self, from_timestap=None, to_timestap=None):
         """
@@ -47,7 +47,7 @@ class TaskStorageFile(TaskStorageBase):
         tasks = []
         for path in j.sal.fs.listFilesInDir(self._root):
             blob = j.sal.fs.readFile(path)
-            task = self._deserialize_task(blob)
+            task = encoding.deserialize_task(blob, self.service)
             if from_timestap and task.created < from_timestap:
                 continue
             if to_timestap and task.created > to_timestap:
@@ -73,19 +73,7 @@ class TaskStorageFile(TaskStorageBase):
         """
         j.sal.fs.removeDirTree(self._root, True)
         j.sal.fs.createDir(self._root)
+        self._count = 0
 
-    def _serialize_task(self, task):
-        return j.data.serializer.json.dumps({
-            "guid": task.guid,
-            "action_name": task.action_name,
-            "args": task._args,
-            "state": task.state,
-            "eco": task.eco.to_dict() if task.eco else None,
-            "result": task.result,
-            "created": task.created,
-            "duration": task.duration,
-        })
-
-    def _deserialize_task(self, blob):
-        task = j.data.serializer.json.loads(blob)
-        return _instantiate_task(task, self.service)
+    def _task_path(self, task):
+        return os.path.join(self._root, "%d_%s" % (self._count, task.guid))

@@ -2,7 +2,7 @@
 from jumpscale import j
 
 from .base import TaskNotFoundError
-from zerorobot.task.utils import _instantiate_task
+from . import encoding
 
 
 class TaskStorageRedis:
@@ -24,7 +24,7 @@ class TaskStorageRedis:
         """
         save a task to the storage
         """
-        self._redis.hset(self._namespace, task.guid, self._serialize_task(task))
+        self._redis.hset(self._namespace, task.guid, encoding.serialize_task(task))
 
     def get(self, guid):
         """
@@ -32,7 +32,7 @@ class TaskStorageRedis:
         """
         blob = self._redis.hget(self._namespace, guid)
         if blob:
-            return self._deserialize_task(blob)
+            return encoding.deserialize_task(blob, self._service)
         raise TaskNotFoundError()
 
     def list(self, from_timestap=None, to_timestap=None):
@@ -43,7 +43,7 @@ class TaskStorageRedis:
         """
         tasks = []
         for blob in self._redis.hgetall(self._namespace).values():
-            task = self._deserialize_task(blob)
+            task = encoding.deserialize_task(blob, self._service)
             if from_timestap and task.created < from_timestap:
                 continue
             if to_timestap and task.created > to_timestap:
