@@ -5,6 +5,8 @@ from jumpscale import j
 
 from jose import jwt
 
+logger = j.logger.get(__name__)
+
 
 class ConfigMgr():
     """
@@ -18,14 +20,25 @@ class ConfigMgr():
 
     def _worker(self):
         while True:
-            print("waiting on queue")
             func, args, resp_q = self._queue.get()
-            print("cmd received")
-            if args:
-                result = func(*args)
-            else:
-                result = func()
-            resp_q.put(result)
+            try:
+                if args:
+                    result = func(*args)
+                else:
+                    result = func()
+                resp_q.put(result)
+            except Exception as err:
+                logger.error("error in config manager %s" % err)
+                resp_q.put(err)
+                continue
+
+    def _send_cmd(self, func, args):
+        resp_q = Queue(maxsize=1)
+        self._queue.put((func, args, resp_q))
+        resp = resp_q.get()
+        if isinstance(resp, Exception):
+            raise resp
+        return resp
 
     def _list(self):
         return j.clients.zrobot.list()
@@ -81,9 +94,7 @@ class ConfigMgr():
         @param instance: instance name
         @param base_url: base_url of the client
         """
-        resp_q = Queue(maxsize=1)
-        self._queue.put((self._get, [instance, base_url], resp_q))
-        return resp_q.get()
+        return self._send_cmd(self._get, [instance, base_url])
 
     def list(self):
         """
@@ -91,9 +102,7 @@ class ConfigMgr():
 
         @return: a list of instance name
         """
-        resp_q = Queue(maxsize=1)
-        self._queue.put((self._list, None, resp_q))
-        return resp_q.get()
+        return self._send_cmd(self._list, None)
 
     def delete(self, instance):
         """
@@ -101,16 +110,10 @@ class ConfigMgr():
 
         @param instance: instance name
         """
-        resp_q = Queue(maxsize=1)
-        self._queue.put((self._delete, instance, resp_q))
-        return resp_q.get()
+        return self._send_cmd(self._delete, instance)
 
     def append_secret(self, instance, secret):
-        resp_q = Queue(maxsize=1)
-        self._queue.put((self._append_secret, (instance, secret), resp_q))
-        return resp_q.get()
+        return self._send_cmd(self._append_secret, [instance, secret])
 
     def remove_secret(self, instance, service_guid):
-        resp_q = Queue(maxsize=1)
-        self._queue.put((self._remove_secret, (instance, service_guid), resp_q))
-        return resp_q.get()
+        return self._send_cmd(self._remove_secret, [instance, service_guid])
