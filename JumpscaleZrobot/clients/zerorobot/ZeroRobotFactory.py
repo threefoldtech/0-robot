@@ -48,6 +48,9 @@ class ZeroRobotFactory(JSConfigFactoryBase):
 
 class RobotLoader(collections.MutableMapping):
 
+    def __call__(self, key):
+        return self.get(key)
+
     def __getitem__(self, key):
         return self.get(key)
 

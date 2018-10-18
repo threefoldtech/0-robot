@@ -87,9 +87,9 @@ class TestZRobotAPI(unittest.TestCase):
             cl.config.save()
 
     def test_robots_discovery(self):
-        self.assertGreaterEqual(len(self.api.robots), 2, "should have discovered at least the 2 robots that are running for the test")
-        for addr in self.instances:
-            self.assertIn(addr, self.api.robots.keys())
+        self.assertGreaterEqual(len(self.api.robots.list()), 2, "should have discovered at least the 2 robots that are running for the test")
+        for instance in self.instances:
+            self.assertIn(instance, self.api.robots.list())
 
     def test_service_create_uid(self):
         # make sure we don't have any template loaded in the current process
@@ -109,10 +109,11 @@ class TestZRobotAPI(unittest.TestCase):
             self.assertEqual(len(self.api.services.names), 1)
             self.assertEqual(len(self.api.services.guids), 1)
             # make sure remote robot doesn't have service created on them
-            for robot in self.api.robots.values():
+            for instance in self.api.robots.list():
+                robot = self.api.robots.get(instance)
                 self.assertEqual(len(robot.services.names), 0)
 
-        robot = self.api.robots['robot1']
+        robot = self.api.robots.get('robot1')
         node = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node3')
         self.assertEqual(type(node), ServiceProxy, "service create on remote robot should return ServiceProxy")
         self.assertEqual(len(robot.services.guids), 1)
@@ -138,10 +139,11 @@ class TestZRobotAPI(unittest.TestCase):
             self.assertEqual(len(self.api.services.names), 1)
             self.assertEqual(len(self.api.services.guids), 1)
             # make sure remote robot doesn't have service created on them
-            for robot in self.api.robots.values():
+            for instance in self.api.robots.list():
+                robot = self.api.robots.get(instance)
                 self.assertEqual(len(robot.services.names), 0)
 
-        robot = self.api.robots['robot1']
+        robot = self.api.robots.get('robot1')
         node = robot.services.create("node", 'node3')
         self.assertEqual(type(node), ServiceProxy, "service create on remote robot should return ServiceProxy")
         self.assertEqual(len(robot.services.guids), 1)
@@ -159,7 +161,7 @@ class TestZRobotAPI(unittest.TestCase):
                 self._test_search(self.api)
 
         with self.subTest(name='remote'):
-            self._test_search(self.api.robots['robot1'])
+            self._test_search(self.api.robots.get('robot1'))
 
     def test_service_exists(self):
         # load template in current process
@@ -171,7 +173,7 @@ class TestZRobotAPI(unittest.TestCase):
                 self._test_exists(self.api)
 
         with self.subTest(name='remote'):
-            self._test_exists(self.api.robots['robot1'])
+            self._test_exists(self.api.robots.get('robot1'))
 
     def test_service_get(self):
         with self.subTest(name='local'):
@@ -183,7 +185,7 @@ class TestZRobotAPI(unittest.TestCase):
                 self._test_get(self.api)
 
         with self.subTest(name='remote'):
-            self._test_get(self.api.robots['robot1'])
+            self._test_get(self.api.robots.get('robot1'))
 
     def test_service_find_or_create(self):
         with self.subTest(name='local'):
@@ -195,7 +197,7 @@ class TestZRobotAPI(unittest.TestCase):
                 self._test_find_or_create(self.api)
 
         with self.subTest(name='remote'):
-            self._test_find_or_create(self.api.robots['robot1'])
+            self._test_find_or_create(self.api.robots.get('robot1'))
 
     def _test_get(self, robot):
         node1 = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node1')
