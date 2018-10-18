@@ -32,7 +32,6 @@ from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
 
 
-
 class BadActionArgumentError(Exception):
     """
     Error return when the argument pass when trying to schedule an action
@@ -78,6 +77,7 @@ class GreenletsMgr:
             gl.start()
 
         self.gls[key] = gl
+        return gl
 
     def get(self, key):
         return self.gls[key]

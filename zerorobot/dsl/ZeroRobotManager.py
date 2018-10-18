@@ -12,9 +12,11 @@ from zerorobot.service_proxy import ServiceProxy
 from zerorobot.template_collection import (TemplateConflictError,
                                            TemplateNotFoundError)
 from zerorobot.template_uid import TemplateUID
-from zerorobot.sync import config_lock
+from urllib.parse import urlparse
 
 logger = j.logger.get(__name__)
+
+from . import config_mgr
 
 
 class ServiceCreateError(Exception):
@@ -45,15 +47,7 @@ class ServicesMgr:
 
     def _instantiate(self, data):
         if hasattr(data, 'secret') and data.secret:
-
-            with config_lock:
-                self._client.config.load(reset=True)
-                secrets = self._client.config.data['secrets_']
-                if data.secret not in secrets:
-                    secrets.append(data.secret)
-                    self._client.config.data_set('secrets_', secrets)
-                    self._client.config.save()
-
+            self._client = config_mgr.append_secret(self._client.instance, data.secret)
             # force re-creation of the connection with new secret added in the Authorization header
             self._client._api = None
 
@@ -261,3 +255,14 @@ class ZeroRobotManager:
         self._client = j.clients.zrobot.get(instance)
         self.services = ServicesMgr(self)
         self.templates = TemplatesMgr(self)
+
+    def _try_god_token(self):
+        try:
+            u = urlparse(self._client.config.data['url'])
+            node = j.clients.zos.get('godtoken', data={'host': u.hostname})
+            zcont = node.containers.get('zrobot')
+            resp = zcont.client.system('zrobot godtoken get').get()
+            token = resp.stdout.split(':', 1)[1].strip()
+            self._client.god_token_set(token)
+        finally:
+            node = j.clients.zos.delete('godtoken')
