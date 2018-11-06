@@ -6,12 +6,13 @@ import unittest
 import uuid
 from multiprocessing import Process
 
-
+import pytest
 from jumpscale import j
+from zerorobot import config
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.dsl.ZeroRobotAPI import TemplateNotFoundError, ZeroRobotAPI
-from zerorobot import config
+from zerorobot.dsl.ZeroRobotManager import ServiceCreateError
 from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
 from zerorobot.template.base import TemplateBase
@@ -150,6 +151,27 @@ class TestZRobotAPI(unittest.TestCase):
         # ensure we can access the remote service from the robot object
         assert robot.services.names[node.name]
         assert robot.services.guids[node.guid]
+
+    def test_service_create_validate_fail(self):
+        # make sure we don't have any template loaded in the current process
+        tcol._templates = {}
+        with self.assertRaises(TemplateNotFoundError, msg='trying to create a service from non handled template should raise '):
+            self.api.services.create("validate", 'service1')
+
+        # load template in current process
+        with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
+            config.data_repo = config.DataRepo(tmpdir)
+            tcol.add_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
+
+        # try to create a service with wrong data, it should raise
+        robot = self.api.robots.get('robot1')
+        with pytest.raises(ServiceCreateError):
+            service = robot.services.create("validate", 'service1')
+
+        # create the same service with valid data, it should succeed
+        assert len(robot.services.find()) == 0
+        service = robot.services.create("validate", 'service1', {'required': True})
+        assert len(robot.services.find()) == 1
 
     def test_service_search(self):
         # load template in current process

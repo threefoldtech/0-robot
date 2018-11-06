@@ -81,6 +81,7 @@ class TestBlueprintParsing(unittest.TestCase):
 class TestBlueprintExecution(unittest.TestCase):
 
     def setUp(self):
+        config.data_repo = config.DataRepo(tempfile.mkdtemp(prefix='0robottest'))
         tcol.add_repo("https://github.com/threefoldtech/0-robot", directory='tests/fixtures/templates')
         scol.drop_all()
 
@@ -139,7 +140,7 @@ class TestBlueprintExecution(unittest.TestCase):
 
         service_created, err_code, err_msg = instantiate_services(services)
         assert err_code == 500
-        assert err_msg == 'required need to be specified in the data'
+        assert err_msg == 'fail to create service name github.com/threefoldtech/0-robot/validate/0.0.1'
         assert len(service_created) == 1
 
         assert len(scol.list_services()) == 0, "service created during a failed blueprint, should be deleted"

@@ -4,17 +4,15 @@ import json
 import os
 
 import jsonschema
-from flask import request, jsonify
+from flask import jsonify, request
 from jsonschema import Draft4Validator
-
-from zerorobot import template_collection as tcol
-from zerorobot.server.handlers.views import service_view
 from zerorobot import service_collection as scol
-from zerorobot.template_collection import (TemplateConflictError,
-                                           TemplateNotFoundError)
-
+from zerorobot import template_collection as tcol
 from zerorobot.server import auth
-
+from zerorobot.server.handlers.views import service_view
+from zerorobot.template_collection import (TemplateConflictError,
+                                           TemplateNotFoundError,
+                                           ValidationError)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 ServiceCreate_schema = json.load(open(dir_path + '/schema/ServiceCreate_schema.json'))
@@ -49,6 +47,9 @@ def createServiceHandler():
     except scol.ServiceConflictError:
         service = None
         return jsonify(code=409, message="a service with name '%s' already exists" % inputs['name']), 409
+    except ValidationError as err:
+        err_msg = "%s: %s" % (str(err), str(err.exception))
+        return jsonify(code=400, message=err_msg), 400
     except Exception as err:
         service = None
         return jsonify(code=500, message=str(err)), 500

@@ -4,16 +4,16 @@ import shutil
 import tempfile
 import unittest
 
-
+import pytest
 from jumpscale import j
+from zerorobot import config
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot import config
-from zerorobot.storage.filesystem import _serialize_service
 from zerorobot.service_collection import BadTemplateError
+from zerorobot.storage.filesystem import _serialize_service
 from zerorobot.template.base import (ActionNotFoundError,
                                      BadActionArgumentError, TemplateBase)
-from zerorobot.template_collection import _load_template
+from zerorobot.template_collection import _load_template, ValidationError
 
 
 class TestServiceTemplate(unittest.TestCase):
@@ -59,6 +59,15 @@ class TestServiceTemplate(unittest.TestCase):
         self.assertIsNotNone(srv.state, "service state should not be None")
         self.assertIsNotNone(srv.task_list, "service task_list should not be None")
         self.assertIsNotNone(srv.gl_mgr, "service greenlet manager should not be None")
+
+    def test_instantiate_service_validation_fail(self):
+        assert len(scol.find()) == 0
+
+        Validate = self.load_template('validate')
+        with pytest.raises(ValidationError) as err:
+            srv = tcol.instantiate_service(Validate)
+
+        assert len(scol.find()) == 0
 
     def test_service_save_delete(self):
         Node = self.load_template('node')

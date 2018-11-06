@@ -147,12 +147,14 @@ def instantiate_service(template, name=None, data=None):
 
     existing = scol.find(template_uid=str(template.template_uid), name=name)
     if name and len(existing) > 0:
-        raise ServiceConflictError(
-            message="a service with name=%s already exist" % name,
-            service=existing[0])
+        raise ServiceConflictError(message="a service with name=%s already exist" % name, service=existing[0])
 
     service = template(data=data, name=name)
-    service.validate()
+    try:
+        service.validate()
+    except Exception as err:
+        raise ValidationError("fail to create service %s %s" % (name, template.template_uid), err)
+
     service.save()
 
     scol.add(service)
@@ -205,6 +207,17 @@ class TemplateNotFoundError(KeyError):
 class TemplateConflictError(Exception):
     """
     This exception is raised when trying to get a template with its name
-    and 2 templates have te same name, so we can't decide which one to retrn
+    and 2 templates have te same name, so we can't decide which one to return
     """
     pass
+
+
+class ValidationError(Exception):
+    """
+    Exception raised when instanciating new services and the validate
+    method raise an exception
+    """
+
+    def __init__(self, msg, exception):
+        super().__init__(msg)
+        self.exception = exception
