@@ -406,18 +406,19 @@ def _recurring_action(service, action, period):
     That means that it can be a longer time then period second during which the action is not executed
     """
     elapsed = -1
+    task = None
     while True:
         tasks_name = [t.action_name for t in service.task_list.list_tasks()]
         try:
             # schedule if period time has elapsed and the same action is not already in the task list
-            if elapsed == -1 or elapsed >= period and action not in tasks_name:
+            if action not in tasks_name and (elapsed == -1 or elapsed >= period):
                 task = service._schedule_action(action, priority=PRIORITY_SYSTEM)
                 task.wait()
-                last = time.time()
             else:
                 gevent.sleep(0.5)
 
-            elapsed = int(time.time()) - task.created
+            if task:
+                elapsed = int(time.time()) - task.created
         except gevent.GreenletExit:
             break
 

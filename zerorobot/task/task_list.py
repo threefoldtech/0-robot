@@ -155,8 +155,10 @@ class TaskList:
             "created" ,
         }
         """
+        added = set()
         for task in tasks:
-            if task['state'] in [TASK_STATE_NEW, TASK_STATE_RUNNING]:
+            if task['state'] in [TASK_STATE_NEW, TASK_STATE_RUNNING] and task['action_name'] in added:
+                added.add(task['action_name'])
                 self.put(_instantiate_task(task, self.service))
             else:
                 # None supported state, just skip it
