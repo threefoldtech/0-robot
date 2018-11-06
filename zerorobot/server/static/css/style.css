@@ -1,0 +1,17 @@
+h1 {
+    text-align: center;
+    font-size: 10em;
+}
+
+div.content {
+    text-align: center;
+}
+
+div.content a {
+    font-size: 2em;
+}
+
+img.bot {
+    margin: auto;
+    width: 18em;
+}

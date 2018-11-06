@@ -1,7 +1,7 @@
 import os
 import sys
 
-from flask import Flask, jsonify, send_file, send_from_directory
+from flask import Flask, jsonify, send_from_directory, render_template
 from jumpscale import j
 
 from zerorobot.errors import eco_get
@@ -27,7 +27,7 @@ def send_js(path):
 
 @app.route('/', methods=['GET'])
 def home():
-    return send_file(dir_path + '/index.html')
+    return render_template('index.html')
 
 
 @app.errorhandler(500)
