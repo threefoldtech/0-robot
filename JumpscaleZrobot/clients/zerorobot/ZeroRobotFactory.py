@@ -42,7 +42,10 @@ class ZeroRobotFactory(JSConfigFactoryBase):
         directory = j.clients.threefold_directory.get()
         node, resp = directory.api.GetCapacity(node_id)
         resp.raise_for_status()
-        self.get(node_id, data={'url': node.robot_address})
+        client = self.get(node_id)
+        if client.config.data['url'] != node.robot_address:
+            client.config.data_set('url', node.robot_address)
+            client.config.save()
         return self.robots[node_id]
 
 
