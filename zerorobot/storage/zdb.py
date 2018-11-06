@@ -13,14 +13,14 @@ class ZDBServiceStorage(ServiceStorageBase):
         super().__init__()
         if not namespace:
             namespace = 'zrobot_data'
-        zdb = j.clients.zdb.configure(instance='zrobot',
-                                      secrets='',
-                                      addr=addr,
-                                      port=port,
-                                      adminsecret=admin_passwd or '',
-                                      mode='user')
+        client = j.clients.zdb.configure(instance='zrobot',
+                                         secrets='',
+                                         addr=addr,
+                                         port=port,
+                                         adminsecret=admin_passwd or '',
+                                         mode='user')
 
-        self._ns = zdb.namespace_new(namespace)
+        self._ns = client.zdb.namespace_new(namespace)
 
     def save(self, service):
         serialized_service = _serialize_service(service)

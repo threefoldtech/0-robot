@@ -96,14 +96,14 @@ class ZDBStorage:
     def __init__(self, addr, port, namespace=None, admin_passwd=''):
         if not namespace:
             namespace = 'zrobot_webhooks'
-        zdb = j.clients.zdb.configure(instance='zrobot',
-                                      secrets='',
-                                      addr=addr,
-                                      port=port,
-                                      adminsecret=admin_passwd or '',
-                                      mode='user')
+        client = j.clients.zdb.configure(instance='zrobot',
+                                         secrets='',
+                                         addr=addr,
+                                         port=port,
+                                         adminsecret=admin_passwd or '',
+                                         mode='user')
 
-        self._ns = zdb.namespace_new(namespace)
+        self._ns = client.zdb.namespace_new(namespace)
 
     def save(self, webhooks):
         self._ns.set(
