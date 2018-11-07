@@ -24,12 +24,12 @@ class ZDBServiceStorage(ServiceStorageBase):
 
     def save(self, service):
         serialized_service = _serialize_service(service)
-        self._ns.set(msgpack.dumps(serialized_service), service.guid)
+        self._ns.set(msgpack.dumps(serialized_service), 'service_'+service.guid)
 
     def list(self):
         for guid in self._ns.list():
             # since we also save webhooks info into the same namespace
-            if guid == 'webhooks':
+            if not guid.startswith(b'service_'):
                 continue
 
             obj = self._ns.get(guid)
