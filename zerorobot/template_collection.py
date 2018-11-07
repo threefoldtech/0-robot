@@ -153,6 +153,7 @@ def instantiate_service(template, name=None, data=None):
     try:
         service.validate()
     except Exception as err:
+        service.delete()
         raise ValidationError("fail to create service %s %s" % (name, template.template_uid), err)
 
     service.save()
