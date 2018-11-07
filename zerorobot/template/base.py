@@ -163,7 +163,7 @@ class TemplateBase:
         self.gl_mgr.add('executor', gevent.Greenlet(self._run))
         self.recurring_action('save', 10)
 
-        self.logger = _configure_logger(self.guid)
+        self.logger = _configure_logger(self)
 
     def validate(self):
         """
@@ -426,14 +426,14 @@ def _recurring_action(service, action, period):
 _LOGGER_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)d - %(levelname)s - %(message)s'
 
 
-def _configure_logger(guid):
+def _configure_logger(service):
     log_dir = os.path.join(j.dirs.LOGDIR, 'zrobot')
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    l = logging.getLogger('service-%s' % guid)
+    l = logging.getLogger('%s-%s (%s)' % (service.name, service.guid, service.template_uid.name))
     l.parent.handlers = []
-    rfh = RotatingFileHandler(os.path.join(log_dir, guid),
+    rfh = RotatingFileHandler(os.path.join(log_dir, service.guid),
                               mode='a',
                               maxBytes=512 * 1024,  # 512k
                               backupCount=1,  # 2 * 512k = 1Mib of logs max per service
