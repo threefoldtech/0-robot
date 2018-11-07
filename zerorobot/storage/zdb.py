@@ -11,6 +11,7 @@ class ZDBServiceStorage(ServiceStorageBase):
 
     def __init__(self, addr, port, namespace=None, admin_passwd=''):
         super().__init__()
+        self._key_prefix = 'service_'
         if not namespace:
             namespace = 'zrobot_data'
         client = j.clients.zdb.configure(instance='zrobot',
@@ -22,14 +23,17 @@ class ZDBServiceStorage(ServiceStorageBase):
 
         self._ns = client.zdb.namespace_new(namespace)
 
+    def _service_key(self, service):
+        return "service_%s" % service.guid
+
     def save(self, service):
         serialized_service = _serialize_service(service)
-        self._ns.set(msgpack.dumps(serialized_service), 'service_'+service.guid)
+        self._ns.set(msgpack.dumps(serialized_service), self._key_prefix+service.guid)
 
     def list(self):
         for guid in self._ns.list():
             # since we also save webhooks info into the same namespace
-            if not guid.startswith(b'service_'):
+            if not guid.startswith(self._key_prefix.encode()):
                 continue
 
             obj = self._ns.get(guid)
@@ -37,4 +41,4 @@ class ZDBServiceStorage(ServiceStorageBase):
             yield service
 
     def delete(self, service):
-        self._ns.delete(service.guid)
+        self._ns.delete(self._key_prefix+service.guid)

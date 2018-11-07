@@ -23,34 +23,33 @@ def server():
 
 def get_db_config_repo():
     """Gets config repo sandbox based on the configured namespace in jumpscale.toml
-    
+
     Returns:
-        str or None: config_repo  
+        str or None: config_repo
     """
     # configmanager will have file by default and on fresh jumpscale will have it in jumpscale.toml
-    backend =  j.core.state.configGetFromDict("myconfig", "backend", "file")
+    backend = j.core.state.configGetFromDict("myconfig", "backend", "file")
     namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "default")
     config_repo = None
 
-    if backend == "db" :
-        if namespace_in_cfg:
-            config_repo_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg) 
-            if j.sal.fs.exists(config_repo_path):
-                config_repo = config_repo_path
+    if backend == "db" and namespace_in_cfg:
+        config_repo_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg)
+        if j.sal.fs.exists(config_repo_path):
+            config_repo = config_repo_path
     return config_repo
 
 
 def get_db_config_key():
     """Gets config key from sandbox based on the configured namespace in jumpscale.toml
-    
+
     Returns:
-        str or None: config_key  
+        str or None: config_key
     """
-    backend =  j.core.state.configGetFromDict("myconfig", "backend", "file")
+    backend = j.core.state.configGetFromDict("myconfig", "backend", "file")
     namespace_in_cfg = j.core.state.configGetFromDict("myconfig", "namespace", "default")
     config_key = None
 
-    if backend == "db" :
+    if backend == "db":
         config_key_path = j.sal.fs.joinPaths(j.dirs.HOMEDIR, "configmgrsandboxes", namespace_in_cfg, "keys", "key")
         if j.sal.fs.exists(config_key_path):
             config_key = config_key_path
@@ -89,14 +88,12 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
     j.logger.loggers_level_set(level)
 
     # Check if configmanager is configured to zdb backend and has a namespace configured
-    if  j.core.state.configGetFromDict("myconfig", "backend", "file") == "db":
-        namespace =  j.core.state.configGetFromDict("myconfig", "namespace", "default")
+    if j.core.state.configGetFromDict("myconfig", "backend", "file") == "db":
+        namespace = j.core.state.configGetFromDict("myconfig", "namespace", "default")
         if namespace:
             j.tools.configmanager.set_namespace(namespace)
         else:
             raise RuntimeError("Working in zdb backend mode and don't have a namespace")
-
-
 
     if (telegram_bot_token and not telegram_chat_id) or (telegram_chat_id and not telegram_bot_token):
         raise ValueError("To enable telegram error logging, you need to specify both the --telegram-bot-token and the --telegram-chat-id options")
