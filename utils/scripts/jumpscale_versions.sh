@@ -1,5 +1,5 @@
 #!/bin/bash
 
-export jumpscale_core_revision="development"
-export jumpscale_lib_revision="development"
-export jumpscale_prefab_revision="development"
+export jumpscale_core_revision="7d5738bb3eae726b8dae698d187a21922d6f9677"
+export jumpscale_lib_revision="e58705aa03239a1b9531c82f7734d2a23922dfa2"
+export jumpscale_prefab_revision="625ab647d69c2e85be6cacd6889ab2535c508486"
