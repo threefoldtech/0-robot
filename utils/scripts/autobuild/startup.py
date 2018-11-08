@@ -132,9 +132,6 @@ def start_robot():
     kernel_args = read_kernel()
     args = ['zrobot', 'server', 'start', '--mode', 'node']
 
-    # don't forget to remove #development when merging into master
-    template_repo = 'https://github.com/threefoldtech/0-templates#development'
-
     admin_org = get_admin_organization(kernel_args)
     if admin_org:
         args.extend(['--admin-organization', admin_org])
@@ -143,8 +140,10 @@ def start_robot():
     if user_org:
         args.extend(['--user-organization', user_org])
 
+    template_repo = 'https://github.com/threefoldtech/0-templates'
     if 'development' in kernel_args:
         args.append('--god')
+        template_repo += '#development'
 
     zdb_url = read_config_repo_config()
     if zdb_url:
