@@ -205,13 +205,13 @@ class Robot:
 
 def _create_node_service():
     j.clients.zos.get('local', {
-                'db': 0,
-                'host': '10.241.226.45',
-                'password_': '',
-                'port': 6379,
-                'ssl': True,
-                'timeout': 120,
-                'unixsocket': '/tmp/redis.sock'})
+        'db': 0,
+        'host': '127.0.0.1',
+        'password_': '',
+        'port': 6379,
+        'ssl': True,
+        'timeout': 120,
+        'unixsocket': '/tmp/redis.sock'})
     logger = j.logger.get('zerorobot')
     service_found = scol.find(template_host='github.com', template_account='threefoldtech', template_name='node')
     if not service_found:
