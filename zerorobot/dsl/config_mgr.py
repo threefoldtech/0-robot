@@ -110,7 +110,7 @@ class ConfigMgr():
 
         @param instance: instance name
         """
-        return self._send_cmd(self._delete, instance)
+        return self._send_cmd(self._delete, [instance])
 
     def append_secret(self, instance, secret):
         return self._send_cmd(self._append_secret, [instance, secret])
