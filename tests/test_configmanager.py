@@ -69,7 +69,7 @@ class TestConfigMgr(unittest.TestCase):
             assert instance not in self.mgr.list()
 
         gls = []
-        for _ in range(400):
+        for _ in range(10):
             gls.append(gevent.spawn(test))
 
         gevent.joinall(gls, raise_error=True)

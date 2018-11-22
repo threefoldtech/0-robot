@@ -79,7 +79,8 @@ class TaskList:
         """
         notify that a task is done
         """
-        if task._priority != PRIORITY_SYSTEM:
+        # we don't usually save recurring task, except if it has a state error
+        if task.state == TASK_STATE_ERROR or task._priority != PRIORITY_SYSTEM:
             self.current = None
             self._done.add(task)
 
