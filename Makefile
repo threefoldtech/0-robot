@@ -29,10 +29,10 @@ bin_pkg:
 	python3 setup.py bdist_wheel
 
 test: clean
-	python3 setup.py test --cov=./
+	pytest -v  --cov=./ tests
 
 test-ui: clean
-	python3 setup.py test --cov-report=html
+	pytest -v --cov-report=html  tests
 
 # usage: make release version=0.5.0
 release:
