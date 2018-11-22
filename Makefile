@@ -29,7 +29,7 @@ bin_pkg:
 	python3 setup.py bdist_wheel
 
 test: clean
-	python3 setup.py test
+	python3 setup.py test --cov=./
 
 test-ui: clean
 	python3 setup.py test --cov-report=html
