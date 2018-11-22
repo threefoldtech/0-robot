@@ -250,8 +250,13 @@ def _trim_tasks(period=7200):  # default 2 hours ago
             for service in scol.list_services():
                 if not hasattr(service.task_list._done, 'delete_until'):
                     continue
+
+                # don't need to trim old task if we have 50 or less tasks
+                if service.task_list._done.count() <= 50:
+                    continue
                 # delete all task that have been created before ago
                 service.task_list._done.delete_until(ago)
+
         except gevent.GreenletExit:
             # exit properly
             return
