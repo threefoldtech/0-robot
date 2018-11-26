@@ -30,7 +30,7 @@ from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
 from zerorobot.task.utils import wait_all
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
-
+from zerorobot.template.decorator import timeout
 
 class BadActionArgumentError(Exception):
     """
@@ -175,6 +175,7 @@ class TemplateBase:
         """
         pass
 
+    @timeout(5)
     def save(self):
         """
         serialize the service state and data to a file
