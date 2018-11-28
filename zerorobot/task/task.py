@@ -36,6 +36,7 @@ class Task:
         @param action_name: arguments for the action
         @param args: argument to pass to the action when executing
         """
+        self._sleep_period = 0.5
         self.guid = j.data.idgenerator.generateGUID()
         self.service = None
         self._func = func
@@ -109,9 +110,13 @@ class Task:
 
         if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised
         """
+        # wait for the task to start before counting the timeout
+        while self.state == TASK_STATE_NEW:
+            gevent.sleep(self._sleep_period * 2)
+
         def wait():
-            while self.state in ('new', 'running'):
-                gevent.sleep(0.5)
+            while self.state in (TASK_STATE_NEW, TASK_STATE_RUNNING):
+                gevent.sleep(self._sleep_period)
 
         if timeout:
             # ensure the type is correct
