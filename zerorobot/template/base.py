@@ -32,6 +32,7 @@ from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
 from zerorobot.template.decorator import timeout
 
+
 class BadActionArgumentError(Exception):
     """
     Error return when the argument pass when trying to schedule an action
@@ -175,7 +176,7 @@ class TemplateBase:
         """
         pass
 
-    @timeout(5)
+    @timeout(60)
     def save(self):
         """
         serialize the service state and data to a file
