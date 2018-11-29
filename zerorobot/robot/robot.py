@@ -18,6 +18,7 @@ from zerorobot.git import url as giturl
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server import auth
 from zerorobot.server.app import app
+from zerorobot import storage
 
 from . import loader
 
@@ -102,6 +103,8 @@ class Robot:
         if not j.tools.configmanager.path:
             raise RuntimeError("config manager is not configured, can't continue")
 
+        # configure storage
+        storage.init(config)
         # instantiate webhooks manager and load the configured webhooks
         config.webhooks = webhooks.get(config)
 
@@ -116,6 +119,8 @@ class Robot:
         # configure prometheus monitoring
         if not kwargs.get('testing', False):
             monitor(app)
+
+
 
          # configure authentication middleware
         _configure_authentication(admin_organization, user_organization)
