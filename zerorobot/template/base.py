@@ -185,8 +185,7 @@ class TemplateBase:
                           to save the service state and data
         return the path where the service is saved
         """
-        store = storage.get(config)
-        store.save(self)
+        storage.save(self)
 
     def _run(self):
         """
@@ -344,8 +343,7 @@ class TemplateBase:
                 h.close()
 
         # remove from persistant storage
-        store = storage.get(config)
-        store.delete(self)
+        storage.delete(self)
 
         # remove logs from disk
         # TODO: write logs into storage interface

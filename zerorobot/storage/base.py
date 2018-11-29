@@ -1,5 +1,10 @@
-class ServiceStorageBase:
 
+from abc import ABC, abstractmethod
+
+
+class ServiceStorageBase(ABC):
+
+    @abstractmethod
     def save(self, service):
         """
         save a service object
@@ -7,8 +12,8 @@ class ServiceStorageBase:
         :param service: service
         :type service: zerorobot.template.base
         """
-        raise NotImplementedError()
 
+    @abstractmethod
     def list(self):
         """
         yield all the services data found in the storage
@@ -46,10 +51,16 @@ class ServiceStorageBase:
             ]
         }
         """
-        raise NotImplementedError()
 
+    @abstractmethod
     def delete(self, service):
-        raise NotImplementedError()
+        """
+        delete a service
+
+        :param service: service
+        :type service: zerorobot.template.base
+        """
+
 
 
 def _serialize_service(service):
