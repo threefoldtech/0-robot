@@ -162,7 +162,7 @@ class TemplateBase:
         # start the greenlets of this service
         self.gl_mgr = GreenletsMgr()
         self.gl_mgr.add('executor', gevent.Greenlet(self._run))
-        self.recurring_action('save', 10)
+        self.recurring_action('save', 10, priority=PRIORITY_SYSTEM)
 
         self.logger = _configure_logger(self)
 
@@ -264,7 +264,7 @@ class TemplateBase:
         self.task_list.put(task, priority=priority)
         return task
 
-    def recurring_action(self, action, period):
+    def recurring_action(self, action, period, priority=PRIORITY_NORMAL):
         """
         configure an action to be executed every period second
 
@@ -395,7 +395,7 @@ class TemplateBase:
             self._delete_callback.append(action_name)
 
 
-def _recurring_action(service, action, period):
+def _recurring_action(service, action, period, priority=PRIORITY_NORMAL):
     """
     this function is intended to be run in a greenlet.
     It will ensure that the action from service is schedule at best every period second.
@@ -412,7 +412,7 @@ def _recurring_action(service, action, period):
         try:
             # schedule if period time has elapsed and the same action is not already in the task list
             if action not in tasks_name and (elapsed == -1 or elapsed >= period):
-                task = service._schedule_action(action, priority=PRIORITY_SYSTEM)
+                task = service._schedule_action(action, priority=priority)
                 task.wait()
             else:
                 gevent.sleep(0.5)

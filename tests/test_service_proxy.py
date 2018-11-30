@@ -79,7 +79,8 @@ class TestServiceProxy(unittest.TestCase):
         self.assertEqual(proxy_task.duration, task.duration, "duration on the proxy task should be the same as on the real task")
 
         proxy.schedule_action('stop')
-        self.assertEqual(len(service.task_list.list_tasks(all=True)), 2, "task create on proxy should be visible on real service")
+        tasks = list(filter(lambda t: t.action_name != 'save', service.task_list.list_tasks(all=True)))
+        self.assertEqual(len(tasks), 2, "task create on proxy should be visible on real service")
 
         # test task result for None result
         task = service.schedule_action('stop')
