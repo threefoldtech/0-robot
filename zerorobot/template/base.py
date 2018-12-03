@@ -30,6 +30,7 @@ from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
 from zerorobot.task.utils import wait_all
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
+from zerorobot.template.decorator import timeout
 
 
 class BadActionArgumentError(Exception):
@@ -161,7 +162,7 @@ class TemplateBase:
         # start the greenlets of this service
         self.gl_mgr = GreenletsMgr()
         self.gl_mgr.add('executor', gevent.Greenlet(self._run))
-        self.recurring_action('save', 10)
+        self.recurring_action('save', 10, priority=PRIORITY_SYSTEM)
 
         self.logger = _configure_logger(self)
 
@@ -175,6 +176,7 @@ class TemplateBase:
         """
         pass
 
+    @timeout(60)
     def save(self):
         """
         serialize the service state and data to a file
@@ -183,8 +185,7 @@ class TemplateBase:
                           to save the service state and data
         return the path where the service is saved
         """
-        store = storage.get(config)
-        store.save(self)
+        storage.save(self)
 
     def _run(self):
         """
@@ -263,7 +264,7 @@ class TemplateBase:
         self.task_list.put(task, priority=priority)
         return task
 
-    def recurring_action(self, action, period):
+    def recurring_action(self, action, period, priority=PRIORITY_NORMAL):
         """
         configure an action to be executed every period second
 
@@ -342,8 +343,7 @@ class TemplateBase:
                 h.close()
 
         # remove from persistant storage
-        store = storage.get(config)
-        store.delete(self)
+        storage.delete(self)
 
         # remove logs from disk
         # TODO: write logs into storage interface
@@ -395,7 +395,7 @@ class TemplateBase:
             self._delete_callback.append(action_name)
 
 
-def _recurring_action(service, action, period):
+def _recurring_action(service, action, period, priority=PRIORITY_NORMAL):
     """
     this function is intended to be run in a greenlet.
     It will ensure that the action from service is schedule at best every period second.
@@ -412,7 +412,7 @@ def _recurring_action(service, action, period):
         try:
             # schedule if period time has elapsed and the same action is not already in the task list
             if action not in tasks_name and (elapsed == -1 or elapsed >= period):
-                task = service._schedule_action(action, priority=PRIORITY_SYSTEM)
+                task = service._schedule_action(action, priority=priority)
                 task.wait()
             else:
                 gevent.sleep(0.5)

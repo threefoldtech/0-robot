@@ -18,6 +18,7 @@ from zerorobot.git import url as giturl
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server import auth
 from zerorobot.server.app import app
+from zerorobot import storage
 
 from . import loader
 
@@ -102,6 +103,8 @@ class Robot:
         if not j.tools.configmanager.path:
             raise RuntimeError("config manager is not configured, can't continue")
 
+        # configure storage
+        storage.init(config)
         # instantiate webhooks manager and load the configured webhooks
         config.webhooks = webhooks.get(config)
 
@@ -116,6 +119,8 @@ class Robot:
         # configure prometheus monitoring
         if not kwargs.get('testing', False):
             monitor(app)
+
+
 
          # configure authentication middleware
         _configure_authentication(admin_organization, user_organization)
@@ -250,8 +255,13 @@ def _trim_tasks(period=7200):  # default 2 hours ago
             for service in scol.list_services():
                 if not hasattr(service.task_list._done, 'delete_until'):
                     continue
+
+                # don't need to trim old task if we have 50 or less tasks
+                if service.task_list._done.count() <= 50:
+                    continue
                 # delete all task that have been created before ago
                 service.task_list._done.delete_until(ago)
+
         except gevent.GreenletExit:
             # exit properly
             return

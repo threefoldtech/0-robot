@@ -7,8 +7,6 @@ import gevent
 
 from jumpscale import j
 
-from .base import TemplateBase
-
 
 def retry(exceptions, tries=4, delay=3, backoff=2, logger=None):
     """
@@ -82,7 +80,7 @@ def profile(output=None):
                 if None the profile is generated into {tempdir}/zrobot_profile/{service_guid}/{function_name}-{time}.prof`
 
     """
-
+    from .base import TemplateBase
     def deco_profile(f):
 
         @wraps(f)

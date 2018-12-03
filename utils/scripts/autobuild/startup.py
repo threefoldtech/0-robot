@@ -145,6 +145,9 @@ def start_robot():
         args.append('--god')
         template_repo += '#development'
 
+    if 'god' not in args and 'god' in kernel_args:
+        args.append('--god')
+
     zdb_url = read_config_repo_config()
     if zdb_url:
         args.extend(['--data-repo', zdb_url])

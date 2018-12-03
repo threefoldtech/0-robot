@@ -37,7 +37,7 @@ class develop(_develop):
 
 setup(
     name='ZeroRobot',
-    version='0.8.0',
+    version='0.9.0',
     description='Automation framework for cloud workloads',
     url='https://github.com/threefoldtech/0-robot',
     author='Christophe de Carvalho',
@@ -48,8 +48,8 @@ setup(
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-cov'],
     install_requires=[
-        'Jumpscale>=v9.3.1',
-        'JumpscaleLib>=v9.3.1',
+        'Jumpscale>=v9.5.0',
+        'JumpscaleLib>=v9.5.0',
         'gevent>=1.2.2',
         'Flask>=0.12.2',
         'Flask-Inputs>=0.2.0',

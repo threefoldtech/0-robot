@@ -8,18 +8,20 @@ import pytest
 from jumpscale import j
 from zerorobot import config
 from zerorobot import service_collection as scol
+from zerorobot import storage
 from zerorobot import template_collection as tcol
 from zerorobot.service_collection import BadTemplateError
 from zerorobot.storage.filesystem import _serialize_service
 from zerorobot.template.base import (ActionNotFoundError,
                                      BadActionArgumentError, TemplateBase)
-from zerorobot.template_collection import _load_template, ValidationError
+from zerorobot.template_collection import ValidationError, _load_template
 
 
 class TestServiceTemplate(unittest.TestCase):
 
     def setUp(self):
         config.data_repo = config.DataRepo(tempfile.mkdtemp(prefix='0robottest'))
+        storage.init(config)
         scol.drop_all()
 
     def tearDown(self):

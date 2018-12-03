@@ -11,9 +11,8 @@ from zerorobot.template_uid import TemplateUID
 
 
 def load_services(config):
-    store = storage.get(config)
 
-    for service_details in store.list():
+    for service_details in storage.list():
         tmpl_uid = TemplateUID.parse(service_details['service']['template'])
 
         try:

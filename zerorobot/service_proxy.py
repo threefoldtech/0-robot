@@ -143,6 +143,9 @@ class TaskProxy(Task):
 
     def __init__(self, guid, service, action_name, args, created):
         super().__init__(func=None, args=args)
+        # since this is going to work over network, we increase the
+        # sleep period to not overload the network
+        self._sleep_period = 5
         self.action_name = action_name
         self.service = service
         self.guid = guid

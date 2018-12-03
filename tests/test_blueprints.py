@@ -7,6 +7,7 @@ from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import blueprint
 from zerorobot import config
+from zerorobot import storage
 from zerorobot.server.handlers.ExecuteBlueprintHandler import (_schedule_action,
                                                                instantiate_services)
 
@@ -15,6 +16,7 @@ class TestBlueprintParsing(unittest.TestCase):
 
     def setUp(self):
         config.data_repo = config.DataRepo(tempfile.mkdtemp(prefix='0robottest'))
+        storage.init(config)
         scol.drop_all()
 
     def tearDown(self):
@@ -84,6 +86,7 @@ class TestBlueprintExecution(unittest.TestCase):
         config.data_repo = config.DataRepo(tempfile.mkdtemp(prefix='0robottest'))
         tcol.add_repo("https://github.com/threefoldtech/0-robot", directory='tests/fixtures/templates')
         scol.drop_all()
+        storage.init(config)
 
     def test_instantiate_service(self):
         services = [
