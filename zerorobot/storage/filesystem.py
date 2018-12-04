@@ -59,3 +59,13 @@ class FileSystemServiceStorage(ServiceStorageBase):
         path = self._service_path(service)
         if path and os.path.exists(path):
             shutil.rmtree(os.path.dirname(path))
+
+    def health(self):
+        try:
+            file_path = os.path.join(self._root, 'healthcheck.tmp')
+            with open(file_path, 'wb+') as f:
+                f.write(os.urandom(4 * 1024))
+            os.remove(file_path)
+            return True
+        except:
+            return False

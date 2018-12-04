@@ -14,14 +14,14 @@ class ZDBServiceStorage(ServiceStorageBase):
         self._key_prefix = 'service_'
         if not namespace:
             namespace = 'zrobot_data'
-        client = j.clients.zdb.configure(instance='zrobot',
-                                         secrets='',
-                                         addr=addr,
-                                         port=port,
-                                         adminsecret=admin_passwd or '',
-                                         mode='user')
+        self._client = j.clients.zdb.configure(instance='zrobot',
+                                               secrets='',
+                                               addr=addr,
+                                               port=port,
+                                               adminsecret=admin_passwd or '',
+                                               mode='user')
 
-        self._ns = client.zdb.namespace_new(namespace)
+        self._ns = self._client.zdb.namespace_new(namespace)
 
     def _service_key(self, service):
         return "service_%s" % service.guid
@@ -42,3 +42,12 @@ class ZDBServiceStorage(ServiceStorageBase):
 
     def delete(self, service):
         self._ns.delete(self._key_prefix+service.guid)
+
+    def health(self):
+        try:
+            ns_name = 'healthcheck'
+            ns = self._client.zdb.namespace_new(ns_name)
+            self._client.zdb.namespace_delete(ns_name)
+            return True
+        except:
+            return False

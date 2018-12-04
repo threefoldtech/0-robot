@@ -5,6 +5,12 @@
 		"repositories": {
 			"$ref": "RobotInforepositories_schema.json"
 		},
+		"storage_healthy": {
+			"type": [
+				"boolean",
+				"null"
+			]
+		},
 		"type": {
 			"type": [
 				"string",

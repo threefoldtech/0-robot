@@ -18,6 +18,7 @@ class RobotInfo(object):
     def create(**kwargs):
         """
         :type repositories: RobotInforepositories
+        :type storage_healthy: bool
         :type type: EnumRobotInfoType
         :rtype: RobotInfo
         """
@@ -35,6 +36,9 @@ class RobotInfo(object):
         data_types = [RobotInforepositories]
         self.repositories = client_support.set_property(
             'repositories', data, data_types, False, [], False, True, class_name)
+        data_types = [bool]
+        self.storage_healthy = client_support.set_property(
+            'storage_healthy', data, data_types, False, [], False, False, class_name)
         data_types = [EnumRobotInfoType]
         self.type = client_support.set_property('type', data, data_types, False, [], False, False, class_name)
 
