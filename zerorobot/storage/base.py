@@ -61,6 +61,11 @@ class ServiceStorageBase(ABC):
         :type service: zerorobot.template.base
         """
 
+    @abstractmethod
+    def health(self):
+        """
+        check if the storage is still healthy (aka writable)
+        """
 
 
 def _serialize_service(service):

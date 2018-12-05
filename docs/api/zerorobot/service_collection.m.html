@@ -1041,13 +1041,6 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.service_collection.logger">logger</a></li>
-  </ul>
-
-    </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
@@ -1120,8 +1113,6 @@ other services and class need to use this module method to create, access, list 
 <span class="kn">from</span> <span class="nn">zerorobot.sqlite</span> <span class="kn">import</span> <span class="n">SqliteIndex</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
-
 <span class="n">_sqlite_index</span> <span class="o">=</span> <span class="n">SqliteIndex</span><span class="p">()</span>
 <span class="n">_guid_index</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1134,6 +1125,7 @@ other services and class need to use this module method to create, access, list 
     <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
     <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">add_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add service </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 
 
@@ -1185,6 +1177,7 @@ other services and class need to use this module method to create, access, list 
         <span class="k">del</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span>
     <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">delete_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete service </span><span class="si">%s</span><span class="s2"> from collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 
 
@@ -1208,7 +1201,8 @@ other services and class need to use this module method to create, access, list 
 
     <span class="n">service</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">])</span>
     <span class="c1"># srv.data.load(service_detail[&#39;data&#39;]) FIXME: should we need this since we pass the data in the constructor line 94</span>
-    <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">])</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">service_detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tasks&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
     <span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>
 
@@ -1218,6 +1212,7 @@ other services and class need to use this module method to create, access, list 
         <span class="c1"># nothing to do</span>
         <span class="k">return</span> <span class="n">service</span>
 
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;upgrade service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">)</span>
     <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span>
 
@@ -1238,7 +1233,7 @@ other services and class need to use this module method to create, access, list 
     <span class="n">new_service</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">_public</span>
 
     <span class="n">new_service</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">state</span>
-    <span class="n">new_service</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span>
+    <span class="c1"># new_service.task_list = service.task_list</span>
     <span class="n">add</span><span class="p">(</span><span class="n">new_service</span><span class="p">)</span>
 
     <span class="n">new_service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
@@ -1292,15 +1287,6 @@ other services and class need to use this module method to create, access, list 
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.service_collection.logger" class="name">var <span class="ident">logger</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
       
@@ -1323,6 +1309,7 @@ other services and class need to use this module method to create, access, list 
     <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
     <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">add_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add service </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 </pre></div>
 
@@ -1348,6 +1335,7 @@ other services and class need to use this module method to create, access, list 
         <span class="k">del</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span>
     <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">delete_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete service </span><span class="si">%s</span><span class="s2"> from collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 </pre></div>
 
@@ -1546,7 +1534,8 @@ other services and class need to use this module method to create, access, list 
 
     <span class="n">service</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">])</span>
     <span class="c1"># srv.data.load(service_detail[&#39;data&#39;]) FIXME: should we need this since we pass the data in the constructor line 94</span>
-    <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">])</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">service_detail</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tasks&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
     <span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>
 </pre></div>
@@ -1595,6 +1584,7 @@ other services and class need to use this module method to create, access, list 
         <span class="c1"># nothing to do</span>
         <span class="k">return</span> <span class="n">service</span>
 
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;upgrade service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">)</span>
     <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span>
 
@@ -1615,7 +1605,7 @@ other services and class need to use this module method to create, access, list 
     <span class="n">new_service</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">_public</span>
 
     <span class="n">new_service</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">state</span>
-    <span class="n">new_service</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span>
+    <span class="c1"># new_service.task_list = service.task_list</span>
     <span class="n">add</span><span class="p">(</span><span class="n">new_service</span><span class="p">)</span>
 
     <span class="n">new_service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>

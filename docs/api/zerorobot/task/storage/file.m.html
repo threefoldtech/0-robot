@@ -1078,11 +1078,12 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.file', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.task.storage.file" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">TaskStorageBase</span><span class="p">,</span> <span class="n">TaskNotFoundError</span>
-<span class="kn">from</span> <span class="nn">zerorobot.task.utils</span> <span class="kn">import</span> <span class="n">_instantiate_task</span>
-<span class="kn">import</span> <span class="nn">os</span>
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">TaskStorageBase</span><span class="p">,</span> <span class="n">TaskNotFoundError</span><span class="p">,</span> <span class="n">TaskConflictError</span>
+<span class="kn">from</span> <span class="nn">.import</span> <span class="nn">encoding</span>
 
 
 <span class="k">class</span> <span class="nc">TaskStorageFile</span><span class="p">(</span><span class="n">TaskStorageBase</span><span class="p">):</span>
@@ -1104,8 +1105,7 @@ table {
 <span class="sd">        save a task to the storage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">))</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">writeFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">writeFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_task_path</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">encoding</span><span class="o">.</span><span class="n">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1115,8 +1115,8 @@ table {
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TaskNotFoundError</span><span class="p">(</span><span class="s2">&quot;task </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;found 2 tasks with same guid, this should not happen&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">raise</span> <span class="n">TaskConflictError</span><span class="p">(</span><span class="s2">&quot;found 2 tasks with same guid, this should not happen&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">to_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1127,7 +1127,7 @@ table {
         <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listFilesInDir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">):</span>
             <span class="n">blob</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">from_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&lt;</span> <span class="n">from_timestap</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">to_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&gt;</span> <span class="n">to_timestap</span><span class="p">:</span>
@@ -1153,22 +1153,10 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">removeDirTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
         <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createDir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">_serialize_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
-            <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-            <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
-            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-            <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">json</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
-            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
-            <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
-            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
-        <span class="p">})</span>
-
-    <span class="k">def</span> <span class="nf">_deserialize_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob</span><span class="p">):</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_task_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">))</span>
 </pre></div>
 
   </div>
@@ -1208,8 +1196,7 @@ using simple file on the local filesystem</p></div>
 <span class="sd">        save a task to the storage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">))</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">writeFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">writeFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_task_path</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">encoding</span><span class="o">.</span><span class="n">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1219,8 +1206,8 @@ using simple file on the local filesystem</p></div>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TaskNotFoundError</span><span class="p">(</span><span class="s2">&quot;task </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;found 2 tasks with same guid, this should not happen&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">raise</span> <span class="n">TaskConflictError</span><span class="p">(</span><span class="s2">&quot;found 2 tasks with same guid, this should not happen&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">to_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1231,7 +1218,7 @@ using simple file on the local filesystem</p></div>
         <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listFilesInDir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">):</span>
             <span class="n">blob</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">from_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&lt;</span> <span class="n">from_timestap</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">to_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&gt;</span> <span class="n">to_timestap</span><span class="p">:</span>
@@ -1257,22 +1244,10 @@ using simple file on the local filesystem</p></div>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">removeDirTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
         <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createDir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">_serialize_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
-            <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-            <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
-            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-            <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">json</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
-            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
-            <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
-            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
-        <span class="p">})</span>
-
-    <span class="k">def</span> <span class="nf">_deserialize_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob</span><span class="p">):</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_task_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">))</span>
 </pre></div>
 
   </div>
@@ -1333,8 +1308,7 @@ using simple file on the local filesystem</p></div>
 <span class="sd">    save a task to the storage</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">))</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">writeFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
+    <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">writeFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_task_path</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">encoding</span><span class="o">.</span><span class="n">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
 </pre></div>
 
   </div>
@@ -1411,6 +1385,7 @@ using simple file on the local filesystem</p></div>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">removeDirTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
     <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createDir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">=</span> <span class="mi">0</span>
 </pre></div>
 
   </div>
@@ -1439,8 +1414,8 @@ using simple file on the local filesystem</p></div>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TaskNotFoundError</span><span class="p">(</span><span class="s2">&quot;task </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;found 2 tasks with same guid, this should not happen&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">raise</span> <span class="n">TaskConflictError</span><span class="p">(</span><span class="s2">&quot;found 2 tasks with same guid, this should not happen&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1472,7 +1447,7 @@ to_timestamp: filter all task created after to_timestamp</p></div>
     <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listFilesInDir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">):</span>
         <span class="n">blob</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">from_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&lt;</span> <span class="n">from_timestap</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="n">to_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&gt;</span> <span class="n">to_timestap</span><span class="p">:</span>

@@ -1051,6 +1051,7 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.storage.filesystem.FileSystemServiceStorage.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.storage.filesystem.FileSystemServiceStorage.delete">delete</a></li>
+    <li class="mono"><a href="#zerorobot.storage.filesystem.FileSystemServiceStorage.health">health</a></li>
     <li class="mono"><a href="#zerorobot.storage.filesystem.FileSystemServiceStorage.list">list</a></li>
     <li class="mono"><a href="#zerorobot.storage.filesystem.FileSystemServiceStorage.save">save</a></li>
   </ul>
@@ -1136,6 +1137,16 @@ table {
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_path</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">health</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="s1">&#39;healthcheck.tmp&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
 </pre></div>
 
   </div>
@@ -1151,6 +1162,8 @@ table {
       <p id="zerorobot.storage.filesystem.FileSystemServiceStorage" class="name">class <span class="ident">FileSystemServiceStorage</span></p>
       
   
+    <div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.filesystem.FileSystemServiceStorage', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.storage.filesystem.FileSystemServiceStorage" class="source">
@@ -1207,6 +1220,16 @@ table {
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_path</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">health</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="s1">&#39;healthcheck.tmp&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
 </pre></div>
 
   </div>
@@ -1218,6 +1241,7 @@ table {
           <ul class="class_list">
           <li><a href="#zerorobot.storage.filesystem.FileSystemServiceStorage">FileSystemServiceStorage</a></li>
           <li>zerorobot.storage.base.ServiceStorageBase</li>
+          <li>abc.ABC</li>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
@@ -1255,6 +1279,9 @@ table {
 
     
   
+    <div class="desc"><p>delete a service</p>
+<p>:param service: service
+:type service: zerorobot.template.base</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.filesystem.FileSystemServiceStorage.delete', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.storage.filesystem.FileSystemServiceStorage.delete" class="source">
@@ -1262,6 +1289,35 @@ table {
     <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_path</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.storage.filesystem.FileSystemServiceStorage.health">
+    <p>def <span class="ident">health</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>check if the storage is still healthy (aka writable)</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.filesystem.FileSystemServiceStorage.health', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.filesystem.FileSystemServiceStorage.health" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">health</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="s1">&#39;healthcheck.tmp&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
 </pre></div>
 
   </div>

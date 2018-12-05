@@ -1041,13 +1041,6 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.template_collection.logger">logger</a></li>
-  </ul>
-
-    </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
@@ -1075,6 +1068,15 @@ table {
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template_collection.TemplateNotFoundError">TemplateNotFoundError</a></span>
         
+        </li>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.template_collection.ValidationError">ValidationError</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#zerorobot.template_collection.ValidationError.__init__">__init__</a></li>
+  </ul>
+
         </li>
       </ul>
     </li>
@@ -1113,7 +1115,6 @@ other services and class need to use this module method to load/access the templ
 <span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceConflictError</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
 <span class="n">_templates</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1130,7 +1131,7 @@ other services and class need to use this module method to load/access the templ
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">branch</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span>
-        <span class="n">dir_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">)</span>
+        <span class="n">dir_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">ssh</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># if we didn&#39;t specify the branch and we already have the repo locally,</span>
         <span class="c1"># don&#39;t switch branch, this is usefull when developping on different branches</span>
@@ -1235,6 +1236,7 @@ other services and class need to use this module method to load/access the templ
 
     <span class="n">class_</span><span class="o">.</span><span class="n">template_dir</span> <span class="o">=</span> <span class="n">template_dir</span>
     <span class="n">_templates</span><span class="p">[</span><span class="n">class_</span><span class="o">.</span><span class="n">template_uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">class_</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add template </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">class_</span><span class="o">.</span><span class="n">template_uid</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_templates</span><span class="p">[</span><span class="n">class_</span><span class="o">.</span><span class="n">template_uid</span><span class="p">]</span>
 
@@ -1245,12 +1247,15 @@ other services and class need to use this module method to load/access the templ
 
     <span class="n">existing</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span>
-            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;a service with name=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span>
-            <span class="n">service</span><span class="o">=</span><span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;a service with name=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">=</span><span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">service</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;fail to create service </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span> <span class="n">err</span><span class="p">)</span>
+
     <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
     <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
@@ -1258,6 +1263,7 @@ other services and class need to use this module method to load/access the templ
 
 
 <span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;checkout </span><span class="si">%s</span><span class="s2"> for repo </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">revision</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
     <span class="n">dir_path</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
@@ -1302,9 +1308,20 @@ other services and class need to use this module method to load/access the templ
 <span class="k">class</span> <span class="nc">TemplateConflictError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This exception is raised when trying to get a template with its name</span>
-<span class="sd">    and 2 templates have te same name, so we can&#39;t decide which one to retrn</span>
+<span class="sd">    and 2 templates have te same name, so we can&#39;t decide which one to return</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception raised when instanciating new services and the validate</span>
+<span class="sd">    method raise an exception</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="n">exception</span>
 </pre></div>
 
   </div>
@@ -1312,15 +1329,6 @@ other services and class need to use this module method to load/access the templ
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.template_collection.logger" class="name">var <span class="ident">logger</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
       
@@ -1350,7 +1358,7 @@ directory: the path to the directory where the templates are located in the repo
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">branch</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span>
-        <span class="n">dir_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">)</span>
+        <span class="n">dir_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">ssh</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># if we didn&#39;t specify the branch and we already have the repo locally,</span>
         <span class="c1"># don&#39;t switch branch, this is usefull when developping on different branches</span>
@@ -1383,6 +1391,7 @@ directory: the path to the directory where the templates are located in the repo
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.checkout_repo', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection.checkout_repo" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;checkout </span><span class="si">%s</span><span class="s2"> for repo </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">revision</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
     <span class="n">dir_path</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
@@ -1539,12 +1548,15 @@ directory: the path to the directory where the templates are located in the repo
 
     <span class="n">existing</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span>
-            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;a service with name=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span>
-            <span class="n">service</span><span class="o">=</span><span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;a service with name=</span><span class="si">%s</span><span class="s2"> already exist&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">=</span><span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">service</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;fail to create service </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span> <span class="n">err</span><span class="p">)</span>
+
     <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
     <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
@@ -1585,14 +1597,14 @@ directory: the path to the directory where the templates are located in the repo
       
   
     <div class="desc"><p>This exception is raised when trying to get a template with its name
-and 2 templates have te same name, so we can't decide which one to retrn</p></div>
+and 2 templates have te same name, so we can't decide which one to return</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.TemplateConflictError', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection.TemplateConflictError" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TemplateConflictError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This exception is raised when trying to get a template with its name</span>
-<span class="sd">    and 2 templates have te same name, so we can&#39;t decide which one to retrn</span>
+<span class="sd">    and 2 templates have te same name, so we can&#39;t decide which one to return</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </pre></div>
@@ -1695,6 +1707,87 @@ from a template that doesn't exists</p></div>
           <h3>Class variables</h3>
             <div class="item">
             <p id="zerorobot.template_collection.TemplateNotFoundError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="zerorobot.template_collection.ValidationError" class="name">class <span class="ident">ValidationError</span></p>
+      
+  
+    <div class="desc"><p>Exception raised when instanciating new services and the validate
+method raise an exception</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.ValidationError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template_collection.ValidationError" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception raised when instanciating new services and the validate</span>
+<span class="sd">    method raise an exception</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="n">exception</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.template_collection.ValidationError">ValidationError</a></li>
+          <li>builtins.Exception</li>
+          <li>builtins.BaseException</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="zerorobot.template_collection.ValidationError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template_collection.ValidationError.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, msg, exception)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.ValidationError.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template_collection.ValidationError.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="n">exception</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="zerorobot.template_collection.ValidationError.exception" class="name">var <span class="ident">exception</span></p>
             
 
             

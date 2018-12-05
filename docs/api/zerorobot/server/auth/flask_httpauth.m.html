@@ -1203,10 +1203,7 @@ table {
         <span class="k">return</span> <span class="n">f</span>
 
     <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth</span><span class="p">,</span> <span class="n">stored_password</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">auth</span><span class="p">:</span>
-            <span class="n">token</span> <span class="o">=</span> <span class="n">auth</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">token</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">auth</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">auth</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_token_callback</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_token_callback</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">False</span>
@@ -1611,10 +1608,7 @@ table {
         <span class="k">return</span> <span class="n">f</span>
 
     <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth</span><span class="p">,</span> <span class="n">stored_password</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">auth</span><span class="p">:</span>
-            <span class="n">token</span> <span class="o">=</span> <span class="n">auth</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">token</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">auth</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">auth</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_token_callback</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_token_callback</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">False</span>
@@ -1668,10 +1662,7 @@ table {
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.auth.flask_httpauth.HTTPTokenAuth.authenticate', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.auth.flask_httpauth.HTTPTokenAuth.authenticate" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth</span><span class="p">,</span> <span class="n">stored_password</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">auth</span><span class="p">:</span>
-        <span class="n">token</span> <span class="o">=</span> <span class="n">auth</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">token</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">auth</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">auth</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_token_callback</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_token_callback</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">False</span>

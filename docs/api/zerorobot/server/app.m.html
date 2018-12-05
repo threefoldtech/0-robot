@@ -1079,9 +1079,10 @@ table {
     <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">send_file</span><span class="p">,</span> <span class="n">send_from_directory</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">send_from_directory</span><span class="p">,</span> <span class="n">render_template</span>
 <span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 
+<span class="kn">from</span> <span class="nn">zerorobot.errors</span> <span class="kn">import</span> <span class="n">eco_get</span>
 <span class="kn">from</span> <span class="nn">.blueprints_api</span> <span class="kn">import</span> <span class="n">blueprints_api</span>
 <span class="kn">from</span> <span class="nn">.services_api</span> <span class="kn">import</span> <span class="n">services_api</span>
 <span class="kn">from</span> <span class="nn">.templates_api</span> <span class="kn">import</span> <span class="n">templates_api</span>
@@ -1104,18 +1105,14 @@ table {
 
 <span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">home</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">send_file</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/index.html&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;index.html&#39;</span><span class="p">)</span>
 
 
 <span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">internal_error</span><span class="p">(</span><span class="n">err</span><span class="p">):</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
-    <span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">eco</span><span class="o">.</span><span class="n">errormessage</span><span class="p">,</span> <span class="n">stack_trace</span><span class="o">=</span><span class="n">eco</span><span class="o">.</span><span class="n">traceback</span><span class="p">),</span> <span class="mi">500</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+    <span class="n">eco</span> <span class="o">=</span> <span class="n">eco_get</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">eco</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">stack_trace</span><span class="o">=</span><span class="n">eco</span><span class="o">.</span><span class="n">trace</span><span class="p">),</span> <span class="mi">500</span>
 </pre></div>
 
   </div>
@@ -1156,7 +1153,7 @@ table {
   <div id="source-zerorobot.server.app.home" class="source">
     <div class="codehilite"><pre><span></span><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">home</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">send_file</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/index.html&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;index.html&#39;</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1178,9 +1175,9 @@ table {
   <div id="source-zerorobot.server.app.internal_error" class="source">
     <div class="codehilite"><pre><span></span><span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">internal_error</span><span class="p">(</span><span class="n">err</span><span class="p">):</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
-    <span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">eco</span><span class="o">.</span><span class="n">errormessage</span><span class="p">,</span> <span class="n">stack_trace</span><span class="o">=</span><span class="n">eco</span><span class="o">.</span><span class="n">traceback</span><span class="p">),</span> <span class="mi">500</span>
+    <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+    <span class="n">eco</span> <span class="o">=</span> <span class="n">eco_get</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">eco</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">stack_trace</span><span class="o">=</span><span class="n">eco</span><span class="o">.</span><span class="n">trace</span><span class="p">),</span> <span class="mi">500</span>
 </pre></div>
 
   </div>

@@ -1040,13 +1040,6 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.robot.robot.logger">logger</a></li>
-  </ul>
-
-    </li>
 
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
@@ -1094,6 +1087,7 @@ table {
 <span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">GreenletExit</span>
 <span class="kn">from</span> <span class="nn">gevent.pool</span> <span class="kn">import</span> <span class="n">Pool</span>
 <span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
+<span class="kn">from</span> <span class="nn">gevent.event</span> <span class="kn">import</span> <span class="n">Event</span>
 
 <span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
@@ -1103,11 +1097,9 @@ table {
 <span class="kn">from</span> <span class="nn">zerorobot.prometheus.flask</span> <span class="kn">import</span> <span class="n">monitor</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server.app</span> <span class="kn">import</span> <span class="n">app</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">storage</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">loader</span>
-
-<span class="c1"># create logger</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Robot</span><span class="p">:</span>
@@ -1120,18 +1112,20 @@ table {
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_started</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">started</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">address</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span>
 
     <span class="k">def</span> <span class="nf">set_data_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1179,32 +1173,39 @@ table {
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
         <span class="n">config</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="n">config</span><span class="o">.</span><span class="n">god</span> <span class="o">=</span> <span class="n">god</span>  <span class="c1"># when true, this allow to get data and logs from services using the REST API</span>
-
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;config manager is not configured, can&#39;t continue&quot;</span><span class="p">)</span>
 
+        <span class="c1"># configure storage</span>
+        <span class="n">storage</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="c1"># instantiate webhooks manager and load the configured webhooks</span>
         <span class="n">config</span><span class="o">.</span><span class="n">webhooks</span> <span class="o">=</span> <span class="n">webhooks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;config directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;sshkey used: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span><span class="p">)))</span>
+        <span class="n">keypath</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keypath</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keypath</span><span class="p">:</span>
+            <span class="n">keypath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;sshkey used: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">keypath</span><span class="p">)</span>
 
         <span class="c1"># configure prometheus monitoring</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
+
+
          <span class="c1"># configure authentication middleware</span>
         <span class="n">_configure_authentication</span><span class="p">(</span><span class="n">admin_organization</span><span class="p">,</span> <span class="n">user_organization</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">sig</span> <span class="ow">in</span> <span class="p">[</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
 
         <span class="c1"># configure logger</span>
         <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
@@ -1231,36 +1232,50 @@ table {
         <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">address</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
-            <span class="c1"># this is executed when self.stop is called.</span>
-            <span class="c1"># here no more requests are comming in, we can safely save all services</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># wait until stop() is called</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        stop receiving requests</span>
-<span class="sd">        gracefully stop all the services</span>
-<span class="sd">        serialize all services state to disk</span>
+<span class="sd">        1. stop receiving requests on the REST API</span>
+<span class="sd">        2. wait all currently active request finishes</span>
+<span class="sd">        3. stop all services</span>
+<span class="sd">        4. wait all services stop gracefully</span>
+<span class="sd">        5. serialize all services state to disk</span>
+<span class="sd">        6. exit the process</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
+
         <span class="c1"># prevent the signal handler to be called again if</span>
         <span class="c1"># more signal are received</span>
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="p">:</span>
             <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;stop REST API&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;waiting request to finish&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>
-        <span class="c1"># cause we&#39;re not in a sig handler</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-            <span class="c1"># here no more requests are comming in, we can safely save all services</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;waiting for services to stop&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">_gracefull_stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;exception raised while waiting </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">) to finish: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+
+        <span class="c1"># here no more requests are comming in, we can safely save all services</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
+
+        <span class="c1"># notify we can exist the process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_save_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1273,6 +1288,15 @@ table {
 
 
 <span class="k">def</span> <span class="nf">_create_node_service</span><span class="p">():</span>
+    <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;db&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;password_&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="mi">6379</span><span class="p">,</span>
+        <span class="s1">&#39;ssl&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s1">&#39;timeout&#39;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+        <span class="s1">&#39;unixsocket&#39;</span><span class="p">:</span> <span class="s1">&#39;/tmp/redis.sock&#39;</span><span class="p">})</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">service_found</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_host</span><span class="o">=</span><span class="s1">&#39;github.com&#39;</span><span class="p">,</span> <span class="n">template_account</span><span class="o">=</span><span class="s1">&#39;threefoldtech&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s1">&#39;node&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">service_found</span><span class="p">:</span>
         <span class="n">template_found</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;github.com&#39;</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="s1">&#39;threefoldtech&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;node&#39;</span><span class="p">)</span>
@@ -1301,6 +1325,7 @@ table {
 <span class="sd">    then &#39;period&#39;</span>
 <span class="sd">    This is to limit the amount of storage used to keep track of the tasks</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>  <span class="c1"># runs every 20 minutes</span>
@@ -1309,8 +1334,13 @@ table {
             <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">_done</span><span class="p">,</span> <span class="s1">&#39;delete_until&#39;</span><span class="p">):</span>
                     <span class="k">continue</span>
+
+                <span class="c1"># don&#39;t need to trim old task if we have 50 or less tasks</span>
+                <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">50</span><span class="p">:</span>
+                    <span class="k">continue</span>
                 <span class="c1"># delete all task that have been created before ago</span>
                 <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">delete_until</span><span class="p">(</span><span class="n">ago</span><span class="p">)</span>
+
         <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
             <span class="c1"># exit properly</span>
             <span class="k">return</span>
@@ -1332,6 +1362,7 @@ table {
 
 
 <span class="k">def</span> <span class="nf">_configure_authentication</span><span class="p">(</span><span class="n">admin_organization</span><span class="p">,</span> <span class="n">user_organization</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">admin_organization</span><span class="p">:</span>
         <span class="n">auth</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">admin_organization</span> <span class="o">=</span> <span class="n">admin_organization</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;admin JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">auth</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">admin_organization</span><span class="p">)</span>
@@ -1345,15 +1376,6 @@ table {
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.robot.robot.logger" class="name">var <span class="ident">logger</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1380,18 +1402,20 @@ It is responsible to:
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_started</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">started</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">address</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span>
 
     <span class="k">def</span> <span class="nf">set_data_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1439,32 +1463,39 @@ It is responsible to:
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
         <span class="n">config</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="n">config</span><span class="o">.</span><span class="n">god</span> <span class="o">=</span> <span class="n">god</span>  <span class="c1"># when true, this allow to get data and logs from services using the REST API</span>
-
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;config manager is not configured, can&#39;t continue&quot;</span><span class="p">)</span>
 
+        <span class="c1"># configure storage</span>
+        <span class="n">storage</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="c1"># instantiate webhooks manager and load the configured webhooks</span>
         <span class="n">config</span><span class="o">.</span><span class="n">webhooks</span> <span class="o">=</span> <span class="n">webhooks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;config directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;sshkey used: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span><span class="p">)))</span>
+        <span class="n">keypath</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keypath</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keypath</span><span class="p">:</span>
+            <span class="n">keypath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;sshkey used: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">keypath</span><span class="p">)</span>
 
         <span class="c1"># configure prometheus monitoring</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
+
+
          <span class="c1"># configure authentication middleware</span>
         <span class="n">_configure_authentication</span><span class="p">(</span><span class="n">admin_organization</span><span class="p">,</span> <span class="n">user_organization</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">sig</span> <span class="ow">in</span> <span class="p">[</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
 
         <span class="c1"># configure logger</span>
         <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
@@ -1491,36 +1522,50 @@ It is responsible to:
         <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">address</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
-            <span class="c1"># this is executed when self.stop is called.</span>
-            <span class="c1"># here no more requests are comming in, we can safely save all services</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># wait until stop() is called</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        stop receiving requests</span>
-<span class="sd">        gracefully stop all the services</span>
-<span class="sd">        serialize all services state to disk</span>
+<span class="sd">        1. stop receiving requests on the REST API</span>
+<span class="sd">        2. wait all currently active request finishes</span>
+<span class="sd">        3. stop all services</span>
+<span class="sd">        4. wait all services stop gracefully</span>
+<span class="sd">        5. serialize all services state to disk</span>
+<span class="sd">        6. exit the process</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
+
         <span class="c1"># prevent the signal handler to be called again if</span>
         <span class="c1"># more signal are received</span>
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="p">:</span>
             <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;stop REST API&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;waiting request to finish&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>
-        <span class="c1"># cause we&#39;re not in a sig handler</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-            <span class="c1"># here no more requests are comming in, we can safely save all services</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;waiting for services to stop&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">_gracefull_stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;exception raised while waiting </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">) to finish: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+
+        <span class="c1"># here no more requests are comming in, we can safely save all services</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
+
+        <span class="c1"># notify we can exist the process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_save_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1557,11 +1602,11 @@ It is responsible to:
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.robot.robot.Robot.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_started</span> <span class="o">=</span> <span class="bp">False</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># server handler</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span> <span class="o">=</span> <span class="p">[]</span>
 </pre></div>
 
@@ -1694,24 +1739,31 @@ load the services from the local git repository</p></div>
 <span class="sd">    start the rest web server</span>
 <span class="sd">    load the services from the local git repository</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
     <span class="n">config</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
     <span class="n">config</span><span class="o">.</span><span class="n">god</span> <span class="o">=</span> <span class="n">god</span>  <span class="c1"># when true, this allow to get data and logs from services using the REST API</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;config manager is not configured, can&#39;t continue&quot;</span><span class="p">)</span>
+    <span class="c1"># configure storage</span>
+    <span class="n">storage</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="c1"># instantiate webhooks manager and load the configured webhooks</span>
     <span class="n">config</span><span class="o">.</span><span class="n">webhooks</span> <span class="o">=</span> <span class="n">webhooks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;config directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;sshkey used: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span><span class="p">)))</span>
+    <span class="n">keypath</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keypath</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">keypath</span><span class="p">:</span>
+        <span class="n">keypath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;sshkey used: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">keypath</span><span class="p">)</span>
     <span class="c1"># configure prometheus monitoring</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
         <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
      <span class="c1"># configure authentication middleware</span>
     <span class="n">_configure_authentication</span><span class="p">(</span><span class="n">admin_organization</span><span class="p">,</span> <span class="n">user_organization</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">sig</span> <span class="ow">in</span> <span class="p">[</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
     <span class="c1"># configure logger</span>
     <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
     <span class="c1"># auto-push data repo</span>
@@ -1732,14 +1784,14 @@ load the services from the local git repository</p></div>
     <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">address</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
-        <span class="c1"># this is executed when self.stop is called.</span>
-        <span class="c1"># here no more requests are comming in, we can safely save all services</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># wait until stop() is called</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1750,36 +1802,52 @@ load the services from the local git repository</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.robot.robot.Robot.stop">
-    <p>def <span class="ident">stop</span>(</p><p>self)</p>
+    <p>def <span class="ident">stop</span>(</p><p>self, timeout=30)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>stop receiving requests
-gracefully stop all the services
-serialize all services state to disk</p></div>
+    <div class="desc"><ol>
+<li>stop receiving requests on the REST API</li>
+<li>wait all currently active request finishes</li>
+<li>stop all services</li>
+<li>wait all services stop gracefully</li>
+<li>serialize all services state to disk</li>
+<li>exit the process</li>
+</ol></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.stop', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.robot.robot.Robot.stop" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    stop receiving requests</span>
-<span class="sd">    gracefully stop all the services</span>
-<span class="sd">    serialize all services state to disk</span>
+<span class="sd">    1. stop receiving requests on the REST API</span>
+<span class="sd">    2. wait all currently active request finishes</span>
+<span class="sd">    3. stop all services</span>
+<span class="sd">    4. wait all services stop gracefully</span>
+<span class="sd">    5. serialize all services state to disk</span>
+<span class="sd">    6. exit the process</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
     <span class="c1"># prevent the signal handler to be called again if</span>
     <span class="c1"># more signal are received</span>
     <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="p">:</span>
         <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>
-    <span class="c1"># cause we&#39;re not in a sig handler</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-        <span class="c1"># here no more requests are comming in, we can safely save all services</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;stop REST API&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;waiting request to finish&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;waiting for services to stop&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">_gracefull_stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;exception raised while waiting </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">) to finish: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+    <span class="c1"># here no more requests are comming in, we can safely save all services</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
+    <span class="c1"># notify we can exist the process</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1788,16 +1856,6 @@ serialize all services state to disk</p></div>
   </div>
   
           <h3>Instance variables</h3>
-            <div class="item">
-            <p id="zerorobot.robot.robot.Robot.addr" class="name">var <span class="ident">addr</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
             <div class="item">
             <p id="zerorobot.robot.robot.Robot.address" class="name">var <span class="ident">address</span></p>
             
@@ -1810,6 +1868,16 @@ serialize all services state to disk</p></div>
             </div>
             <div class="item">
             <p id="zerorobot.robot.robot.Robot.data_repo_url" class="name">var <span class="ident">data_repo_url</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.robot.robot.Robot.started" class="name">var <span class="ident">started</span></p>
             
 
             

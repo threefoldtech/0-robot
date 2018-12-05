@@ -1,7 +1,7 @@
 # THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.
 
 from flask import jsonify
-from zerorobot import config
+from zerorobot import config, storage
 
 
 def GetRobotInfoHandler():
@@ -22,5 +22,7 @@ def GetRobotInfoHandler():
         output['repositories']['config']['last_pushed'] = config.config_repo.last_pushed
     if config.mode:
         output['type'] = config.mode
+
+    output['storage_healthy'] = storage.health()
 
     return jsonify(output)

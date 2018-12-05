@@ -1047,7 +1047,6 @@ table {
     <li class="mono"><a href="#zerorobot.template.base.PRIORITY_NORMAL">PRIORITY_NORMAL</a></li>
     <li class="mono"><a href="#zerorobot.template.base.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TASK_STATE_ERROR">TASK_STATE_ERROR</a></li>
-    <li class="mono"><a href="#zerorobot.template.base.logger">logger</a></li>
   </ul>
 
     </li>
@@ -1073,6 +1072,8 @@ table {
     <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.get">get</a></li>
     <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.stop">stop</a></li>
     <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.stop_all">stop_all</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.stop_recurring">stop_recurring</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.GreenletsMgr.wait_all">wait_all</a></li>
   </ul>
 
         </li>
@@ -1128,6 +1129,8 @@ It is the class every template should inherits from.</p>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 
 <span class="kn">import</span> <span class="nn">gevent</span>
+<span class="kn">from</span> <span class="nn">gevent.event</span> <span class="kn">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">gevent.queue</span> <span class="kn">import</span> <span class="n">Empty</span>
 
 <span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
@@ -1142,8 +1145,7 @@ It is the class every template should inherits from.</p>
 <span class="kn">from</span> <span class="nn">zerorobot.task.utils</span> <span class="kn">import</span> <span class="n">wait_all</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.data</span> <span class="kn">import</span> <span class="n">ServiceData</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.state</span> <span class="kn">import</span> <span class="n">ServiceState</span>
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template.decorator</span> <span class="kn">import</span> <span class="n">timeout</span>
 
 
 <span class="k">class</span> <span class="nc">BadActionArgumentError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1191,6 +1193,7 @@ It is the class every template should inherits from.</p>
             <span class="n">gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">gl</span>
+        <span class="k">return</span> <span class="n">gl</span>
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -1217,7 +1220,17 @@ It is the class every template should inherits from.</p>
         <span class="k">for</span> <span class="n">gl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
-            <span class="n">gevent</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_all</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">stop_recurring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">gl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;recurring_&#39;</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;kill </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+                <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">wait_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">TemplateBase</span><span class="p">:</span>
@@ -1236,6 +1249,7 @@ It is the class every template should inherits from.</p>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stop_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="bp">False</span>
@@ -1263,9 +1277,9 @@ It is the class every template should inherits from.</p>
         <span class="c1"># start the greenlets of this service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">recurring_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recurring_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1277,6 +1291,7 @@ It is the class every template should inherits from.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
+    <span class="nd">@timeout</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        serialize the service state and data to a file</span>
@@ -1285,8 +1300,7 @@ It is the class every template should inherits from.</p>
 <span class="sd">                          to save the service state and data</span>
 <span class="sd">        return the path where the service is saved</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">storage</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1297,9 +1311,14 @@ It is the class every template should inherits from.</p>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__stop_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># wait for 5 second before re-trying the exit condition</span>
+                    <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">Empty</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
                 <span class="n">task</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="bp">self</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
@@ -1307,8 +1326,9 @@ It is the class every template should inherits from.</p>
                     <span class="n">task_latency</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">action_name</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
                     <span class="c1"># notify the task list that this task is done</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">done</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;error executing action </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">traceback</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;error executing action </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">trace</span><span class="p">))</span>
+
             <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
                 <span class="c1"># TODO: gracefull shutdown</span>
                 <span class="c1"># make sure the task storage is close properly</span>
@@ -1359,7 +1379,7 @@ It is the class every template should inherits from.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span>
 
-    <span class="k">def</span> <span class="nf">recurring_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">recurring_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        configure an action to be executed every period second</span>
 
@@ -1379,6 +1399,28 @@ It is the class every template should inherits from.</p>
         <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_gracefull_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gracefully stop the service</span>
+
+<span class="sd">        1. kill all the recurring greenlets</span>
+<span class="sd">        2. if there is a task in progress wait till timout, then kill</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;stopping service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>  <span class="c1"># make the main loop exit</span>
+
+        <span class="c1"># stop all recurring action and processing of task list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_recurring</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">main_gl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
+
+        <span class="c1"># if the main loop is busy with a task, wait timeout</span>
+        <span class="c1"># then kill</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span><span class="p">:</span>
+                <span class="n">main_gl</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">main_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete the service.</span>
@@ -1397,7 +1439,7 @@ It is the class every template should inherits from.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> stop processing its task list, while some task remains in the queue&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> stop processing its task list, while some task remains in the queue&quot;</span><span class="p">)</span>
 
         <span class="c1"># schedule and wait for all the cleanup actions</span>
         <span class="n">delete_tasks</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1416,8 +1458,7 @@ It is the class every template should inherits from.</p>
                 <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="c1"># remove from persistant storage</span>
-        <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">store</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">storage</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># remove logs from disk</span>
         <span class="c1"># TODO: write logs into storage interface</span>
@@ -1469,7 +1510,7 @@ It is the class every template should inherits from.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_name</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_recurring_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_recurring_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    this function is intended to be run in a greenlet.</span>
 <span class="sd">    It will ensure that the action from service is schedule at best every period second.</span>
@@ -1480,18 +1521,19 @@ It is the class every template should inherits from.</p>
 <span class="sd">    That means that it can be a longer time then period second during which the action is not executed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">elapsed</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
         <span class="n">tasks_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">action_name</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">()]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># schedule if period time has elapsed and the same action is not already in the task list</span>
-            <span class="k">if</span> <span class="n">elapsed</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">period</span> <span class="ow">and</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tasks_name</span><span class="p">:</span>
-                <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tasks_name</span> <span class="ow">and</span> <span class="p">(</span><span class="n">elapsed</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">period</span><span class="p">):</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
                 <span class="n">task</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-                <span class="n">last</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
-            <span class="n">elapsed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">-</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span>
+            <span class="k">if</span> <span class="n">task</span><span class="p">:</span>
+                <span class="n">elapsed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">-</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span>
         <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
             <span class="k">break</span>
 
@@ -1499,14 +1541,14 @@ It is the class every template should inherits from.</p>
 <span class="n">_LOGGER_FORMAT</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(pathname)s</span><span class="s1">:</span><span class="si">%(lineno)d</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
 
 
-<span class="k">def</span> <span class="nf">_configure_logger</span><span class="p">(</span><span class="n">guid</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_configure_logger</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
     <span class="n">log_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">LOGDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">log_dir</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_dir</span><span class="p">)</span>
 
-    <span class="n">l</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;service-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
     <span class="n">l</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">rfh</span> <span class="o">=</span> <span class="n">RotatingFileHandler</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">guid</span><span class="p">),</span>
+    <span class="n">rfh</span> <span class="o">=</span> <span class="n">RotatingFileHandler</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">),</span>
                               <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
                               <span class="n">maxBytes</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 512k</span>
                               <span class="n">backupCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># 2 * 512k = 1Mib of logs max per service</span>
@@ -1545,14 +1587,6 @@ It is the class every template should inherits from.</p>
       </div>
       <div class="item">
       <p id="zerorobot.template.base.TASK_STATE_ERROR" class="name">var <span class="ident">TASK_STATE_ERROR</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.template.base.logger" class="name">var <span class="ident">logger</span></p>
       
   
   <div class="source_cont">
@@ -1687,6 +1721,7 @@ manage a group of greenlets</p>
             <span class="n">gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">gl</span>
+        <span class="k">return</span> <span class="n">gl</span>
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -1713,7 +1748,17 @@ manage a group of greenlets</p>
         <span class="k">for</span> <span class="n">gl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
-            <span class="n">gevent</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_all</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">stop_recurring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">gl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;recurring_&#39;</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;kill </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+                <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">wait_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1783,6 +1828,7 @@ manage a group of greenlets</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">gl</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
         <span class="n">gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">gl</span>
+    <span class="k">return</span> <span class="n">gl</span>
 </pre></div>
 
   </div>
@@ -1869,7 +1915,53 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
     <span class="k">for</span> <span class="n">gl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
-        <span class="n">gevent</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait_all</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.base.GreenletsMgr.stop_recurring">
+    <p>def <span class="ident">stop_recurring</span>(</p><p>self, wait=False, timeout=None)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.GreenletsMgr.stop_recurring', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.GreenletsMgr.stop_recurring" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">stop_recurring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">gl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;recurring_&#39;</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;kill </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.base.GreenletsMgr.wait_all">
+    <p>def <span class="ident">wait_all</span>(</p><p>self, timeout=None)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.GreenletsMgr.wait_all', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.GreenletsMgr.wait_all" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wait_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">gevent</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1916,6 +2008,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stop_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="bp">False</span>
@@ -1943,9 +2036,9 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
         <span class="c1"># start the greenlets of this service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">recurring_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recurring_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1957,6 +2050,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
+    <span class="nd">@timeout</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        serialize the service state and data to a file</span>
@@ -1965,8 +2059,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
 <span class="sd">                          to save the service state and data</span>
 <span class="sd">        return the path where the service is saved</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">storage</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1977,9 +2070,14 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
 
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__stop_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># wait for 5 second before re-trying the exit condition</span>
+                    <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">Empty</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
                 <span class="n">task</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="bp">self</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
@@ -1987,8 +2085,9 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
                     <span class="n">task_latency</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">action_name</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
                     <span class="c1"># notify the task list that this task is done</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">done</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;error executing action </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">traceback</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;error executing action </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">trace</span><span class="p">))</span>
+
             <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
                 <span class="c1"># TODO: gracefull shutdown</span>
                 <span class="c1"># make sure the task storage is close properly</span>
@@ -2039,7 +2138,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span>
 
-    <span class="k">def</span> <span class="nf">recurring_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">recurring_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        configure an action to be executed every period second</span>
 
@@ -2059,6 +2158,28 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
         <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_gracefull_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gracefully stop the service</span>
+
+<span class="sd">        1. kill all the recurring greenlets</span>
+<span class="sd">        2. if there is a task in progress wait till timout, then kill</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;stopping service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>  <span class="c1"># make the main loop exit</span>
+
+        <span class="c1"># stop all recurring action and processing of task list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_recurring</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">main_gl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
+
+        <span class="c1"># if the main loop is busy with a task, wait timeout</span>
+        <span class="c1"># then kill</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span><span class="p">:</span>
+                <span class="n">main_gl</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">main_gl</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete the service.</span>
@@ -2077,7 +2198,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
             <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> stop processing its task list, while some task remains in the queue&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> stop processing its task list, while some task remains in the queue&quot;</span><span class="p">)</span>
 
         <span class="c1"># schedule and wait for all the cleanup actions</span>
         <span class="n">delete_tasks</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2096,8 +2217,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
                 <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="c1"># remove from persistant storage</span>
-        <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">store</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">storage</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># remove logs from disk</span>
         <span class="c1"># TODO: write logs into storage interface</span>
@@ -2206,6 +2326,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
   <div id="source-zerorobot.template.base.TemplateBase.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">template_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">__stop_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="bp">False</span>
@@ -2229,8 +2350,8 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
     <span class="c1"># start the greenlets of this service</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">recurring_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">recurring_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -2316,7 +2437,7 @@ e.g: super().delete()</p></div>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span> <span class="ow">and</span> <span class="n">wait</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> stop processing its task list, while some task remains in the queue&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> stop processing its task list, while some task remains in the queue&quot;</span><span class="p">)</span>
     <span class="c1"># schedule and wait for all the cleanup actions</span>
     <span class="n">delete_tasks</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="p">:</span>
@@ -2331,8 +2452,7 @@ e.g: super().delete()</p></div>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">):</span>
             <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="c1"># remove from persistant storage</span>
-    <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-    <span class="n">store</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="n">storage</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="c1"># remove logs from disk</span>
     <span class="c1"># TODO: write logs into storage interface</span>
     <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">LOGDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
@@ -2350,7 +2470,7 @@ e.g: super().delete()</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.recurring_action">
-    <p>def <span class="ident">recurring_action</span>(</p><p>self, action, period)</p>
+    <p>def <span class="ident">recurring_action</span>(</p><p>self, action, period, priority=10)</p>
     </div>
     
 
@@ -2366,7 +2486,7 @@ we can only ensure that the action is never going to be schedule faster then eve
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.recurring_action', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.TemplateBase.recurring_action" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">recurring_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">recurring_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    configure an action to be executed every period second</span>
 <span class="sd">    It will ensure that the action from service is schedule at best every period second.</span>
@@ -2390,7 +2510,7 @@ we can only ensure that the action is never going to be schedule faster then eve
             
   <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.save">
-    <p>def <span class="ident">save</span>(</p><p>self)</p>
+    <p>def <span class="ident">save</span>(</p><p>*args, **kwargs)</p>
     </div>
     
 
@@ -2403,15 +2523,15 @@ return the path where the service is saved</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.save', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.TemplateBase.save" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="nd">@timeout</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    serialize the service state and data to a file</span>
 <span class="sd">    @param base_path: path of the directory where</span>
 <span class="sd">                      to save the service state and data</span>
 <span class="sd">    return the path where the service is saved</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-    <span class="n">store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="n">storage</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
   </div>

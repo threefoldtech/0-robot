@@ -1041,9 +1041,27 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.errors.eco_get">eco_get</a></li>
+  </ul>
+
+    </li>
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.errors.Eco">Eco</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#zerorobot.errors.Eco.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.errors.Eco.to_dict">to_dict</a></li>
+    <li class="mono"><a href="#zerorobot.errors.Eco.from_dict">from_dict</a></li>
+  </ul>
+
+        </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.errors.ExpectedError">ExpectedError</a></span>
         
@@ -1067,13 +1085,67 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.errors', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.errors" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ExpectedError</span><span class="p">:</span>
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">traceback</span> <span class="kn">as</span> <span class="nn">_traceback</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">class</span> <span class="nc">ExpectedError</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines an exception base for expected 0-robot errors</span>
 <span class="sd">    This allows us to detect expected exceptions.</span>
 <span class="sd">    Make the error object inherit this class to mark it as an expected error.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">Eco</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_pub</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_first</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_last</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="n">traceback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trace&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cat&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_pub</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message_pub&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_first</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_first&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_last</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_last&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trace&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;cat&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">category</span><span class="p">,</span>
+            <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span>
+            <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
+            <span class="s1">&#39;message_pub&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_pub</span><span class="p">,</span>
+            <span class="s1">&#39;time_first&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_first</span><span class="p">,</span>
+            <span class="s1">&#39;time_last&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_last</span><span class="p">,</span>
+            <span class="s1">&#39;trace&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace</span><span class="p">,</span>
+        <span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">eco_get</span><span class="p">(</span><span class="n">exception_type</span><span class="p">,</span> <span class="n">exception</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">_traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">exception_type</span><span class="p">,</span> <span class="n">exception</span><span class="p">,</span> <span class="n">traceback</span><span class="p">)</span>
+    <span class="n">eco</span> <span class="o">=</span> <span class="n">Eco</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trace</span><span class="p">))</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">exception</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+    <span class="n">eco</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exception</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">eco</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s2">&quot;python.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span>
+    <span class="n">eco</span><span class="o">.</span><span class="n">time_last</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">eco</span>
 </pre></div>
 
   </div>
@@ -1082,8 +1154,257 @@ table {
 
   <section id="section-items">
 
+    <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.errors.eco_get">
+    <p>def <span class="ident">eco_get</span>(</p><p>exception_type, exception, traceback)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.errors.eco_get', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.errors.eco_get" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">eco_get</span><span class="p">(</span><span class="n">exception_type</span><span class="p">,</span> <span class="n">exception</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">_traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">exception_type</span><span class="p">,</span> <span class="n">exception</span><span class="p">,</span> <span class="n">traceback</span><span class="p">)</span>
+    <span class="n">eco</span> <span class="o">=</span> <span class="n">Eco</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trace</span><span class="p">))</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">exception</span><span class="o">.</span><span class="n">args</span><span class="p">]</span>
+    <span class="n">eco</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exception</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">eco</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s2">&quot;python.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span>
+    <span class="n">eco</span><span class="o">.</span><span class="n">time_last</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">eco</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
 
     <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="zerorobot.errors.Eco" class="name">class <span class="ident">Eco</span></p>
+      
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.errors.Eco', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.errors.Eco" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Eco</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_pub</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_first</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_last</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="n">traceback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trace&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cat&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message_pub</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message_pub&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_first</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_first&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_last</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_last&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trace&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;cat&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">category</span><span class="p">,</span>
+            <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span>
+            <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
+            <span class="s1">&#39;message_pub&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_pub</span><span class="p">,</span>
+            <span class="s1">&#39;time_first&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_first</span><span class="p">,</span>
+            <span class="s1">&#39;time_last&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_last</span><span class="p">,</span>
+            <span class="s1">&#39;trace&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace</span><span class="p">,</span>
+        <span class="p">}</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.errors.Eco">Eco</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.errors.Eco.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, traceback, **kwargs)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.errors.Eco.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.errors.Eco.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">traceback</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">message_pub</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">time_first</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">time_last</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="n">traceback</span>
+    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.errors.Eco.to_dict">
+    <p>def <span class="ident">to_dict</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.errors.Eco.to_dict', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.errors.Eco.to_dict" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;cat&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">category</span><span class="p">,</span>
+        <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span>
+        <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
+        <span class="s1">&#39;message_pub&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_pub</span><span class="p">,</span>
+        <span class="s1">&#39;time_first&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_first</span><span class="p">,</span>
+        <span class="s1">&#39;time_last&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_last</span><span class="p">,</span>
+        <span class="s1">&#39;trace&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="zerorobot.errors.Eco.category" class="name">var <span class="ident">category</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.errors.Eco.count" class="name">var <span class="ident">count</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.errors.Eco.message" class="name">var <span class="ident">message</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.errors.Eco.message_pub" class="name">var <span class="ident">message_pub</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.errors.Eco.time_first" class="name">var <span class="ident">time_first</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.errors.Eco.time_last" class="name">var <span class="ident">time_last</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.errors.Eco.trace" class="name">var <span class="ident">trace</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.errors.Eco.from_dict">
+    <p>def <span class="ident">from_dict</span>(</p><p>cls, d)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.errors.Eco.from_dict', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.errors.Eco.from_dict" class="source">
+    <div class="codehilite"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+    <span class="bp">self</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trace&#39;</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cat&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">message_pub</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message_pub&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">time_first</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_first&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">time_last</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_last&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">trace</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trace&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      </div>
+      </div>
       
       <div class="item">
       <p id="zerorobot.errors.ExpectedError" class="name">class <span class="ident">ExpectedError</span></p>

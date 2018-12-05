@@ -1069,7 +1069,7 @@ table {
     <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
 
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">jsonify</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">storage</span>
 
 
 <span class="k">def</span> <span class="nf">GetRobotInfoHandler</span><span class="p">():</span>
@@ -1090,6 +1090,8 @@ table {
         <span class="n">output</span><span class="p">[</span><span class="s1">&#39;repositories&#39;</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">][</span><span class="s1">&#39;last_pushed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config_repo</span><span class="o">.</span><span class="n">last_pushed</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span>
         <span class="n">output</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">mode</span>
+
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;storage_healthy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">health</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 </pre></div>
@@ -1131,6 +1133,8 @@ table {
         <span class="n">output</span><span class="p">[</span><span class="s1">&#39;repositories&#39;</span><span class="p">][</span><span class="s1">&#39;config&#39;</span><span class="p">][</span><span class="s1">&#39;last_pushed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">config_repo</span><span class="o">.</span><span class="n">last_pushed</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span>
         <span class="n">output</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">mode</span>
+
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;storage_healthy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">health</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 </pre></div>

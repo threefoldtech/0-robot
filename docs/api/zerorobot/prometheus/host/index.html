@@ -1084,7 +1084,7 @@ table {
 <span class="k">def</span> <span class="nf">monitor_host_metrics</span><span class="p">():</span>
     <span class="c1"># cpu</span>
     <span class="n">process_cpu_usage_percents</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;process_cpu_usage_percents&#39;</span><span class="p">,</span> <span class="s1">&#39;CPU Usage in percents&#39;</span><span class="p">)</span>
-    <span class="n">process_cpu_usage_percents</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_percent</span><span class="p">())</span>
+    <span class="n">process_cpu_usage_percents</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">cpu_percent</span><span class="p">())</span>
     <span class="n">process_cpu_time_user_mode</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;process_cpu_time_user_mode&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
     <span class="n">process_cpu_time_user_mode</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_times</span><span class="p">()</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
     <span class="n">process_cpu_time_system_mode</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;process_cpu_time_system_mode&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -1158,10 +1158,10 @@ table {
 
     <span class="c1"># disk IO</span>
     <span class="n">DISK_READ</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;host_disk_reads&#39;</span><span class="p">,</span> <span class="s1">&#39;Total reads for all disks&#39;</span><span class="p">)</span>
-    <span class="n">DISK_READ</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">disk_stat</span><span class="o">.</span><span class="n">disk_reads_persec</span><span class="p">())</span>
+    <span class="n">DISK_READ</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">disk_stat</span><span class="o">.</span><span class="n">disk_reads_persec</span><span class="p">())</span>
 
     <span class="n">DISK_WRITE</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;host_disk_writes&#39;</span><span class="p">,</span> <span class="s1">&#39;Total writes for all disks&#39;</span><span class="p">)</span>
-    <span class="n">DISK_WRITE</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">disk_stat</span><span class="o">.</span><span class="n">disk_writes_persec</span><span class="p">())</span>
+    <span class="n">DISK_WRITE</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">disk_stat</span><span class="o">.</span><span class="n">disk_writes_persec</span><span class="p">())</span>
 
     <span class="n">host_disk_total</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;host_disk_total&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
     <span class="n">host_disk_total</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_usage</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">total</span><span class="p">)</span>
@@ -1198,7 +1198,7 @@ table {
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">monitor_host_metrics</span><span class="p">():</span>
     <span class="c1"># cpu</span>
     <span class="n">process_cpu_usage_percents</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;process_cpu_usage_percents&#39;</span><span class="p">,</span> <span class="s1">&#39;CPU Usage in percents&#39;</span><span class="p">)</span>
-    <span class="n">process_cpu_usage_percents</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_percent</span><span class="p">())</span>
+    <span class="n">process_cpu_usage_percents</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">cpu_percent</span><span class="p">())</span>
     <span class="n">process_cpu_time_user_mode</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;process_cpu_time_user_mode&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
     <span class="n">process_cpu_time_user_mode</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_times</span><span class="p">()</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
     <span class="n">process_cpu_time_system_mode</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;process_cpu_time_system_mode&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -1272,10 +1272,10 @@ table {
 
     <span class="c1"># disk IO</span>
     <span class="n">DISK_READ</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;host_disk_reads&#39;</span><span class="p">,</span> <span class="s1">&#39;Total reads for all disks&#39;</span><span class="p">)</span>
-    <span class="n">DISK_READ</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">disk_stat</span><span class="o">.</span><span class="n">disk_reads_persec</span><span class="p">())</span>
+    <span class="n">DISK_READ</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">disk_stat</span><span class="o">.</span><span class="n">disk_reads_persec</span><span class="p">())</span>
 
     <span class="n">DISK_WRITE</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;host_disk_writes&#39;</span><span class="p">,</span> <span class="s1">&#39;Total writes for all disks&#39;</span><span class="p">)</span>
-    <span class="n">DISK_WRITE</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">disk_stat</span><span class="o">.</span><span class="n">disk_writes_persec</span><span class="p">())</span>
+    <span class="n">DISK_WRITE</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">disk_stat</span><span class="o">.</span><span class="n">disk_writes_persec</span><span class="p">())</span>
 
     <span class="n">host_disk_total</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;host_disk_total&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
     <span class="n">host_disk_total</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_usage</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">total</span><span class="p">)</span>

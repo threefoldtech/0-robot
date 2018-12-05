@@ -1085,6 +1085,7 @@ table {
                <span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span>
                <span class="n">TASK_STATE_RUNNING</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.task</span> <span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span> <span class="nn">zerorobot.errors</span> <span class="kn">import</span> <span class="n">Eco</span>
 
 
 <span class="k">def</span> <span class="nf">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
@@ -1096,7 +1097,7 @@ table {
         <span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span>
     <span class="n">t</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">]:</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">])</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">Eco</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">])</span>
     <span class="n">t</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">)</span>
     <span class="n">t</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">)</span>
     <span class="n">t</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;duration&#39;</span><span class="p">)</span>
