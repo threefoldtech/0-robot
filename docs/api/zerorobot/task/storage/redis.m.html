@@ -1079,7 +1079,7 @@ table {
   <div id="source-zerorobot.task.storage.redis" class="source">
     <div class="codehilite"><pre><span></span><span class="n">rom</span> <span class="n">jumpscale</span> <span class="kn">import</span> <span class="nn">j</span>
 <span class="n">rom</span> <span class="o">.</span><span class="n">base</span> <span class="kn">import</span> <span class="nn">TaskNotFoundError</span>
-<span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">utils</span> <span class="kn">import</span> <span class="nn">_instantiate_task</span>
+<span class="n">rom</span> <span class="o">.</span> <span class="kn">import</span> <span class="nn">encoding</span>
 <span class="n">lass</span> <span class="n">TaskStorageRedis</span><span class="p">:</span>
    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">   This class implement the TaskStorage interface</span>
@@ -1097,14 +1097,14 @@ table {
        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       save a task to the storage</span>
 <span class="sd">       &quot;&quot;&quot;</span>
-       <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">encoding</span><span class="o">.</span><span class="n">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       find a task by guid</span>
 <span class="sd">       &quot;&quot;&quot;</span>
        <span class="n">blob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span> <span class="n">guid</span><span class="p">)</span>
        <span class="k">if</span> <span class="n">blob</span><span class="p">:</span>
-           <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+           <span class="k">return</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">)</span>
        <span class="k">raise</span> <span class="n">TaskNotFoundError</span><span class="p">()</span>
    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">to_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
        <span class="sd">&quot;&quot;&quot;</span>
@@ -1114,7 +1114,7 @@ table {
 <span class="sd">       &quot;&quot;&quot;</span>
        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
        <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hgetall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-           <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+           <span class="n">task</span> <span class="o">=</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">)</span>
            <span class="k">if</span> <span class="n">from_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&lt;</span> <span class="n">from_timestap</span><span class="p">:</span>
                <span class="k">continue</span>
            <span class="k">if</span> <span class="n">to_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&gt;</span> <span class="n">to_timestap</span><span class="p">:</span>
@@ -1139,7 +1139,7 @@ table {
            <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
            <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-           <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">json</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+           <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
            <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
        <span class="p">})</span>
@@ -1185,7 +1185,7 @@ using simple file on the local filesystem</p></div>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        save a task to the storage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">encoding</span><span class="o">.</span><span class="n">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1193,7 +1193,7 @@ using simple file on the local filesystem</p></div>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">blob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span> <span class="n">guid</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">blob</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">TaskNotFoundError</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">to_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -1204,7 +1204,7 @@ using simple file on the local filesystem</p></div>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hgetall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">from_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&lt;</span> <span class="n">from_timestap</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">to_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&gt;</span> <span class="n">to_timestap</span><span class="p">:</span>
@@ -1232,7 +1232,7 @@ using simple file on the local filesystem</p></div>
             <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
             <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
             <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-            <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">json</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
             <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
             <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
         <span class="p">})</span>
@@ -1298,7 +1298,7 @@ using simple file on the local filesystem</p></div>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    save a task to the storage</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">encoding</span><span class="o">.</span><span class="n">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
 </pre></div>
 
   </div>
@@ -1377,7 +1377,7 @@ using simple file on the local filesystem</p></div>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">blob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">,</span> <span class="n">guid</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">blob</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">)</span>
     <span class="k">raise</span> <span class="n">TaskNotFoundError</span><span class="p">()</span>
 </pre></div>
 
@@ -1409,7 +1409,7 @@ to_timestamp: filter all task created after to_timestamp</p></div>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">hgetall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">encoding</span><span class="o">.</span><span class="n">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">from_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&lt;</span> <span class="n">from_timestap</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="n">to_timestap</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span> <span class="o">&gt;</span> <span class="n">to_timestap</span><span class="p">:</span>

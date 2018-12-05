@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.prometheus.robot API documentation</title>
+    <title>zerorobot.task.storage.encoding API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1040,21 +1040,12 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.prometheus.robot.nr_task_waiting">nr_task_waiting</a></li>
-    <li class="mono"><a href="#zerorobot.prometheus.robot.process">process</a></li>
-    <li class="mono"><a href="#zerorobot.prometheus.robot.task_latency">task_latency</a></li>
-  </ul>
-
-    </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.prometheus.robot.memory_usage_resource">memory_usage_resource</a></li>
-    <li class="mono"><a href="#zerorobot.prometheus.robot.monitor_robot_metrics">monitor_robot_metrics</a></li>
+    <li class="mono"><a href="#zerorobot.task.storage.encoding.deserialize_task">deserialize_task</a></li>
+    <li class="mono"><a href="#zerorobot.task.storage.encoding.serialize_task">serialize_task</a></li>
   </ul>
 
     </li>
@@ -1071,36 +1062,32 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.prometheus.robot</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.task.storage.encoding</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.prometheus.robot', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.prometheus.robot" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">prometheus_client</span> <span class="kn">import</span> <span class="n">Gauge</span><span class="p">,</span> <span class="n">Histogram</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
-<span class="kn">import</span> <span class="nn">psutil</span>
-<span class="kn">import</span> <span class="nn">os</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.encoding', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.encoding" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 
-<span class="c1"># tasks</span>
-<span class="n">nr_task_waiting</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s2">&quot;robot_tasks_waiting_total&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of task waiting per service&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;service_guid&#39;</span><span class="p">])</span>
-<span class="n">task_latency</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;robot_tasks_latency_ms&#39;</span><span class="p">,</span> <span class="s1">&#39;Task latency&#39;</span><span class="p">,</span>
-                         <span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">,</span> <span class="s1">&#39;template_uid&#39;</span><span class="p">])</span>
+<span class="kn">from</span> <span class="nn">zerorobot.task.utils</span> <span class="kn">import</span> <span class="n">_instantiate_task</span>
 
 
-<span class="n">process</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+<span class="k">def</span> <span class="nf">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+        <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
+        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+        <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
+        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
+    <span class="p">})</span>
 
 
-<span class="k">def</span> <span class="nf">memory_usage_resource</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">process</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span><span class="o">.</span><span class="n">rss</span>
-
-
-<span class="k">def</span> <span class="nf">monitor_robot_metrics</span><span class="p">():</span>
-    <span class="c1"># services</span>
-    <span class="n">nr_services</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s2">&quot;robot_services_total&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of services running&quot;</span><span class="p">)</span>
-    <span class="n">nr_services</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()))</span>
-    <span class="c1"># memory</span>
-    <span class="n">robot_memory</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;robot_total_memory_bytes&#39;</span><span class="p">,</span> <span class="s2">&quot;Memory used by 0-robot&quot;</span><span class="p">)</span>
-    <span class="n">robot_memory</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">memory_usage_resource</span><span class="p">())</span>
+<span class="k">def</span> <span class="nf">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1108,47 +1095,23 @@ table {
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.prometheus.robot.nr_task_waiting" class="name">var <span class="ident">nr_task_waiting</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.prometheus.robot.process" class="name">var <span class="ident">process</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.prometheus.robot.task_latency" class="name">var <span class="ident">task_latency</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.prometheus.robot.memory_usage_resource">
-    <p>def <span class="ident">memory_usage_resource</span>(</p><p>)</p>
+    <div class="name def" id="zerorobot.task.storage.encoding.deserialize_task">
+    <p>def <span class="ident">deserialize_task</span>(</p><p>blob, service)</p>
     </div>
     
 
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.prometheus.robot.memory_usage_resource', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.prometheus.robot.memory_usage_resource" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">memory_usage_resource</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">process</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span><span class="o">.</span><span class="n">rss</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.encoding.deserialize_task', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.encoding.deserialize_task" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">deserialize_task</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1158,23 +1121,27 @@ table {
   
       
   <div class="item">
-    <div class="name def" id="zerorobot.prometheus.robot.monitor_robot_metrics">
-    <p>def <span class="ident">monitor_robot_metrics</span>(</p><p>)</p>
+    <div class="name def" id="zerorobot.task.storage.encoding.serialize_task">
+    <p>def <span class="ident">serialize_task</span>(</p><p>task)</p>
     </div>
     
 
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.prometheus.robot.monitor_robot_metrics', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.prometheus.robot.monitor_robot_metrics" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">monitor_robot_metrics</span><span class="p">():</span>
-    <span class="c1"># services</span>
-    <span class="n">nr_services</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s2">&quot;robot_services_total&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of services running&quot;</span><span class="p">)</span>
-    <span class="n">nr_services</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()))</span>
-    <span class="c1"># memory</span>
-    <span class="n">robot_memory</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;robot_total_memory_bytes&#39;</span><span class="p">,</span> <span class="s2">&quot;Memory used by 0-robot&quot;</span><span class="p">)</span>
-    <span class="n">robot_memory</span><span class="o">.</span><span class="n">set_function</span><span class="p">(</span><span class="n">memory_usage_resource</span><span class="p">())</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.encoding.serialize_task', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.encoding.serialize_task" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+        <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
+        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+        <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
+        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
+    <span class="p">})</span>
 </pre></div>
 
   </div>

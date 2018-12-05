@@ -1048,6 +1048,14 @@ table {
 
     </li>
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.cli.server.get_db_config_key">get_db_config_key</a></li>
+    <li class="mono"><a href="#zerorobot.cli.server.get_db_config_repo">get_db_config_repo</a></li>
+  </ul>
+
+    </li>
 
 
     </ul>
@@ -1080,11 +1088,38 @@ table {
 <span class="n">click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
 <span class="n">ef</span> <span class="n">server</span><span class="p">():</span>
    <span class="k">pass</span>
+<span class="n">ef</span> <span class="n">get_db_config_repo</span><span class="p">():</span>
+   <span class="sd">&quot;&quot;&quot;Gets config repo sandbox based on the configured namespace in jumpscale.toml</span>
+<span class="sd">   Returns:</span>
+<span class="sd">       str or None: config_repo</span>
+<span class="sd">   &quot;&quot;&quot;</span>
+   <span class="c1"># configmanager will have file by default and on fresh jumpscale will have it in jumpscale.toml</span>
+   <span class="n">backend</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;backend&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">)</span>
+   <span class="n">namespace_in_cfg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;namespace&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+   <span class="n">config_repo</span> <span class="o">=</span> <span class="bp">None</span>
+   <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;db&quot;</span> <span class="ow">and</span> <span class="n">namespace_in_cfg</span><span class="p">:</span>
+       <span class="n">config_repo_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">HOMEDIR</span><span class="p">,</span> <span class="s2">&quot;configmgrsandboxes&quot;</span><span class="p">,</span> <span class="n">namespace_in_cfg</span><span class="p">)</span>
+       <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_repo_path</span><span class="p">):</span>
+           <span class="n">config_repo</span> <span class="o">=</span> <span class="n">config_repo_path</span>
+   <span class="k">return</span> <span class="n">config_repo</span>
+<span class="n">ef</span> <span class="n">get_db_config_key</span><span class="p">():</span>
+   <span class="sd">&quot;&quot;&quot;Gets config key from sandbox based on the configured namespace in jumpscale.toml</span>
+<span class="sd">   Returns:</span>
+<span class="sd">       str or None: config_key</span>
+<span class="sd">   &quot;&quot;&quot;</span>
+   <span class="n">backend</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;backend&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">)</span>
+   <span class="n">namespace_in_cfg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;namespace&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+   <span class="n">config_key</span> <span class="o">=</span> <span class="bp">None</span>
+   <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;db&quot;</span><span class="p">:</span>
+       <span class="n">config_key_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">HOMEDIR</span><span class="p">,</span> <span class="s2">&quot;configmgrsandboxes&quot;</span><span class="p">,</span> <span class="n">namespace_in_cfg</span><span class="p">,</span> <span class="s2">&quot;keys&quot;</span><span class="p">,</span> <span class="s2">&quot;key&quot;</span><span class="p">)</span>
+       <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_key_path</span><span class="p">):</span>
+           <span class="n">config_key</span> <span class="o">=</span> <span class="n">config_key_path</span>
+   <span class="k">return</span> <span class="n">config_key</span>
 <span class="n">server</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--listen&#39;</span><span class="p">,</span> <span class="s1">&#39;-L&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;listen address (default :6600)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;:6600&#39;</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--data-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;URL of the git repository or absolute path where to save the data of the zero robot&#39;</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--template-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-T&#39;</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;list of template repository URL. Use fragment URL to specify a branch: http://github.com/account/repo#branch&#39;</span><span class="p">)</span>
-<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--config-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-C&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;URL of the configuration repository (https://github.com/Jumpscale/core9/blob/development/docs/config/configmanager.md)&#39;</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--config-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-C&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;URL of the configuration repository (https://github.com/threefoldech/jumpscale_core/blob/development/docs/config/configmanager.md)&#39;</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--config-key&#39;</span><span class="p">,</span> <span class="s1">&#39;-K&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Absolute path to ssh key to secure configuration data, which is committed and pushed (see auto-push) in the configuration repo.</span><span class="se">\</span>
 <span class="s1">If omitted, the robot will try to use the key configured key in jumpscale if any or will generate a new ssh key.&#39;</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;enable debug logging&#39;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
@@ -1109,6 +1144,13 @@ table {
        <span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;DEBUG&quot;</span>
    <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers_level_set</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
    <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">loggers_level_set</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+   <span class="c1"># Check if configmanager is configured to zdb backend and has a namespace configured</span>
+   <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;backend&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;db&quot;</span><span class="p">:</span>
+       <span class="n">namespace</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;namespace&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+       <span class="k">if</span> <span class="n">namespace</span><span class="p">:</span>
+           <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">set_namespace</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span>
+       <span class="k">else</span><span class="p">:</span>
+           <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Working in zdb backend mode and don&#39;t have a namespace&quot;</span><span class="p">)</span>
    <span class="k">if</span> <span class="p">(</span><span class="n">telegram_bot_token</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">telegram_chat_id</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">telegram_chat_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">telegram_bot_token</span><span class="p">):</span>
        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;To enable telegram error logging, you need to specify both the --telegram-bot-token and the --telegram-chat-id options&quot;</span><span class="p">)</span>
    <span class="k">if</span> <span class="n">telegram_bot_token</span><span class="p">:</span>
@@ -1122,6 +1164,8 @@ table {
    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">template_repo</span><span class="p">:</span>
        <span class="n">robot</span><span class="o">.</span><span class="n">add_template_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
    <span class="n">robot</span><span class="o">.</span><span class="n">set_data_repo</span><span class="p">(</span><span class="n">data_repo</span><span class="p">)</span>
+   <span class="n">config_repo</span> <span class="o">=</span> <span class="n">config_repo</span> <span class="ow">or</span> <span class="n">get_db_config_repo</span><span class="p">()</span>
+   <span class="n">config_key</span> <span class="o">=</span> <span class="n">config_key</span> <span class="ow">or</span> <span class="n">get_db_config_key</span><span class="p">()</span>
    <span class="n">robot</span><span class="o">.</span><span class="n">set_config_repo</span><span class="p">(</span><span class="n">config_repo</span><span class="p">,</span> <span class="n">config_key</span><span class="p">)</span>
    <span class="n">robot</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">listen</span><span class="o">=</span><span class="n">listen</span><span class="p">,</span>
                <span class="n">auto_push</span><span class="o">=</span><span class="n">auto_push</span><span class="p">,</span>
@@ -1147,6 +1191,82 @@ table {
 
       </div>
 
+    <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.cli.server.get_db_config_key">
+    <p>def <span class="ident">get_db_config_key</span>(</p><p>)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Gets config key from sandbox based on the configured namespace in jumpscale.toml</p>
+<p>Returns:
+    str or None: config_key</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.server.get_db_config_key', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.server.get_db_config_key" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_db_config_key</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Gets config key from sandbox based on the configured namespace in jumpscale.toml</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str or None: config_key</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;backend&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">)</span>
+    <span class="n">namespace_in_cfg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;namespace&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+    <span class="n">config_key</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;db&quot;</span><span class="p">:</span>
+        <span class="n">config_key_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">HOMEDIR</span><span class="p">,</span> <span class="s2">&quot;configmgrsandboxes&quot;</span><span class="p">,</span> <span class="n">namespace_in_cfg</span><span class="p">,</span> <span class="s2">&quot;keys&quot;</span><span class="p">,</span> <span class="s2">&quot;key&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_key_path</span><span class="p">):</span>
+            <span class="n">config_key</span> <span class="o">=</span> <span class="n">config_key_path</span>
+    <span class="k">return</span> <span class="n">config_key</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.cli.server.get_db_config_repo">
+    <p>def <span class="ident">get_db_config_repo</span>(</p><p>)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Gets config repo sandbox based on the configured namespace in jumpscale.toml</p>
+<p>Returns:
+    str or None: config_repo</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.server.get_db_config_repo', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.cli.server.get_db_config_repo" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_db_config_repo</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Gets config repo sandbox based on the configured namespace in jumpscale.toml</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str or None: config_repo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># configmanager will have file by default and on fresh jumpscale will have it in jumpscale.toml</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;backend&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">)</span>
+    <span class="n">namespace_in_cfg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">configGetFromDict</span><span class="p">(</span><span class="s2">&quot;myconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;namespace&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+    <span class="n">config_repo</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;db&quot;</span> <span class="ow">and</span> <span class="n">namespace_in_cfg</span><span class="p">:</span>
+        <span class="n">config_repo_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">HOMEDIR</span><span class="p">,</span> <span class="s2">&quot;configmgrsandboxes&quot;</span><span class="p">,</span> <span class="n">namespace_in_cfg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_repo_path</span><span class="p">):</span>
+            <span class="n">config_repo</span> <span class="o">=</span> <span class="n">config_repo_path</span>
+    <span class="k">return</span> <span class="n">config_repo</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
 
 
   </section>

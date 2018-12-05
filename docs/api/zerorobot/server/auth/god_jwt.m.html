@@ -1092,6 +1092,7 @@ table {
 <span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
+
 <span class="n">_token_prefix</span> <span class="o">=</span> <span class="s2">&quot;Bearer &quot;</span>
 
 
@@ -1118,7 +1119,7 @@ table {
         <span class="k">if</span> <span class="n">claims</span> <span class="o">==</span> <span class="n">expected</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">True</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;error decoding god token: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;error decoding god token: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="bp">False</span>
 
@@ -1298,7 +1299,7 @@ table {
         <span class="k">if</span> <span class="n">claims</span> <span class="o">==</span> <span class="n">expected</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">True</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;error decoding god token: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;error decoding god token: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="bp">False</span>
 </pre></div>

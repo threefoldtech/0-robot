@@ -1045,6 +1045,10 @@ table {
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
         <li class="mono">
+        <span class="class_name"><a href="#zerorobot.task.storage.base.TaskConflictError">TaskConflictError</a></span>
+        
+        </li>
+        <li class="mono">
         <span class="class_name"><a href="#zerorobot.task.storage.base.TaskNotFoundError">TaskNotFoundError</a></span>
         
         </li>
@@ -1131,6 +1135,12 @@ table {
 
 <span class="k">class</span> <span class="nc">TaskNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">TaskConflictError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="c1"># raise when trying to store a task with a guid</span>
+    <span class="c1"># which already exists</span>
+    <span class="k">pass</span>
 </pre></div>
 
   </div>
@@ -1141,6 +1151,46 @@ table {
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="zerorobot.task.storage.base.TaskConflictError" class="name">class <span class="ident">TaskConflictError</span></p>
+      
+  
+    <div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base.TaskConflictError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base.TaskConflictError" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TaskConflictError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="c1"># raise when trying to store a task with a guid</span>
+    <span class="c1"># which already exists</span>
+    <span class="k">pass</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.task.storage.base.TaskConflictError">TaskConflictError</a></li>
+          <li>builtins.Exception</li>
+          <li>builtins.BaseException</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="zerorobot.task.storage.base.TaskConflictError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
       
       <div class="item">
       <p id="zerorobot.task.storage.base.TaskNotFoundError" class="name">class <span class="ident">TaskNotFoundError</span></p>

@@ -1045,18 +1045,6 @@ table {
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
         <li class="mono">
-        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotAPI.ConfigMgr">ConfigMgr</a></span>
-        
-          
-  <ul>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ConfigMgr.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ConfigMgr.delete">delete</a></li>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ConfigMgr.list">list</a></li>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ConfigMgr.set">set</a></li>
-  </ul>
-
-        </li>
-        <li class="mono">
         <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr">ServicesMgr</a></span>
         
           
@@ -1087,7 +1075,6 @@ table {
           
   <ul>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot">get_robot</a></li>
   </ul>
 
         </li>
@@ -1121,8 +1108,10 @@ table {
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 <span class="kn">from</span> <span class="nn">zerorobot.dsl.ZeroRobotManager</span> <span class="kn">import</span> <span class="n">ZeroRobotManager</span>
-<span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">import</span> <span class="n">TemplateNotFoundError</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">config_mgr</span>
 
 
 <span class="k">class</span> <span class="nc">ServicesMgr</span><span class="p">:</span>
@@ -1207,7 +1196,7 @@ table {
         <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
         <span class="n">service</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">public</span><span class="p">:</span>
-            <span class="n">scol</span><span class="o">.</span><span class="n">set_service_public</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="n">scol</span><span class="o">.</span><span class="n">set_service_public</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">service</span>
 
     <span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -1270,93 +1259,9 @@ table {
     <span class="c1"># TODO: find better name</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config_mgr</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="o">=</span> <span class="n">TemplatesMgr</span><span class="p">()</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">robots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        list all the ZeroRobot accessible</span>
-<span class="sd">        return a dictionary with</span>
-<span class="sd">        key = instance name of the 0-robot</span>
-<span class="sd">        value: ZeroRobotManager object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">robots</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_mgr</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
-            <span class="n">robots</span><span class="p">[</span><span class="n">instance</span><span class="p">]</span> <span class="o">=</span> <span class="n">ZeroRobotManager</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">robots</span>
-
-    <span class="k">def</span> <span class="nf">get_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        returns a instance of ZeroRobotClient that is managing the template identified by template_uid</span>
-
-<span class="sd">        It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.</span>
-<span class="sd">        If not known robots managed the template_uid, then KeyError is raised</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">host</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">host</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">host</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">host</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">account</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">account</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">account</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">account</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">repo</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">repo</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">repo</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">repo</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">version</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">version</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">version</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">return</span> <span class="bp">True</span>
-
-        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">compare</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">uid</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="n">robot</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;no robot that managed </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">ConfigMgr</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Small class that abstract configmanager</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;j.clients.zrobot&#39;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">interactive</span> <span class="o">=</span> <span class="bp">False</span>
-
-    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        list all the available zerorobot client configured</span>
-
-<span class="sd">        @return: a list of instance name</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">base_url</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        create a new config</span>
-
-<span class="sd">        @param instance: instance name</span>
-<span class="sd">        @param base_url: base_url of the client</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">base_url</span><span class="p">}</span>
-        <span class="n">cfg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">js9_obj_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">config</span>
-        <span class="c1"># make sure it exists on disk</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">cfg</span>
-
-    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        deletes a config</span>
-
-<span class="sd">        @param instance: instance name</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">instance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
-            <span class="k">return</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robots</span> <span class="o">=</span> <span class="n">config_mgr</span>
 </pre></div>
 
   </div>
@@ -1367,192 +1272,6 @@ table {
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
-      
-      <div class="item">
-      <p id="zerorobot.dsl.ZeroRobotAPI.ConfigMgr" class="name">class <span class="ident">ConfigMgr</span></p>
-      
-  
-    <div class="desc"><p>Small class that abstract configmanager</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ConfigMgr</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Small class that abstract configmanager</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;j.clients.zrobot&#39;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">interactive</span> <span class="o">=</span> <span class="bp">False</span>
-
-    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        list all the available zerorobot client configured</span>
-
-<span class="sd">        @return: a list of instance name</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">base_url</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        create a new config</span>
-
-<span class="sd">        @param instance: instance name</span>
-<span class="sd">        @param base_url: base_url of the client</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">base_url</span><span class="p">}</span>
-        <span class="n">cfg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">js9_obj_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">config</span>
-        <span class="c1"># make sure it exists on disk</span>
-        <span class="n">cfg</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">cfg</span>
-
-    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        deletes a config</span>
-
-<span class="sd">        @param instance: instance name</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">instance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
-            <span class="k">return</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.dsl.ZeroRobotAPI.ConfigMgr">ConfigMgr</a></li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Class variables</h3>
-            <div class="item">
-            <p id="zerorobot.dsl.ZeroRobotAPI.ConfigMgr.location" class="name">var <span class="ident">location</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-          <h3>Static methods</h3>
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ConfigMgr.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">interactive</span> <span class="o">=</span> <span class="bp">False</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ConfigMgr.delete">
-    <p>def <span class="ident">delete</span>(</p><p>self, instance)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>deletes a config</p>
-<p>@param instance: instance name</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr.delete', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr.delete" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    deletes a config</span>
-<span class="sd">    @param instance: instance name</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">instance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
-        <span class="k">return</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ConfigMgr.list">
-    <p>def <span class="ident">list</span>(</p><p>self)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>list all the available zerorobot client configured</p>
-<p>@return: a list of instance name</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr.list', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr.list" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    list all the available zerorobot client configured</span>
-<span class="sd">    @return: a list of instance name</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ConfigMgr.set">
-    <p>def <span class="ident">set</span>(</p><p>self, instance, base_url)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>create a new config</p>
-<p>@param instance: instance name
-@param base_url: base_url of the client</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr.set', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotAPI.ConfigMgr.set" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">base_url</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    create a new config</span>
-<span class="sd">    @param instance: instance name</span>
-<span class="sd">    @param base_url: base_url of the client</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">base_url</span><span class="p">}</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">js9_obj_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">config</span>
-    <span class="c1"># make sure it exists on disk</span>
-    <span class="n">cfg</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">cfg</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      </div>
-      </div>
       
       <div class="item">
       <p id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr" class="name">class <span class="ident">ServicesMgr</span></p>
@@ -1643,7 +1362,7 @@ table {
         <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
         <span class="n">service</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">public</span><span class="p">:</span>
-            <span class="n">scol</span><span class="o">.</span><span class="n">set_service_public</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="n">scol</span><span class="o">.</span><span class="n">set_service_public</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">service</span>
 
     <span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -1744,7 +1463,7 @@ table {
     <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
     <span class="n">service</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">public</span><span class="p">:</span>
-        <span class="n">scol</span><span class="o">.</span><span class="n">set_service_public</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+        <span class="n">scol</span><span class="o">.</span><span class="n">set_service_public</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>
 </pre></div>
 
@@ -2092,51 +1811,9 @@ values are the templates objects</p></div>
     <span class="c1"># TODO: find better name</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config_mgr</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="o">=</span> <span class="n">TemplatesMgr</span><span class="p">()</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">robots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        list all the ZeroRobot accessible</span>
-<span class="sd">        return a dictionary with</span>
-<span class="sd">        key = instance name of the 0-robot</span>
-<span class="sd">        value: ZeroRobotManager object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">robots</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_mgr</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
-            <span class="n">robots</span><span class="p">[</span><span class="n">instance</span><span class="p">]</span> <span class="o">=</span> <span class="n">ZeroRobotManager</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">robots</span>
-
-    <span class="k">def</span> <span class="nf">get_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        returns a instance of ZeroRobotClient that is managing the template identified by template_uid</span>
-
-<span class="sd">        It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.</span>
-<span class="sd">        If not known robots managed the template_uid, then KeyError is raised</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">host</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">host</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">host</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">host</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">account</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">account</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">account</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">account</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">repo</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">repo</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">repo</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">repo</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">version</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">version</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">version</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">return</span> <span class="bp">True</span>
-
-        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">compare</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">uid</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="n">robot</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;no robot that managed </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robots</span> <span class="o">=</span> <span class="n">config_mgr</span>
 </pre></div>
 
   </div>
@@ -2164,56 +1841,9 @@ values are the templates objects</p></div>
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_config_mgr</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="o">=</span> <span class="n">TemplatesMgr</span><span class="p">()</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot">
-    <p>def <span class="ident">get_robot</span>(</p><p>self, template_uid)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>returns a instance of ZeroRobotClient that is managing the template identified by template_uid</p>
-<p>It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.
-If not known robots managed the template_uid, then KeyError is raised</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.get_robot" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    returns a instance of ZeroRobotClient that is managing the template identified by template_uid</span>
-<span class="sd">    It looks into all the know ZeroRobots which one manages the template_uid and return a client to it.</span>
-<span class="sd">    If not known robots managed the template_uid, then KeyError is raised</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">host</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">host</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">host</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">host</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">account</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">account</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">account</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">account</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">repo</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">repo</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">repo</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">repo</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">version</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">version</span> <span class="ow">and</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">version</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">return</span> <span class="bp">True</span>
-    <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">uids</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">compare</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">uid</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">robot</span>
-    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;no robot that managed </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">robots</span> <span class="o">=</span> <span class="n">config_mgr</span>
 </pre></div>
 
   </div>
@@ -2228,10 +1858,6 @@ If not known robots managed the template_uid, then KeyError is raised</p></div>
 
             
   
-    <div class="desc"><p>list all the ZeroRobot accessible
-return a dictionary with
-key = instance name of the 0-robot
-value: ZeroRobotManager object</p></div>
   <div class="source_cont">
 </div>
 

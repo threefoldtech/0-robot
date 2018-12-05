@@ -1118,7 +1118,7 @@ table {
     <span class="k">try</span><span class="p">:</span>
         <span class="n">scope</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">_oauth2_server_pub_key</span><span class="p">,</span> <span class="n">audience</span><span class="o">=</span><span class="bp">None</span><span class="p">)[</span><span class="s2">&quot;scope&quot;</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;error decoding JWT: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;error decoding JWT: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">False</span>
 
     <span class="k">for</span> <span class="n">allowed</span> <span class="ow">in</span> <span class="n">allowed_scopes</span><span class="p">:</span>

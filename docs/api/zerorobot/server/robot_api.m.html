@@ -1086,6 +1086,22 @@ table {
 <span class="n">robot_api</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;robot_api&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
 
 
+<span class="nd">@robot_api.route</span><span class="p">(</span><span class="s1">&#39;/robot/info&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">GetRobotInfo</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    It is handler for GET /robot/info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">GetRobotInfoHandler</span><span class="p">()</span>
+
+
+<span class="nd">@robot_api.route</span><span class="p">(</span><span class="s1">&#39;/robot/metrics&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">GetMetrics</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    It is handler for GET /robot/metrics</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">GetMetricsHandler</span><span class="p">()</span>
+
+
 <span class="nd">@robot_api.route</span><span class="p">(</span><span class="s1">&#39;/robot/webhooks&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">ListWebHooks</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1111,22 +1127,6 @@ table {
 <span class="sd">    It is handler for DELETE /robot/webhooks/&lt;id&gt;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">DeleteWebHookHandler</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-
-
-<span class="nd">@robot_api.route</span><span class="p">(</span><span class="s1">&#39;/robot/info&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">GetRobotInfo</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    It is handler for GET /robot/info</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">GetRobotInfoHandler</span><span class="p">()</span>
-
-
-<span class="nd">@robot_api.route</span><span class="p">(</span><span class="s1">&#39;/robot/metrics&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">GetMetrics</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    It is handler for GET /robot/metrics</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">GetMetricsHandler</span><span class="p">()</span>
 </pre></div>
 
   </div>

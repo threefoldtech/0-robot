@@ -1134,15 +1134,15 @@ table {
    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_mu</span><span class="p">:</span>
            <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="n">value</span>
-   <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="p">:</span>
-           <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-   <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="c1"># def __del__(self):</span>
+   <span class="c1">#     if self._done:</span>
+   <span class="c1">#         self._done.close()</span>
+   <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       pop out a task from the task list</span>
 <span class="sd">       this call is blocking when the task list is empty</span>
 <span class="sd">       &quot;&quot;&quot;</span>
-       <span class="n">_</span><span class="p">,</span> <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+       <span class="n">_</span><span class="p">,</span> <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">task</span>
        <span class="n">nr_task_waiting</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span><span class="o">.</span><span class="n">dec</span><span class="p">()</span>
        <span class="k">return</span> <span class="n">task</span>
@@ -1159,7 +1159,8 @@ table {
        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       notify that a task is done</span>
 <span class="sd">       &quot;&quot;&quot;</span>
-       <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">_priority</span> <span class="o">!=</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">:</span>
+       <span class="c1"># we don&#39;t usually save recurring task, except if it has a state error</span>
+       <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span> <span class="ow">or</span> <span class="n">task</span><span class="o">.</span><span class="n">_priority</span> <span class="o">!=</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">:</span>
            <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">None</span>
            <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1224,8 +1225,10 @@ table {
 <span class="sd">           &quot;created&quot; ,</span>
 <span class="sd">       }</span>
 <span class="sd">       &quot;&quot;&quot;</span>
+       <span class="n">added</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
-           <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">]:</span>
+           <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">]</span> <span class="ow">and</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">added</span><span class="p">:</span>
+               <span class="n">added</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">])</span>
                <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">))</span>
            <span class="k">else</span><span class="p">:</span>
                <span class="c1"># None supported state, just skip it</span>
@@ -1329,16 +1332,16 @@ table {
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_mu</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="c1"># def __del__(self):</span>
+    <span class="c1">#     if self._done:</span>
+    <span class="c1">#         self._done.close()</span>
 
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        pop out a task from the task list</span>
 <span class="sd">        this call is blocking when the task list is empty</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">task</span>
         <span class="n">nr_task_waiting</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span><span class="o">.</span><span class="n">dec</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">task</span>
@@ -1357,7 +1360,8 @@ table {
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        notify that a task is done</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">_priority</span> <span class="o">!=</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">:</span>
+        <span class="c1"># we don&#39;t usually save recurring task, except if it has a state error</span>
+        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span> <span class="ow">or</span> <span class="n">task</span><span class="o">.</span><span class="n">_priority</span> <span class="o">!=</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
@@ -1433,8 +1437,10 @@ table {
 <span class="sd">            &quot;created&quot; ,</span>
 <span class="sd">        }</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">added</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">]</span> <span class="ow">and</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">added</span><span class="p">:</span>
+                <span class="n">added</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># None supported state, just skip it</span>
@@ -1532,7 +1538,8 @@ table {
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    notify that a task is done</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">_priority</span> <span class="o">!=</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">:</span>
+    <span class="c1"># we don&#39;t usually save recurring task, except if it has a state error</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span> <span class="ow">or</span> <span class="n">task</span><span class="o">.</span><span class="n">_priority</span> <span class="o">!=</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </pre></div>
@@ -1570,7 +1577,7 @@ table {
             
   <div class="item">
     <div class="name def" id="zerorobot.task.task_list.TaskList.get">
-    <p>def <span class="ident">get</span>(</p><p>self)</p>
+    <p>def <span class="ident">get</span>(</p><p>self, timeout=None)</p>
     </div>
     
 
@@ -1581,12 +1588,12 @@ this call is blocking when the task list is empty</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.task_list.TaskList.get', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.task.task_list.TaskList.get" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    pop out a task from the task list</span>
 <span class="sd">    this call is blocking when the task list is empty</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">task</span>
     <span class="n">nr_task_waiting</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span><span class="o">.</span><span class="n">dec</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">task</span>
@@ -1708,8 +1715,10 @@ returns all the task that are currently in the task list</p></div>
 <span class="sd">        &quot;created&quot; ,</span>
 <span class="sd">    }</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">added</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">]</span> <span class="ow">and</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">added</span><span class="p">:</span>
+            <span class="n">added</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># None supported state, just skip it</span>
