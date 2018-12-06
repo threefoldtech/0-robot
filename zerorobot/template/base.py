@@ -16,21 +16,18 @@ from uuid import uuid4
 import gevent
 from gevent.event import Event
 from gevent.queue import Empty
-
 from jumpscale import j
+from zerorobot import config
 from zerorobot import service_collection as scol
-from zerorobot import webhooks
+from zerorobot import storage, webhooks
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.prometheus.robot import task_latency
-from zerorobot import config
-from zerorobot import storage
-
 from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
                             Task, TaskList)
 from zerorobot.task.utils import wait_all
 from zerorobot.template.data import ServiceData
-from zerorobot.template.state import ServiceState
 from zerorobot.template.decorator import timeout
+from zerorobot.template.state import ServiceState
 
 
 class BadActionArgumentError(Exception):
@@ -162,7 +159,6 @@ class TemplateBase:
         # start the greenlets of this service
         self.gl_mgr = GreenletsMgr()
         self.gl_mgr.add('executor', gevent.Greenlet(self._run))
-        self.recurring_action('save', 10, priority=PRIORITY_SYSTEM)
 
         self.logger = _configure_logger(self)
 
@@ -207,8 +203,13 @@ class TemplateBase:
                 task.service = self
                 try:
                     task.execute()
+                    # we save the service state after each actions
+                    # we don't save after a save action, since we just already did it
+                    if task.action_name != 'save':
+                        self.save()
                 finally:
-                    task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(task.duration)
+                    task_latency.labels(action_name=task.action_name, template_uid=str(
+                        self.template_uid)).observe(task.duration)
                     # notify the task list that this task is done
                     self.task_list.done(task)
                     if task.state == TASK_STATE_ERROR and task.eco:
@@ -258,7 +259,8 @@ class TemplateBase:
             args_keys = set(args.keys())
             diff = args_keys.difference(signature_keys)
             if diff and not kwargs_enable:
-                raise BadActionArgumentError('arguments "%s" are not present in the signature of the action' % ','.join(diff))
+                raise BadActionArgumentError(
+                    'arguments "%s" are not present in the signature of the action' % ','.join(diff))
 
         task = Task(method, args)
         self.task_list.put(task, priority=priority)

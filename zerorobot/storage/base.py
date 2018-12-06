@@ -1,5 +1,6 @@
-
 from abc import ABC, abstractmethod
+
+from zerorobot.task.task import TASK_STATE_RUNNING
 
 
 class ServiceStorageBase(ABC):
@@ -68,12 +69,21 @@ class ServiceStorageBase(ABC):
         """
 
 
+def _tasks_filter(task):
+    if task.action_name == 'save':
+        return False
+    if task.state == TASK_STATE_RUNNING:
+        return False
+    return True
+
+
 def _serialize_service(service):
+    tasks = filter(_tasks_filter, service.task_list.list_tasks(all=False))
     return {
         'service': _serialize_service_info(service),
         'states': service.state.categories,
         'data': dict(service.data),
-        'tasks': [_serialize_task(task) for task in service.task_list.list_tasks(all=False)]
+        'tasks': [_serialize_task(task) for task in tasks]
     }
 
 

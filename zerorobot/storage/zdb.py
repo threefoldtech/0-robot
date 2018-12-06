@@ -6,12 +6,18 @@ from jumpscale import j
 
 from .base import ServiceStorageBase, _serialize_service
 
+logger = j.logger.get(__name__)
+
+_service_prefix = "service_"
+_tasklist_prefix = "tasklist_"
+_data_prefix = "data_"
+_state_prefix = "state_"
+
 
 class ZDBServiceStorage(ServiceStorageBase):
 
     def __init__(self, addr, port, namespace=None, admin_passwd=''):
         super().__init__()
-        self._key_prefix = 'service_'
         if not namespace:
             namespace = 'zrobot_data'
         self._client = j.clients.zdb.configure(instance='zrobot',
@@ -23,25 +29,48 @@ class ZDBServiceStorage(ServiceStorageBase):
 
         self._ns = self._client.zdb.namespace_new(namespace)
 
-    def _service_key(self, service):
-        return "service_%s" % service.guid
-
     def save(self, service):
+        logger.info("save %s to 0-db backend", service.guid)
         serialized_service = _serialize_service(service)
-        self._ns.set(msgpack.dumps(serialized_service), self._key_prefix+service.guid)
+        logger.debug(serialized_service)
+        self._ns.set(msgpack.dumps(serialized_service['service']), _service_prefix+service.guid)
+        self._ns.set(msgpack.dumps(serialized_service['tasks']), _tasklist_prefix+service.guid)
+        self._ns.set(msgpack.dumps(serialized_service['data']), _data_prefix+service.guid)
+        self._ns.set(msgpack.dumps(serialized_service['states']), _state_prefix+service.guid)
 
     def list(self):
-        for guid in self._ns.list():
+        logger.info("list services from 0-db backend")
+        for key in self._ns.list():
             # since we also save webhooks info into the same namespace
-            if not guid.startswith(self._key_prefix.encode()):
+            if not key.startswith(_service_prefix.encode()):
                 continue
 
-            obj = self._ns.get(guid)
-            service = msgpack.loads(obj, encoding='utf-8')
-            yield service
+            guid = key[len(_service_prefix):].decode()
+
+            service_bin = self._ns.get(key)
+            tasklist_bin = self._ns.get((_tasklist_prefix+guid).encode())
+            data_bin = self._ns.get((_data_prefix+guid).encode())
+            state_bin = self._ns.get((_state_prefix+guid).encode())
+
+            service = msgpack.loads(service_bin, encoding='utf-8')
+            tasklist = msgpack.loads(tasklist_bin, encoding='utf-8')
+            data = msgpack.loads(data_bin, encoding='utf-8')
+            state = msgpack.loads(state_bin, encoding='utf-8')
+
+            logger.info("service %s loaded" % service['guid'])
+            yield {
+                'service': service,
+                'tasks': tasklist,
+                'data': data,
+                'states': state,
+            }
 
     def delete(self, service):
-        self._ns.delete(self._key_prefix+service.guid)
+        logger.info("delete %s from 0-db backend", service.guid)
+        self._ns.delete(_service_prefix+service.guid)
+        self._ns.delete(_tasklist_prefix+service.guid)
+        self._ns.delete(_data_prefix+service.guid)
+        self._ns.delete(_state_prefix+service.guid)
 
     def health(self):
         try:
