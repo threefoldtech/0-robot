@@ -1,6 +1,7 @@
 import time
 import unittest
 
+import gevent
 from zerorobot.task.task import (TASK_STATE_ERROR, TASK_STATE_NEW,
                                  TASK_STATE_OK, TASK_STATE_RUNNING, Task)
 from zerorobot.template.decorator import timeout
@@ -18,6 +19,11 @@ def with_decorator():
 @timeout(10)
 def with_decorator_error():
     raise RuntimeError('oopsy daisy')
+
+
+def wait():
+    time.sleep(10)
+    return "done"
 
 
 class TestTask(unittest.TestCase):
@@ -50,3 +56,32 @@ class TestTask(unittest.TestCase):
 
         with self.assertRaises(RuntimeError, message='task.wait should raise if state is error and die is True'):
             t.wait(die=True)
+
+    def test_cancel_timeout(self):
+        t = Task(wait, {})
+        g = gevent.spawn(t.execute)
+
+        with self.assertRaises(TimeoutError):
+            t.wait(timeout=3)
+
+        g.join()  # wait for the greenlet executing the task finishes
+
+        assert t.state == TASK_STATE_ERROR
+        assert t.duration > 0
+        assert t.result is None
+        assert t.created > 0
+        assert t.eco is not None
+
+    def test_cancel(self):
+        t = Task(wait, {})
+        g = gevent.spawn(t.execute)
+
+        time.sleep(2)
+        t._cancel()
+        g.join()  # wait for the greenlet executing the task finishes
+
+        assert t.state == TASK_STATE_ERROR
+        assert t.duration > 0
+        assert t.result is None
+        assert t.created > 0
+        assert t.eco is not None

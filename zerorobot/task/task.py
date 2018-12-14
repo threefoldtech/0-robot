@@ -12,10 +12,10 @@ import sys
 import time
 import traceback
 
-import gevent
 import requests
-from gevent.lock import Semaphore
 
+import gevent
+from gevent.lock import Semaphore
 from jumpscale import j
 from zerorobot import config
 from zerorobot.errors import ExpectedError, eco_get
@@ -46,6 +46,7 @@ class Task:
         self._result = None
         self._created = time.time()
         self._duration = None
+        self._execute_greenlet = None
 
         # used when action raises an exception
         self._eco = None
@@ -74,9 +75,10 @@ class Task:
         started = time.time()
         try:
             if self._args is not None:
-                self._result = self._func(**self._args)
+                self._execute_greenlet = gevent.spawn(self._func, **self._args)
             else:
-                self._result = self._func()
+                self._execute_greenlet = gevent.spawn(self._func)
+            self._result = self._execute_greenlet.get(block=True, timeout=None)
             self.state = TASK_STATE_OK
         except:
             self.state = TASK_STATE_ERROR
@@ -88,6 +90,7 @@ class Task:
                 gevent.spawn(_send_eco_webhooks, self.service, self)
         finally:
             self._duration = time.time() - started
+            self._execute_greenlet = None
         return self._result
 
     @property
@@ -102,7 +105,7 @@ class Task:
         finally:
             self._state_lock.release()
 
-    def wait(self, timeout=None, die=False):
+    def wait(self, timeout=180, die=False):
         """
         wait blocks until the task has been executed
         if timeout is specified and the task didn't finished within timeout seconds,
@@ -124,6 +127,8 @@ class Task:
             try:
                 gevent.with_timeout(timeout, wait)
             except gevent.Timeout:
+                self._cancel()
+                self.state = TASK_STATE_ERROR
                 raise TimeoutError()
         else:
             wait()
@@ -136,6 +141,11 @@ class Task:
                 raise RuntimeError(self.eco.message)
 
         return self
+
+    def _cancel(self):
+        if not self._execute_greenlet:
+            return
+        self._execute_greenlet.kill(exception=gevent.Timeout, block=True)
 
     def __lt__(self, other):
         return self._created < other._created
@@ -177,7 +187,7 @@ class Task:
 
 
 def _send_eco_webhooks(service, task):
-    if task.eco is None:
+    if task.eco is None or service is None:
         return
 
     webhooks = config.webhooks
