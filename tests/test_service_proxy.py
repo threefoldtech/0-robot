@@ -4,11 +4,10 @@ import shutil
 import unittest
 import uuid
 
-
 from jumpscale import j
+from zerorobot import config
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot import config
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
@@ -54,13 +53,16 @@ class TestServiceProxy(unittest.TestCase):
         proxy, service = self._create_proxy()
 
         service.state.set('foo', 'bar', 'ok')
-        self.assertDictEqual(service.state.categories, proxy.state.categories, "proxy state should reflect service state")
+        self.assertDictEqual(service.state.categories, proxy.state.categories,
+                             "proxy state should reflect service state")
 
         service.state.set('foo', 'bar', 'error')
-        self.assertEqual(proxy.state.get('foo', 'bar'), {'bar': 'error'}, 'update of service state, should be reflect in proxy')
+        self.assertEqual(proxy.state.get('foo', 'bar'), {'bar': 'error'},
+                         'update of service state, should be reflect in proxy')
 
         proxy.state.set('foo', 'bar', 'ok')
-        self.assertNotEqual(service.state.get('foo', 'bar'), {'bar': 'ok'}, 'update of proxy state, should not be reflect in service')
+        self.assertNotEqual(service.state.get('foo', 'bar'), {
+                            'bar': 'ok'}, 'update of proxy state, should not be reflect in service')
 
     def test_task_list(self):
         proxy, service = self._create_proxy()
@@ -74,9 +76,12 @@ class TestServiceProxy(unittest.TestCase):
         proxy_task = proxy.task_list.get_task_by_guid(task.guid)
         self.assertEqual(proxy_task.state, task.state, "state of a task should be reflect on the proxy task")
 
-        self.assertEqual(proxy_task.result, task.result, "result on the proxy task should be the same as on the real task")
-        self.assertEqual(proxy_task.created, task.created, "created time on the proxy task should be the same as on the real task")
-        self.assertEqual(proxy_task.duration, task.duration, "duration on the proxy task should be the same as on the real task")
+        self.assertEqual(proxy_task.result, task.result,
+                         "result on the proxy task should be the same as on the real task")
+        self.assertEqual(proxy_task.created, task.created,
+                         "created time on the proxy task should be the same as on the real task")
+        self.assertEqual(proxy_task.duration, task.duration,
+                         "duration on the proxy task should be the same as on the real task")
 
         proxy.schedule_action('stop')
         tasks = list(filter(lambda t: t.action_name != 'save', service.task_list.list_tasks(all=True)))
@@ -87,7 +92,8 @@ class TestServiceProxy(unittest.TestCase):
         task.wait()
         self.assertEqual(task.state, TASK_STATE_OK)
         proxy_task = proxy.task_list.get_task_by_guid(task.guid)
-        self.assertEqual(proxy_task.result, task.result, "result on the proxy task should be the same as on the real task")
+        self.assertEqual(proxy_task.result, task.result,
+                         "result on the proxy task should be the same as on the real task")
 
         # test eco attribute on proxy tasks
         task = service.schedule_action('error')
@@ -116,6 +122,15 @@ class TestServiceProxy(unittest.TestCase):
             task = proxy.schedule_action('test_return', args={'return_val': ret_val})
             task.wait()
             assert task.result == ret_val
+
+    def test_task_cancel(self):
+        proxy, service = self._create_proxy()
+        task = proxy.schedule_action('long')
+        assert len(proxy.task_list.list_tasks()) == 1
+        with self.assertRaises(TimeoutError):
+            task.wait(timeout=1)
+        assert len(proxy.task_list.list_tasks()) == 0
+        assert task.state == TASK_STATE_ERROR
 
     def test_service_public(self):
         proxy, service = self._create_proxy(public=True)

@@ -43,15 +43,6 @@ def DeleteService(service_guid):
     return handlers.DeleteServiceHandler(service_guid)
 
 
-@services_api.route('/services/<service_guid>/actions', methods=['GET'])
-def ListActions(service_guid):
-    """
-    List all the possible action a service can do.
-    It is handler for GET /services/<service_guid>/actions
-    """
-    return handlers.ListActionsHandler(service_guid)
-
-
 @services_api.route('/services/<service_guid>/task_list', methods=['GET'])
 def getTaskList(service_guid):
     """
@@ -79,6 +70,15 @@ def GetTask(task_guid, service_guid):
     return handlers.GetTaskHandler(task_guid, service_guid)
 
 
+@services_api.route('/services/<service_guid>/task_list/<task_guid>', methods=['DELETE'])
+def CancelTask(task_guid, service_guid):
+    """
+    Cancel a task
+    It is handler for DELETE /services/<service_guid>/task_list/<task_guid>
+    """
+    return handlers.CancelTaskHandler(task_guid, service_guid)
+
+
 @services_api.route('/services/<service_guid>/logs', methods=['GET'])
 def GetLogs(service_guid):
     """
@@ -86,3 +86,12 @@ def GetLogs(service_guid):
     It is handler for GET /services/<service_guid>/logs
     """
     return handlers.GetLogsHandler(service_guid)
+
+
+@services_api.route('/services/<service_guid>/actions', methods=['GET'])
+def ListActions(service_guid):
+    """
+    List all the possible action a service can do.
+    It is handler for GET /services/<service_guid>/actions
+    """
+    return handlers.ListActionsHandler(service_guid)

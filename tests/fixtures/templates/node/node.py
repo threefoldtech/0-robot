@@ -1,3 +1,5 @@
+import time
+
 from zerorobot.template.base import TemplateBase
 from zerorobot.template.decorator import profile, timeout
 
@@ -38,3 +40,7 @@ class Node(TemplateBase):
 
     def test_return(self, return_val):
         return return_val
+
+    def long(self):
+        time.sleep(20)
+        return 'done'

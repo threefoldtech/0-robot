@@ -64,6 +64,17 @@ class ServicesService:
         except Exception as e:
             raise UnmarshallError(resp, e.message)
 
+    def CancelTask(self, task_guid, service_guid, headers=None, query_params=None, content_type="application/json"):
+        """
+        Cancel a task
+        It is method for DELETE /services/{service_guid}/task_list/{task_guid}
+        """
+        if query_params is None:
+            query_params = {}
+
+        uri = self.client.base_url + "/services/" + service_guid + "/task_list/" + task_guid
+        return self.client.delete(uri, None, headers, query_params, content_type)
+
     def GetTask(self, task_guid, service_guid, headers=None, query_params=None, content_type="application/json"):
         """
         Retrieve the detail of a task

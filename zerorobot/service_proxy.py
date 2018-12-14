@@ -12,11 +12,13 @@ from requests.exceptions import HTTPError
 
 from jose import jwt
 from jumpscale import j
+from zerorobot.dsl import config_mgr
+from zerorobot.errors import Eco
 from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                             TASK_STATE_RUNNING, Task, TaskNotFoundError)
 from zerorobot.template.state import ServiceState
-from zerorobot.errors import Eco
-from zerorobot.dsl import config_mgr
+
+logger = j.logger.get(__name__)
 
 
 class ServiceProxy():
@@ -113,11 +115,13 @@ class TaskListProxy:
         self._service = service_proxy
 
     def empty(self):
-        tasks, _ = self._service._zrobot_client.api.services.getTaskList(service_guid=self._service.guid, query_params={'all': False})
+        tasks, _ = self._service._zrobot_client.api.services.getTaskList(
+            service_guid=self._service.guid, query_params={'all': False})
         return len(tasks) <= 0
 
     def list_tasks(self, all=False):
-        tasks, _ = self._service._zrobot_client.api.services.getTaskList(service_guid=self._service.guid, query_params={'all': all})
+        tasks, _ = self._service._zrobot_client.api.services.getTaskList(
+            service_guid=self._service.guid, query_params={'all': all})
         return [_task_proxy_from_api(t, self._service) for t in tasks]
 
     def get_task_by_guid(self, guid):
@@ -157,7 +161,8 @@ class TaskProxy(Task):
     @property
     def result(self):
         if self._result is None:
-            task, _ = self.service._zrobot_client.api.services.GetTask(task_guid=self.guid, service_guid=self.service.guid)
+            task, _ = self.service._zrobot_client.api.services.GetTask(
+                task_guid=self.guid, service_guid=self.service.guid)
             if task.result:
                 self._result = j.data.serializer.json.loads(task.result)
         return self._result
@@ -165,7 +170,8 @@ class TaskProxy(Task):
     @property
     def duration(self):
         if self._duration is None:
-            task, _ = self.service._zrobot_client.api.services.GetTask(task_guid=self.guid, service_guid=self.service.guid)
+            task, _ = self.service._zrobot_client.api.services.GetTask(
+                task_guid=self.guid, service_guid=self.service.guid)
             self._duration = task.duration
         return self._duration
 
@@ -176,15 +182,20 @@ class TaskProxy(Task):
 
     @state.setter
     def state(self, value):
-        raise RuntimeError("you can't change the statet of a TaskProxy")
+        logger.warning("you can't change the statet of a TaskProxy")
+        return
 
     @property
     def eco(self):
         if self._eco is None:
-            task, _ = self.service._zrobot_client.api.services.GetTask(task_guid=self.guid, service_guid=self.service.guid)
+            task, _ = self.service._zrobot_client.api.services.GetTask(
+                task_guid=self.guid, service_guid=self.service.guid)
             if task.eco:
                 self._eco = Eco.from_dict(task.eco.as_dict())
         return self._eco
+
+    def _cancel(self):
+        self.service._zrobot_client.api.services.CancelTask(task_guid=self.guid, service_guid=self.service.guid)
 
 
 def _task_proxy_from_api(task, service):

@@ -314,6 +314,11 @@
                                   <em>(one of node, digitalme)
       </em>
                                 </li>
+                                <li>
+                                  <strong>storage_healthy</strong>:
+                                  <em>(boolean)
+      </em>
+                                </li>
                               </ul>
                             </div>
                             <div class="tab-pane" id="robot_info_get_securedby">
@@ -2833,6 +2838,11 @@
 <!-- modal shown by hashchange event -->
               <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                       </a>
+                      <a href="#services__service_guid__task_list__task_guid__delete">
+
+                        <!-- modal shown by hashchange event -->
+                        <span class="badge badge_delete">delete <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                      </a>
                       </span>
                     </h4>
                   </div>
@@ -2843,6 +2853,13 @@
                           <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                           <div class="method_description">
                             <p>Retrieve the detail of a task</p>
+                          </div>
+                          <div class="clearfix"></div>
+                        </div>
+                        <div onclick="window.location.href = '#services__service_guid__task_list__task_guid__delete'" class="list-group-item">
+                          <span class="badge badge_delete">delete <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                          <div class="method_description">
+                            <p>Cancel a task</p>
                           </div>
                           <div class="clearfix"></div>
                         </div>
@@ -3059,6 +3076,97 @@
                               </ul>
                             </div>
                             <div class="tab-pane" id="services__service_guid__task_list__task_guid__get_securedby">
+                              <h1>Secured by </h1>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal fade" tabindex="0" id="services__service_guid__task_list__task_guid__delete">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                          <h4 class="modal-title" id="myModalLabel">
+                            <span class="badge badge_delete">delete <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                            <span class="parent">/services/{service_guid}/task_list</span>/{task_guid}
+                          </h4>
+                        </div>
+                        <div class="modal-body">
+                          <div class="alert alert-info">
+                            <p>Cancel a task</p>
+                          </div>
+                          <div class="alert alert-warning">
+                            <span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by
+                            <b></b>
+                          </div>
+
+                          <!-- Nav tabs -->
+                          <ul class="nav nav-tabs">
+                            <li class="active">
+                              <a href="#services__service_guid__task_list__task_guid__delete_request" data-toggle="tab">Request</a>
+                            </li>
+                            <li>
+                              <a href="#services__service_guid__task_list__task_guid__delete_response" data-toggle="tab">Response</a>
+                            </li>
+                            <li>
+                              <a href="#services__service_guid__task_list__task_guid__delete_securedby" data-toggle="tab">Security</a>
+                            </li>
+                          </ul>
+
+                          <!-- Tab panes -->
+                          <div class="tab-content">
+                            <div class="tab-pane active" id="services__service_guid__task_list__task_guid__delete_request">
+                              <h3>URI Parameters</h3>
+                              <ul>
+                                <li>
+                                  <strong>service_guid</strong>:
+                                  <em>required (string)
+      </em>
+                                </li>
+                                <li>
+                                  <strong>task_guid</strong>:
+                                  <em>required (string)
+      </em>
+                                </li>
+                              </ul>
+                            </div>
+                            <div class="tab-pane" id="services__service_guid__task_list__task_guid__delete_response">
+                              <h2>HTTP status code
+                                <a href="http://httpstatus.es/204" target="_blank">204</a>
+                              </h2>
+                              <p>Task has been canceled</p>
+                              <h2>HTTP status code
+                                <a href="http://httpstatus.es/404" target="_blank">404</a>
+                              </h2>
+                              <p>Not task found in the task list with this guid</p>
+                              <h3>Body</h3>
+                              <p><strong>Media type</strong>: application/json</p>
+                              <p><strong>Type</strong>: object</p>
+                              <strong>Properties</strong>
+                              <ul>
+                                <li>
+                                  <strong>code</strong>:
+                                  <em>required (integer)
+      </em>
+                                  <p>error code</p>
+                                </li>
+                                <li>
+                                  <strong>message</strong>:
+                                  <em>required (string)
+      </em>
+                                  <p>Human friendly error message</p>
+                                </li>
+                                <li>
+                                  <strong>stack_trace</strong>:
+                                  <em>(string)
+      </em>
+                                  <p>optional stack_trace attached with the error.</p>
+                                </li>
+                              </ul>
+                            </div>
+                            <div class="tab-pane" id="services__service_guid__task_list__task_guid__delete_securedby">
                               <h1>Secured by </h1>
                             </div>
                           </div>

@@ -105,7 +105,7 @@ class Task:
         finally:
             self._state_lock.release()
 
-    def wait(self, timeout=180, die=False):
+    def wait(self, timeout=None, die=False):
         """
         wait blocks until the task has been executed
         if timeout is specified and the task didn't finished within timeout seconds,

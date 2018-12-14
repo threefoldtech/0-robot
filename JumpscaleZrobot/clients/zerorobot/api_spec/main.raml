@@ -642,6 +642,17 @@ types:
               description: Not task found in the task list with this guid
               body:
                 type: Error
+        delete:
+          securedBy: [zrobot]
+          displayName: CancelTask
+          description: Cancel a task
+          responses:
+            204:
+              description: Task has been canceled
+            404:
+              description: Not task found in the task list with this guid
+              body:
+                type: Error
     /logs:
       get:
         securedBy: [zrobot]
