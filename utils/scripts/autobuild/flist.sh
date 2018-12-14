@@ -9,7 +9,7 @@ mkdir -p $ARCHIVE
 
 # install system deps
 apt-get update
-apt-get install -y locales git sudo python3-pip libffi-dev python3-dev libssl-dev libpython3-dev libssh-dev libsnappy-dev build-essential pkg-config libvirt-dev libsqlite3-dev ipmitool iputils-ping -y
+apt-get install -y locales git sudo python3-pip libffi-dev python3-dev libssl-dev libpython3-dev libssh-dev libsnappy-dev build-essential pkg-config libvirt-dev libsqlite3-dev ipmitool iputils-ping cmake -y
 
 # setting up locales
 if ! grep -q ^en_US /etc/locale.gen; then
