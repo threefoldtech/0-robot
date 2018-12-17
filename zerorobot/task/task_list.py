@@ -2,11 +2,11 @@
 import json
 import os
 
-import gevent
 import requests
+
+import gevent
 from gevent.lock import Semaphore
 from gevent.queue import PriorityQueue
-
 from jumpscale import j
 from zerorobot.prometheus.robot import nr_task_waiting
 
@@ -79,10 +79,8 @@ class TaskList:
         """
         notify that a task is done
         """
-        # we don't usually save recurring task, except if it has a state error
-        if task.state == TASK_STATE_ERROR or task._priority != PRIORITY_SYSTEM:
-            self.current = None
-            self._done.add(task)
+        self.current = None
+        self._done.add(task)
 
     def empty(self):
         """
