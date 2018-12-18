@@ -17,21 +17,16 @@ if ! grep -q ^en_US /etc/locale.gen; then
     locale-gen
 fi
 
-for target in /usr/local /opt /opt/cfg /opt/code/github/threefoldtech /opt/var/capnp /opt/var/log $HOME/jumpscale/cfg; do
+for target in /usr/local $HOME/code $HOME/code/github/threefoldtech $HOME/opt $HOME/opt/cfg $HOME/opt/var/capnp $HOME/opt/var/log $HOME/jumpscale/cfg; do
     mkdir -p $target
-    chown -R $USER:$USER $target
+    sudo chown -R $USER:$USER $target
 done
 
 # install jumpscale
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/../jumpscale_versions.sh"
 
-for target in /usr/local /opt /opt/cfg /opt/code/github/threefoldtech /opt/var/capnp /opt/var/log $HOME/jumpscale/cfg; do
-    mkdir -p $target
-    sudo chown -R $USER:$USER $target
-done
-
-pushd /opt/code/github/threefoldtech
+pushd $HOME/code/github/threefoldtech
 
 # cloning source code
 for target in jumpscale_core jumpscale_lib jumpscale_prefab; do
@@ -51,9 +46,9 @@ done
 
 popd
 
-cp -r /0-robot /opt/code/github/threefoldtech
+cp -r /0-robot $HOME/code/github/threefoldtech
 # install 0-robot
-pushd /opt/code/github/threefoldtech/0-robot
+pushd $HOME/code/github/threefoldtech/0-robot
 pip3 install -e .
 popd
 
