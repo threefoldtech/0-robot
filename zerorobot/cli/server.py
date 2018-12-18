@@ -4,11 +4,11 @@ from gevent import monkey
 # need to patch sockets to make requests async
 monkey.patch_all(subprocess=False)
 
-from jumpscale import j
+from Jumpscale import j
 import click
 import logging
-from Jumpscale.logging.Handlers import TelegramHandler
-from Jumpscale.logging.Handlers import TelegramFormatter
+from Jumpscale.core.logging.Handlers import TelegramHandler
+from Jumpscale.core.logging.Handlers import TelegramFormatter
 from zerorobot.robot import Robot
 
 
@@ -125,3 +125,4 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
                 user_organization=user_organization,
                 mode=mode,
                 god=god)
+

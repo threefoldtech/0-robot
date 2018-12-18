@@ -2,7 +2,7 @@
 
 import os
 from flask import jsonify, request, Response
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import config
 from zerorobot.server import auth
@@ -23,3 +23,4 @@ def GetLogsHandler(service_guid):
 
     with open(log_file) as f:
         return jsonify(logs=f.read()), 200
+

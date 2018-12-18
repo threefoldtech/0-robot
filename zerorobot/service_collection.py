@@ -4,7 +4,7 @@ other services and class need to use this module method to create, access, list 
 """
 import os
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.sqlite import SqliteIndex
 from zerorobot.template_uid import TemplateUID
 
@@ -175,3 +175,4 @@ class ServiceNotFoundError(KeyError):
     """
     Raised when trying to get a service that doesn't exists
     """
+

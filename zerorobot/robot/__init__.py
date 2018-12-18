@@ -5,3 +5,4 @@ It is the class responsible to start and managed the robot as well as the REST A
 """
 
 from .robot import Robot
+

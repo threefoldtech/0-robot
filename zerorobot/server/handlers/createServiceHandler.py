@@ -66,3 +66,4 @@ def createServiceHandler():
         scol.set_service_public(service.guid)
 
     return jsonify(output), 201
+

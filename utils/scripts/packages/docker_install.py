@@ -1,4 +1,4 @@
-from jumpscale import j
+from Jumpscale import j
 
 def _container_create(name, base=None, start=True, ssh=False):
     if base:

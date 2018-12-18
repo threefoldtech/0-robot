@@ -6,3 +6,4 @@ from enum import Enum
 class EnumRobotInfoType(Enum):
     node = "node"
     digitalme = "digitalme"
+

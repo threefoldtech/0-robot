@@ -2,7 +2,7 @@ import sys
 
 import click
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.cli import utils
 
 
@@ -89,3 +89,4 @@ def delete(instance):
     if instance not in _list():
         return
     j.clients.zrobot.delete(instance)
+

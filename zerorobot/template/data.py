@@ -1,7 +1,7 @@
 
 import os
 
-from jumpscale import j
+from Jumpscale import j
 
 from zerorobot.task import PRIORITY_SYSTEM
 
@@ -47,7 +47,7 @@ class ServiceData(dict):
 
         @param path: file path where to save the data
         """
-        j.data.serializer.yaml.dump(path, dict(self))
+        j.data.serializers.yaml.dump(path, dict(self))
 
     def load(self, path):
         """
@@ -55,4 +55,5 @@ class ServiceData(dict):
 
         @param path: file path from where to load the data
         """
-        self.update(j.data.serializer.yaml.load(path))
+        self.update(j.data.serializers.yaml.load(path))
+

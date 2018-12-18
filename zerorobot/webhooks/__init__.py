@@ -12,3 +12,4 @@ def get(config):
                            admin_passwd=data_repo.username or '')
     mgr = Manager(store)
     return mgr
+

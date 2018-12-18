@@ -28,3 +28,4 @@ Each service is also running in a greenlet and is watching a queue; _the task li
 So when a service adda a task to a producer's task list, it also provide a response queue on which the producer need to write to send the result of the action back to the originating service.
 
 Each 0-Robot also exposes a REST API, to allow communication between different 0-Robots. So when a service asks for an action from a service that is managed by another robot, the request is transported though a REST call to the remote robot. All of this happens on behalf of the user and it doesn't really have to know where the service is located, only that what it can provide in term of actions.
+

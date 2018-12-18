@@ -4,7 +4,7 @@ This module expose the high level API that is meant to be used by service develo
 It provie ways to create and list services from a group of ZeroRobots in a unified way.
 """
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
@@ -162,3 +162,4 @@ class ZeroRobotAPI:
         self.services = ServicesMgr()
         self.templates = TemplatesMgr()
         self.robots = config_mgr
+

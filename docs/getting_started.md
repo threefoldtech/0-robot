@@ -120,3 +120,4 @@ zrobot server start --data-repo git@github.com:user/zrobot-data.git --config-rep
 
 This call of zrobot server start would enable auto pushing of the data repository (`git@github.com:user/zrobot-data.git`) every 120 minutes.
 Omitting `--auto-push-interval 120` will push the repository every 60 minutes.
+

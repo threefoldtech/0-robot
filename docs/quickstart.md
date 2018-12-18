@@ -34,7 +34,7 @@ struct Schema {
 
 - `helloworld.py`
 ```python
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.template.base import TemplateBase
 
 
@@ -57,7 +57,7 @@ Let's dissect the template code a little bit
 
 * Imports
 ```python
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.template.base import TemplateBase
 ```
 Because we want to use jumpscale facilities and TemplateBase as the Base class for all templates
@@ -166,3 +166,4 @@ actions:
 blueprint executed
 
 ```
+

@@ -1,4 +1,4 @@
-from jumpscale import j
+from Jumpscale import j
 
 from . import (PRIORITY_NORMAL, PRIORITY_RECURRING, PRIORITY_SYSTEM,
                TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
@@ -46,3 +46,4 @@ def wait_all(tasks, timeout=60, die=False):
         except TimeoutError:
             continue
     return results
+

@@ -263,3 +263,4 @@ def type_handler_object(val, objtype):
         return handler().restore(val)
     else:
         return objtype(val)
+

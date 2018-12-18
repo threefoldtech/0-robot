@@ -95,3 +95,4 @@ def ListActions(service_guid):
     It is handler for GET /services/<service_guid>/actions
     """
     return handlers.ListActionsHandler(service_guid)
+

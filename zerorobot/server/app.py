@@ -2,7 +2,7 @@ import os
 import sys
 
 from flask import Flask, jsonify, send_from_directory, render_template
-from jumpscale import j
+from Jumpscale import j
 
 from zerorobot.errors import eco_get
 from .blueprints_api import blueprints_api
@@ -35,3 +35,4 @@ def internal_error(err):
     exc_type, exc, exc_traceback = sys.exc_info()
     eco = eco_get(exc_type, exc, exc_traceback)
     return jsonify(code=500, message=eco.message, stack_trace=eco.trace), 500
+

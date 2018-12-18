@@ -13,3 +13,4 @@ def DeleteWebHookHandler(id):
     webhooks.delete(id)
 
     return '', 204
+

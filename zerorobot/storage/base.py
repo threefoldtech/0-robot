@@ -106,3 +106,4 @@ def _serialize_task(task):
         "eco": task.eco.to_dict() if task.eco else None,
         "created": task.created,
     }
+

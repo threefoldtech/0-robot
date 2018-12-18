@@ -31,3 +31,4 @@ def AddWebHookHandler():
     webhook = webhooks.add(inputs['url'], inputs['kind'])
 
     return jsonify(webhook.as_dict()), 201
+

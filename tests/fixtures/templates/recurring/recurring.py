@@ -12,3 +12,4 @@ class Recurring(TemplateBase):
 
     def monitor(self):
         print('monitor')
+

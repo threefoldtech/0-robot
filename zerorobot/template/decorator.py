@@ -5,7 +5,7 @@ import time
 from functools import wraps
 import gevent
 
-from jumpscale import j
+from Jumpscale import j
 
 
 def retry(exceptions, tries=4, delay=3, backoff=2, logger=None):
@@ -117,3 +117,4 @@ def _temp_profile_location(guid, action):
     dir = os.path.join(j.dirs.TMPDIR, 'zrobot_profile', guid)
     os.makedirs(dir, exist_ok=True)
     return os.path.join(dir, name + '.prof')
+

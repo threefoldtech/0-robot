@@ -19,3 +19,4 @@ def DeleteServiceHandler(service_guid):
         pass
 
     return "", 204, {"Content-type": 'application/json'}
+

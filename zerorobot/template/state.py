@@ -1,4 +1,4 @@
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.errors import ExpectedError
 
 SERVICE_STATE_OK = 'ok'
@@ -116,3 +116,4 @@ class ServiceState:
         return str(self.categories)
 
     __str__ = __repr__
+

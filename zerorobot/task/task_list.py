@@ -7,7 +7,7 @@ import requests
 import gevent
 from gevent.lock import Semaphore
 from gevent.queue import PriorityQueue
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.prometheus.robot import nr_task_waiting
 
 from . import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
@@ -162,3 +162,4 @@ class TaskList:
             else:
                 # None supported state, just skip it
                 continue
+

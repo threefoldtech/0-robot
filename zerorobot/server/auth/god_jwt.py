@@ -3,7 +3,7 @@ import os
 
 from zerorobot import config
 from jose import jwt
-from jumpscale import j
+from Jumpscale import j
 
 logger = j.logger.get('zrobot')
 
@@ -84,3 +84,4 @@ def _get_key():
 
 class SigningKeyNotFoundError(Exception):
     pass
+

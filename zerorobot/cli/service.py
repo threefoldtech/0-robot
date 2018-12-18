@@ -75,3 +75,4 @@ def delete(guid):
         service.delete()
     except KeyError:
         return
+

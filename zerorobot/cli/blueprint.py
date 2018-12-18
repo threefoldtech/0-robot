@@ -3,7 +3,7 @@ import sys
 import click
 from requests.exceptions import HTTPError
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.cli import utils
 
 
@@ -25,7 +25,7 @@ def execute(blueprint):
     instance, _ = utils.get_instance()
     client = j.clients.zrobot.get(instance)
 
-    content = j.data.serializer.yaml.load(blueprint)
+    content = j.data.serializers.yaml.load(blueprint)
     data = {'content': content}
 
     try:
@@ -60,7 +60,7 @@ def print_tasks(tasks):
             'action': task.action_name,
             'task uid': task.guid,
         })
-    print(j.data.serializer.yaml.dumps(to_print))
+    print(j.data.serializers.yaml.dumps(to_print))
 
 
 def print_services(services):
@@ -70,3 +70,4 @@ def print_services(services):
             name=service.name,
             template=service.template
         ))
+

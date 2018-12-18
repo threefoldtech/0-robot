@@ -30,3 +30,4 @@ class TestExceptions(unittest.TestCase):
             result = isinstance(tc['error'], errors.ExpectedError)
             self.assertEqual(result, tc['expected'], tc['msg'])
             
+

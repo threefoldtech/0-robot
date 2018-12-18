@@ -7,7 +7,7 @@ import jsonschema
 from flask import request, jsonify
 from jsonschema import Draft4Validator
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import blueprint
@@ -198,3 +198,4 @@ def _schedule_action(action_item):
         t = service.schedule_action(action, args=args)
         tasks.append((t, service))
     return tasks
+

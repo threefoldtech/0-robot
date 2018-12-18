@@ -31,3 +31,4 @@ def CheckoutVersionTemplateRepoHandler():
     tcol.checkout_repo(inputs.get('url'), inputs.get('branch'))
 
     return "", 204, {"Content-type": 'application/json'}
+

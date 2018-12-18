@@ -16,3 +16,4 @@ PRIORITY_NORMAL = 10
 from .task import Task
 from .task_list import TaskList
 from .storage.base import TaskNotFoundError
+

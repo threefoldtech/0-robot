@@ -2,7 +2,7 @@
 import os
 import time
 import subprocess
-from jumpscale import j
+from Jumpscale import j
 
 STANDARD_CONFIG_DIR = '/opt/code/local/stdorg/config'
 

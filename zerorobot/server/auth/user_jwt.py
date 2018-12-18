@@ -2,7 +2,7 @@ from functools import wraps
 import os
 
 from jose import jwt
-from jumpscale import j
+from Jumpscale import j
 
 _token_prefix = "Bearer "
 
@@ -87,3 +87,4 @@ def _get_key():
 
 class SigningKeyNotFoundError(Exception):
     pass
+

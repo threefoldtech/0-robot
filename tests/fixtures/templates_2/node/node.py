@@ -34,3 +34,4 @@ class Node(TemplateBase):
     @timeout(10)
     def error(self):
         raise RuntimeError('this is an error')
+

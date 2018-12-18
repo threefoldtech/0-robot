@@ -2,7 +2,7 @@ import os
 
 import msgpack
 
-from jumpscale import j
+from Jumpscale import j
 
 from .base import ServiceStorageBase, _serialize_service
 
@@ -80,3 +80,4 @@ class ZDBServiceStorage(ServiceStorageBase):
             return True
         except:
             return False
+

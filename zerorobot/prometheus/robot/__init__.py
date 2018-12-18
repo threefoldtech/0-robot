@@ -23,3 +23,4 @@ def monitor_robot_metrics():
     # memory
     robot_memory = Gauge('robot_total_memory_bytes', "Memory used by 0-robot")
     robot_memory.set_function(memory_usage_resource())
+

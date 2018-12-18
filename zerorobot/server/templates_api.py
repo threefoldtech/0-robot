@@ -32,3 +32,4 @@ def CheckoutVersionTemplateRepo():
     It is handler for PUT /templates
     """
     return handlers.CheckoutVersionTemplateRepoHandler()
+

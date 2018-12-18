@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 "Docker image build script for 0-robot"
-from jumpscale import j
+from Jumpscale import j
 
 
 REPOSITORY = "jumpscale/0-robot"
@@ -77,3 +77,4 @@ def _main():
 
 if __name__ == "__main__":
     _main()
+

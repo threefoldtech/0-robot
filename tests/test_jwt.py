@@ -1,6 +1,6 @@
 import unittest
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.server.auth import user_jwt
 
 
@@ -25,3 +25,4 @@ class TestJWT(unittest.TestCase):
         assert not user_jwt.verify('0000', token), "wrong service guid should return False"
         assert not user_jwt.verify('12345', None), "no token should return false"
         assert not user_jwt.verify('12345', ''), "no token should return false"
+

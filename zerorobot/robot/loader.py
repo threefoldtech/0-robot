@@ -2,7 +2,7 @@ import os
 
 import gevent
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import storage
@@ -72,3 +72,4 @@ def _try_load_service(services):
                 logger.debug("loading failed again for %s" % service.guid)
         gevent.sleep(10)  # fixme: why 10 ? why not?
         size = len(services)
+

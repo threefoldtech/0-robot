@@ -3,7 +3,7 @@ from enum import Enum
 
 import msgpack
 
-from jumpscale import j
+from Jumpscale import j
 
 
 class Kind(Enum):
@@ -77,14 +77,14 @@ class FSStorage:
         output = []
         for wh in webhooks.values():
             output.append(wh.as_dict())
-        j.data.serializer.yaml.dump(self._path, output)
+        j.data.serializers.yaml.dump(self._path, output)
 
     def load(self):
         webhooks = {}
         if not os.path.exists(self._path):
             return webhooks
 
-        data = j.data.serializer.yaml.load(self._path) or []
+        data = j.data.serializers.yaml.load(self._path) or []
         for item in data:
             wb = WebHook(item['url'], Kind(item['kind']))
             webhooks[wb.id] = wb
@@ -119,3 +119,4 @@ class ZDBStorage:
                 wb = WebHook(item['url'], Kind(item['kind']))
                 webhooks[wb.id] = wb
         return webhooks
+

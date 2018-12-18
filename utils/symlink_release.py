@@ -1,4 +1,4 @@
-from jumpscale import j
+from Jumpscale import j
 
 FLIST_HASH = '2a8acdc52c'
 VERSION = '0.9.0_rc1'
@@ -35,3 +35,4 @@ source = 'threefoldtech-0-robot-autostart-%s.flist' % VERSION
 destination = 'threefoldtech-0-robot-autostart-latest.flist'
 print('symlink %s to %s' % (source, destination))
 hub.symlink(source, destination)
+

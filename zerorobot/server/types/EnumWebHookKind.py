@@ -5,3 +5,4 @@ from enum import Enum
 
 class EnumWebHookKind(Enum):
     eco = "eco"
+

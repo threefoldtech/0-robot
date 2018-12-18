@@ -218,3 +218,4 @@ class TestTemplateCollection(unittest.TestCase):
         found = tcol.find(host='github.com', account='threefoldtech', repo='0-robot', name='node', version='0.0.1')
         assert len(found) == 1
         assert str(found[0].template_uid) == 'github.com/threefoldtech/0-robot/node/0.0.1'
+

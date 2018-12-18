@@ -1,6 +1,6 @@
 import os
 
-from jumpscale import j
+from Jumpscale import j
 
 from .base import TaskStorageBase, TaskNotFoundError, TaskConflictError
 from .import encoding
@@ -77,3 +77,4 @@ class TaskStorageFile(TaskStorageBase):
 
     def _task_path(self, task):
         return os.path.join(self._root, "%d_%s" % (self._count, task.guid))
+

@@ -1,4 +1,4 @@
-from jumpscale import j
+from Jumpscale import j
 
 
 class Repo:
@@ -35,3 +35,4 @@ class RepoCheckoutError(Exception):
     def __init__(self, msg, original_exception):
         super().__init__(msg + (": %s" % original_exception))
         self.original_exception = original_exception
+

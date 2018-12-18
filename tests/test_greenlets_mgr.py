@@ -53,3 +53,4 @@ class TestGreenletsMgr(unittest.TestCase):
 
         # should not raise is we try to stop a non existing greenlet
         mgr.stop("nonexists")
+

@@ -3,7 +3,7 @@ import sys
 import click
 from requests.exceptions import HTTPError
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.cli import utils
 from zerorobot import config
 from zerorobot.server import auth
@@ -20,3 +20,4 @@ def godtoken():
 @godtoken.command()
 def get():
     print("god token: %s " % auth.god_jwt.create())
+

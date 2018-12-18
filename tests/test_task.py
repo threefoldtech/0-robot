@@ -54,7 +54,7 @@ class TestTask(unittest.TestCase):
         # task.wait should not raise is state is error but die is False
         t.wait(die=False)
 
-        with self.assertRaises(RuntimeError, message='task.wait should raise if state is error and die is True'):
+        with self.assertRaises(RuntimeError, msg='task.wait should raise if state is error and die is True'):
             t.wait(die=True)
 
     def test_cancel_timeout(self):

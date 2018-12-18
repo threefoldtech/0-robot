@@ -4,8 +4,6 @@ sudo: required
 dist: trusty
 
 python:
-  - "3.5.2"
-  - "3.5"
   - "3.6"
 
 install:

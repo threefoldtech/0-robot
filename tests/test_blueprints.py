@@ -267,3 +267,4 @@ class TestBlueprintExecution(unittest.TestCase):
             tasks.extend(_schedule_action(action_item))
 
         self.assertEqual(len(tasks), 3)
+

@@ -1,16 +1,13 @@
-from setuptools import setup, find_packages
-from setuptools.command.install import install as _install
-from setuptools.command.develop import develop as _develop
 import os
+
+from setuptools import find_packages, setup
+from setuptools.command.develop import develop as _develop
+from setuptools.command.install import install as _install
 
 
 def _post_install(libname, libpath):
-    from jumpscale import j
-    # add this plugin to the config
-    c = j.core.state.configGet('plugins', defval={})
-    c[libname] = "%s/github/threefoldtech/0-robot/JumpscaleZrobot" % j.dirs.CODEDIR
-    j.core.state.configSet('plugins', c)
-    j.tools.jsloader.generate()
+    os.environ["JSRELOAD"] = "1"
+    from Jumpscale import j
 
 
 class install(_install):

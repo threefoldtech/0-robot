@@ -30,3 +30,4 @@ class TestAutoPusher(unittest.TestCase):
         for tc in tt:
             result = auto_pusher._is_ssh_remote(tc['url'])
             self.assertEqual(result, tc['expected'], tc['name'])
+

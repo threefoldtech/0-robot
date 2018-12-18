@@ -16,3 +16,4 @@ def ListTemplatesHandler():
     '''
     templates = [template_view(t) for t in tcol.list_templates()]
     return json.dumps(templates), 200, {"Content-type": 'application/json'}
+

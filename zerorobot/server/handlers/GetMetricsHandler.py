@@ -20,3 +20,4 @@ def GetMetricsHandler():
         'nr_services': len(scol.list_services())
     }
     return jsonify(output)
+

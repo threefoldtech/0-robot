@@ -2,7 +2,7 @@ from functools import wraps
 
 from flask import jsonify, request
 from jose import jwt
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import config
 from . import user_jwt, god_jwt
@@ -80,3 +80,4 @@ def _verify_secret_token(tokens):
         return False
 
     return False
+

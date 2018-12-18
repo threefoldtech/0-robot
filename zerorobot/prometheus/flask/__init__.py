@@ -60,3 +60,4 @@ def metrics():
     response = make_response(output)
     response.headers['Content-Type'] = CONTENT_TYPE_LATEST
     return response
+

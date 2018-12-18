@@ -54,3 +54,4 @@ class TaskConflictError(Exception):
     # raise when trying to store a task with a guid
     # which already exists
     pass
+

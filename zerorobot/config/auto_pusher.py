@@ -1,6 +1,6 @@
 import gevent
 import datetime
-from jumpscale import j
+from Jumpscale import j
 
 from zerorobot import service_collection as scol
 
@@ -70,3 +70,4 @@ def _is_ssh_remote(url):
     if url.startswith("ssh://") or url.startswith('git@'):
         return True
     return False
+

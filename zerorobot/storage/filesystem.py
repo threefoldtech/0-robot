@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from jumpscale import j
+from Jumpscale import j
 
 from .base import ServiceStorageBase, _serialize_service
 
@@ -32,10 +32,10 @@ class FileSystemServiceStorage(ServiceStorageBase):
 
         # location on the filesystem where to store the service
         serialized_service = _serialize_service(service)
-        j.data.serializer.yaml.dump(os.path.join(path, 'service.yaml'), serialized_service['service'])
-        j.data.serializer.yaml.dump(os.path.join(path, 'state.yaml'), serialized_service['states'])
-        j.data.serializer.yaml.dump(os.path.join(path, 'data.yaml'), serialized_service['data'])
-        j.data.serializer.yaml.dump(os.path.join(path, 'tasks.yaml'), serialized_service['tasks'])
+        j.data.serializers.yaml.dump(os.path.join(path, 'service.yaml'), serialized_service['service'])
+        j.data.serializers.yaml.dump(os.path.join(path, 'state.yaml'), serialized_service['states'])
+        j.data.serializers.yaml.dump(os.path.join(path, 'data.yaml'), serialized_service['data'])
+        j.data.serializers.yaml.dump(os.path.join(path, 'tasks.yaml'), serialized_service['tasks'])
 
     def list(self):
         for service_dir in j.sal.fs.listDirsInDir(self._root, recursive=True):
@@ -43,10 +43,10 @@ class FileSystemServiceStorage(ServiceStorageBase):
             if not os.path.exists(info_path):
                 continue
 
-            info_data = j.data.serializer.yaml.load(info_path)
-            state_data = j.data.serializer.yaml.load(os.path.join(service_dir, 'state.yaml'))
-            data_data = j.data.serializer.yaml.load(os.path.join(service_dir, 'data.yaml'))
-            tasks_data = j.data.serializer.yaml.load(os.path.join(service_dir, 'tasks.yaml'))
+            info_data = j.data.serializers.yaml.load(info_path)
+            state_data = j.data.serializers.yaml.load(os.path.join(service_dir, 'state.yaml'))
+            data_data = j.data.serializers.yaml.load(os.path.join(service_dir, 'data.yaml'))
+            tasks_data = j.data.serializers.yaml.load(os.path.join(service_dir, 'tasks.yaml'))
 
             yield {
                 'service': info_data,
@@ -69,3 +69,4 @@ class FileSystemServiceStorage(ServiceStorageBase):
             return True
         except:
             return False
+

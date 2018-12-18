@@ -1,7 +1,7 @@
 
 from gevent.queue import Queue
 import gevent
-from jumpscale import j
+from Jumpscale import j
 
 from jose import jwt
 
@@ -117,3 +117,4 @@ class ConfigMgr():
 
     def remove_secret(self, instance, service_guid):
         return self._send_cmd(self._remove_secret, [instance, service_guid])
+

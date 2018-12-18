@@ -1,5 +1,5 @@
 
-from jumpscale import j
+from Jumpscale import j
 
 from .base import TaskNotFoundError
 from . import encoding
@@ -66,7 +66,7 @@ class TaskStorageRedis:
             self._redis = None
 
     def _serialize_task(self, task):
-        return j.data.serializer.json.dumps({
+        return j.data.serializers.json.dumps({
             "guid": task.guid,
             "action_name": task.action_name,
             "args": task._args,
@@ -77,5 +77,6 @@ class TaskStorageRedis:
         })
 
     def _deserialize_task(self, blob):
-        task = j.data.serializer.json.loads(blob)
+        task = j.data.serializers.json.loads(blob)
         return _instantiate_task(task, self._service)
+

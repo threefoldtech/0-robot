@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import webhooks
 
 
@@ -63,3 +63,4 @@ class TestWebHooks(unittest.TestCase):
             open(self.manager._store._path, 'w+').close()
         os.truncate(self.manager._store._path, 0)
         self.manager._store.load()
+

@@ -6,7 +6,7 @@ import unittest
 
 import gevent
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import config
 from zerorobot.template.decorator import profile, retry, timeout
 from zerorobot.template_collection import _load_template
@@ -228,3 +228,4 @@ class TestProfile(unittest.TestCase):
 
         with self.assertRaises(TypeError, message="should raise when applied on not service method"):
             foo()
+

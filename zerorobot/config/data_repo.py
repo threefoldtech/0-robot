@@ -5,7 +5,7 @@ this module contain class that are used to store the data repository configratio
 import os
 from urllib.parse import urlparse
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.git import url as giturl
 
 from .auto_pusher import AutoPusher
@@ -89,3 +89,4 @@ def _parse_zdb(line):
     path = u.path[1:] if u.path and u.path[0] == '/' else u.path
 
     return (u.username, u.hostname, u.port, path)
+

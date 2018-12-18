@@ -16,3 +16,4 @@ def mem_stats():
             elif line.startswith('SwapFree: '):
                 swap_free = (int(line.split()[1]) * 1024)
     return (mem_active, mem_total, mem_cached, mem_free, swap_total, swap_free)
+

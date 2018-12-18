@@ -11,3 +11,4 @@ class NodeUpdatedata(TemplateBase):
 
     def update_data(self, data):
         self.data.update(data)
+

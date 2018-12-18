@@ -2,7 +2,7 @@ import shlex
 import os
 from jose import jwt
 
-from jumpscale import j
+from Jumpscale import j
 
 from zerorobot.config.data_repo import _parse_zdb
 
@@ -114,7 +114,7 @@ def read_config_repo_config():
         logger.info("no zdb data repository configuration found")
         return None
 
-    repo = j.data.serializer.yaml.load(data_path)
+    repo = j.data.serializers.yaml.load(data_path)
     zdb_url = repo.get('zdb_url')
     if not zdb_url:
         logger.error("wrong format in zdb data repository configuration")
@@ -167,3 +167,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

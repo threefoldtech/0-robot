@@ -16,7 +16,7 @@ from uuid import uuid4
 import gevent
 from gevent.event import Event
 from gevent.queue import Empty
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import config
 from zerorobot import service_collection as scol
 from zerorobot import storage, webhooks
@@ -448,3 +448,4 @@ def _configure_logger(service):
         l.addHandler(h)
     l.setLevel(logging.DEBUG)
     return l
+

@@ -71,3 +71,4 @@ To activate god mode:
    cl.god_token_set('god_token')
    ```
 Note: to access the robot in god mode, god mode flag must be set to `true` and you must provide the generated god token
+

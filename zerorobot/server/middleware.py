@@ -47,3 +47,4 @@ def authenticate(app, allowed_scopes, audience=None):
 
         return None
     app.before_request(jwt_authentication)
+

@@ -1,10 +1,10 @@
 import time
 
-from jumpscale import j
+from Jumpscale import j
 
 from .client import Client
 
-JSConfigClientBase = j.tools.configmanager.base_class_config
+JSConfigClientBase = j.tools.configmanager.JSBaseClassConfig
 
 
 _template = """
@@ -76,3 +76,4 @@ class ZeroRobotClient(JSConfigClientBase):
         self.config.data_set('god_token_', god_token)
         self.config.save()
         self._api = None  # force reload of the api with new god token header
+

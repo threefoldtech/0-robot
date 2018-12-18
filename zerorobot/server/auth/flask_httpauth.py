@@ -135,3 +135,4 @@ def _extract_status_code(resp):
         return resp.status_code
 
     raise TypeError('response has an unexpected type: %s' % type(resp))
+

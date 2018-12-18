@@ -6,19 +6,19 @@ import time
 
 import gevent
 from gevent import GreenletExit
+from gevent.event import Event
 from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
-from gevent.event import Event
-
-from jumpscale import j
+from Jumpscale import j
+from zerorobot import config
 from zerorobot import service_collection as scol
+from zerorobot import storage
 from zerorobot import template_collection as tcol
-from zerorobot import config, webhooks
+from zerorobot import webhooks
 from zerorobot.git import url as giturl
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server import auth
 from zerorobot.server.app import app
-from zerorobot import storage
 
 from . import loader
 
@@ -111,7 +111,8 @@ class Robot:
         logger = j.logger.get('zerorobot')
         logger.info("data directory: %s" % config.data_repo.path)
         logger.info("config directory: %s" % j.tools.configmanager.path)
-        keypath = j.tools.configmanager.keypath
+        key = j.clients.sshkey.get(j.tools.configmanager.keyname)
+        keypath = key.path
         if not keypath:
             keypath = os.path.expanduser(os.path.join('~/.ssh', j.tools.configmanager.keyname))
         logger.info("sshkey used: %s" % keypath)
@@ -119,8 +120,6 @@ class Robot:
         # configure prometheus monitoring
         if not kwargs.get('testing', False):
             monitor(app)
-
-
 
          # configure authentication middleware
         _configure_authentication(admin_organization, user_organization)
@@ -190,7 +189,8 @@ class Robot:
             try:
                 service._gracefull_stop(timeout=timeout)
             except Exception as err:
-                logger.warning('exception raised while waiting %s %s (%s) to finish: %s', service.template_uid.name, service.name, service.guid, err)
+                logger.warning('exception raised while waiting %s %s (%s) to finish: %s',
+                               service.template_uid.name, service.name, service.guid, err)
 
         # here no more requests are comming in, we can safely save all services
         self._save_services()

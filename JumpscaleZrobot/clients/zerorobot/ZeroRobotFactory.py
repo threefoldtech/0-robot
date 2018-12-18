@@ -1,12 +1,12 @@
 import collections
 import os
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 
 from .ZeroRobotClient import ZeroRobotClient
 
-JSConfigFactoryBase = j.tools.configmanager.base_class_configs
+JSConfigFactoryBase = j.tools.configmanager.JSBaseClassConfigs
 
 
 class ZeroRobotFactory(JSConfigFactoryBase):
@@ -86,3 +86,4 @@ class RobotLoader(collections.MutableMapping):
         return str(robots)
 
     __str__ = __repr__
+

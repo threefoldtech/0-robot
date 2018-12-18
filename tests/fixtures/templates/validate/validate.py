@@ -13,3 +13,4 @@ class Validate(TemplateBase):
     def validate(self):
         if not self.data.get('required'):
             raise ValueError("required need to be specified in the data")
+

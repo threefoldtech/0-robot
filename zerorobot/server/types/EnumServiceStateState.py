@@ -8,3 +8,4 @@ class EnumServiceStateState(Enum):
     error = "error"
     warning = "warning"
     skipped = "skipped"
+

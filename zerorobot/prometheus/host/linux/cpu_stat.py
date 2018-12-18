@@ -136,3 +136,4 @@ def __proc_stat(stat):
         for line in f:
             if line.startswith(stat):
                 return int(line.split()[1])
+

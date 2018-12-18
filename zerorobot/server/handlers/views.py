@@ -60,3 +60,4 @@ def template_view(template):
         "name": template.template_uid.name,
         "version": template.template_uid.version,
     }
+

@@ -20,3 +20,4 @@ def CancelTaskHandler(task_guid, service_guid):
         return jsonify(code=404, message="task with guid '%s' not found" % task_guid), 404
 
     return '', 204
+

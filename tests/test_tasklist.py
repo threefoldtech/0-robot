@@ -136,3 +136,4 @@ class TestTaskList(unittest.TestCase):
             tasks.append(self.tl.get())
 
         self.assertEqual(tasks, [t3, t1, t2], "task with higher priority should be extracted first")
+

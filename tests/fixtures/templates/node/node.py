@@ -44,3 +44,4 @@ class Node(TemplateBase):
     def long(self):
         time.sleep(20)
         return 'done'
+

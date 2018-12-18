@@ -66,3 +66,4 @@ By following the task list of a [0-Robot](#robot) we can generate in real time a
 A template is the source of a service. It contains the definition of the [actions](#action) of a service.  
 A [service](#service) is always instantiated from a specific version of a template
 
+

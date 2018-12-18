@@ -1,7 +1,7 @@
 # THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.
 
 from flask import jsonify, request
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot.server import auth
 from zerorobot.server.handlers.views import task_view
@@ -25,3 +25,4 @@ def getTaskListHandler(service_guid):
     tasks = [task_view(t, service) for t in service.task_list.list_tasks(all=all_task)]
 
     return jsonify(tasks), 200
+

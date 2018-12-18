@@ -9,7 +9,7 @@ import re
 
 import yaml
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.template_uid import TemplateUID
 from zerorobot import template_collection as tcol
 
@@ -45,7 +45,7 @@ def parse(content):
     return a tuple containing these blocks: (actions, services)
     """
     if isinstance(content, str):
-        content = j.data.serializer.yaml.ordered_load(content, yaml.SafeLoader) or {}
+        content = j.data.serializers.yaml.ordered_load(content, yaml.SafeLoader) or {}
 
     actions = []
     services = []
@@ -139,3 +139,4 @@ class BadBlueprintFormatError(Exception):
     def __init__(self, message, block=None):
         super().__init__(self, message)
         self.block = block
+

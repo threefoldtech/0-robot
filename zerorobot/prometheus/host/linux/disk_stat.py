@@ -39,3 +39,4 @@ def _disk_writes():
         fields = line.strip().split()
         num_writes += int(fields[7])
     return num_writes
+

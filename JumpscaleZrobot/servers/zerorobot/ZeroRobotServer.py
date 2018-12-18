@@ -1,7 +1,7 @@
 import logging
 
-from jumpscale import j
-from Jumpscale.logging.Handlers import TelegramFormatter, TelegramHandler
+from Jumpscale import j
+from Jumpscale.core.logging.Handlers import TelegramFormatter, TelegramHandler
 from zerorobot.robot import Robot
 
 telegram_logger = logging.getLogger('telegram_logger')
@@ -21,7 +21,7 @@ auto_push = false
 auto_push_interval = 10
 organization = ""
 """
-JSConfigBase = j.tools.configmanager.base_class_config
+JSConfigBase = j.tools.configmanager.JSBaseClassConfig
 
 
 class ZeroRobotServer(JSConfigBase):
@@ -101,3 +101,4 @@ class ZeroRobotServer(JSConfigBase):
         if self._robot:
             self._robot.stop(timeout=timeout)
             self._robot = None
+

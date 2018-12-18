@@ -3,7 +3,7 @@ import time
 import unittest
 
 import pytest
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.task.storage.base import TaskConflictError
 from zerorobot.task.storage.file import TaskStorageFile
 from zerorobot.task.task import Task
@@ -130,3 +130,4 @@ def compare_task(a, b):
         '_created',
     ]:
         return getattr(a, attr) == getattr(b, attr)
+

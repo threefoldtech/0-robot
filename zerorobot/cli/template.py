@@ -39,3 +39,4 @@ def list():
     cl = utils.get_client()
     for template in sorted_by_uid(cl.templates.uids.values()):
         print(template.uid)
+

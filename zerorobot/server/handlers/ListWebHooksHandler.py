@@ -15,3 +15,4 @@ def ListWebHooksHandler():
         output.append(wh.as_dict())
 
     return jsonify(output)
+

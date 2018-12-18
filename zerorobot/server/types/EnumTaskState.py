@@ -8,3 +8,4 @@ class EnumTaskState(Enum):
     ok = "ok"
     running = "running"
     error = "error"
+

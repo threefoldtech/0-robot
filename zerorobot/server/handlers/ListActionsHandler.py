@@ -42,3 +42,4 @@ def get_actions_list(obj):
             actions.append({'name': name})
 
     return actions
+

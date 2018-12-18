@@ -1,5 +1,5 @@
 from zerorobot.template.base import TemplateBase
-from jumpscale import j
+from Jumpscale import j
 
 
 class Cleanup(TemplateBase):
@@ -21,3 +21,4 @@ class Cleanup(TemplateBase):
     def cleanup2(self):
         self.logger.info("cleanup2")
         j.sal.fs.writeFile(self.data['output'], 'cleanup2', append=True)
+

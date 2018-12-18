@@ -6,13 +6,13 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/jumpscale_versions.sh"
 
-for target in /usr/local /opt /opt/cfg /opt/code/github/threefoldtech /opt/var/capnp /opt/var/log $HOME/jumpscale/cfg; do
+for target in /usr/local $HOME/code $HOME/code/github/threefoldtech $HOME/opt $HOME/opt/cfg $HOME/opt/var/capnp $HOME/opt/var/log $HOME/jumpscale/cfg; do
     mkdir -p $target
     sudo chown -R $USER:$USER $target
 done
 
 
-pushd /opt/code/github/threefoldtech
+pushd $HOME/code/github/threefoldtech
 
 # cloning source code
 for target in jumpscale_core jumpscale_lib jumpscale_prefab; do
@@ -40,7 +40,7 @@ eval `ssh-agent -s`
 ssh-add ~/.ssh/id_rsa
 
 # initialize jumpscale config manager
-mkdir -p /opt/code/config_test
-git init /opt/code/config_test
-touch /opt/code/config_test/.jsconfig
-js_config init --silent --path /opt/code/config_test/ --key ~/.ssh/id_rsa
+mkdir -p $HOME/code/config_test
+git init $HOME/code/config_test
+touch $HOME/code/config_test/.jsconfig
+js_config init --silent --path $HOME/code/config_test/ --key ~/.ssh/id_rsa

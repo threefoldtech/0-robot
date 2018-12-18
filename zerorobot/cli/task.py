@@ -1,7 +1,7 @@
 import sys
 
 import click
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.cli import utils
 
 
@@ -113,3 +113,4 @@ def get(guid, task, tb):
         sys.exit(1)
 
     print_task(task, tb)
+

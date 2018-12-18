@@ -7,9 +7,10 @@ import uuid
 from multiprocessing import Process
 
 import pytest
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import config
 from zerorobot import service_collection as scol
+from zerorobot import storage
 from zerorobot import template_collection as tcol
 from zerorobot.dsl.ZeroRobotAPI import TemplateNotFoundError, ZeroRobotAPI
 from zerorobot.dsl.ZeroRobotManager import ServiceCreateError
@@ -32,9 +33,7 @@ class TestZRobotAPI(unittest.TestCase):
                 robot.add_template_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
 
             listen = "localhost:660%d" % int(id)
-            addr = "http://%s" % listen
             robot.start(listen=listen, testing=True)
-            # return robot
 
         addr = "http://localhost:660%d" % int(id)
         p = Process(target=new, args=(id, with_tmpl))
@@ -47,6 +46,8 @@ class TestZRobotAPI(unittest.TestCase):
             self.previous_zrobot_cfgs[instance] = j.clients.zrobot.get(instance)
         j.clients.zrobot.reset()
 
+        config.data_repo = config.DataRepo(j.sal.fs.getTmpDirPath())
+        storage.init(config)
         self.api = ZeroRobotAPI()
         self.ps = []
         self.instances = []
@@ -88,7 +89,8 @@ class TestZRobotAPI(unittest.TestCase):
             cl.config.save()
 
     def test_robots_discovery(self):
-        self.assertGreaterEqual(len(self.api.robots.list()), 2, "should have discovered at least the 2 robots that are running for the test")
+        self.assertGreaterEqual(len(self.api.robots.list()), 2,
+                                "should have discovered at least the 2 robots that are running for the test")
         for instance in self.instances:
             self.assertIn(instance, self.api.robots.list())
 
@@ -295,10 +297,12 @@ class TestZRobotAPI(unittest.TestCase):
         node1 = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node1')
         assert len(robot.services.guids) == 1
 
-        srv = robot.services.find_or_create(template_uid="github.com/threefoldtech/0-robot/node/0.0.1", service_name='node1', data={})
+        srv = robot.services.find_or_create(
+            template_uid="github.com/threefoldtech/0-robot/node/0.0.1", service_name='node1', data={})
         assert node1.guid == srv.guid, "find or create should return service if it exists"
         assert len(robot.services.guids) == 1
 
-        srv = robot.services.find_or_create(template_uid="github.com/threefoldtech/0-robot/node/0.0.1", service_name='node2', data={})
+        srv = robot.services.find_or_create(
+            template_uid="github.com/threefoldtech/0-robot/node/0.0.1", service_name='node2', data={})
         assert node1.guid != srv.guid, "find or create should create a service if it doesn't exists"
         assert len(robot.services.guids) == 2

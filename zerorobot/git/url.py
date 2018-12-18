@@ -5,7 +5,7 @@ this module contains utility to parse git URL
 import re
 import urllib
 
-from jumpscale import j
+from Jumpscale import j
 
 _url_pattern_ssh = re.compile('^(git)@(.*?):(.*?)/(.*?)/?$')
 _url_pattern_ssh2 = re.compile('^(git)@(.*?)/(.*?)/(.*?)/?$')
@@ -66,3 +66,4 @@ def parse_template_repo_url(url):
         branch = u.fragment
 
     return u.scheme+'://'+u.netloc+u.path, branch
+

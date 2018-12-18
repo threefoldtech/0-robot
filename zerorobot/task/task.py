@@ -16,7 +16,7 @@ import requests
 
 import gevent
 from gevent.lock import Semaphore
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import config
 from zerorobot.errors import ExpectedError, eco_get
 
@@ -205,3 +205,4 @@ def _send_eco_webhooks(service, task):
             logger.debug("eco web hook sent to %s" % wh.url)
         except Exception as err:
             logger.warning('fail to send web hook to %s' % wh.url)
+

@@ -42,3 +42,4 @@ def health():
     if not _store:
         raise RuntimeError("storage has not be initialized")
     return _store.health()
+

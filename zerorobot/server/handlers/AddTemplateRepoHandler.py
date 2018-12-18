@@ -36,3 +36,4 @@ def AddTemplateRepoHandler():
     added = tcol.add_repo(inputs['url'], branch=inputs.get('branch', 'master'))
     templates = [template_view(t) for t in added]
     return json.dumps(templates), 201, {"Content-type": 'application/json'}
+

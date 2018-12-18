@@ -3,7 +3,7 @@ import shutil
 import unittest
 
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import config
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
@@ -182,3 +182,4 @@ class TestGodMode(unittest.TestCase):
             assert service.data is not None, "with god mode and god token any the client should be able to read the data of any service"
 
             j.clients.zrobot.delete('test2')
+

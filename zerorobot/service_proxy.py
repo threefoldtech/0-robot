@@ -11,7 +11,7 @@ import urllib
 from requests.exceptions import HTTPError
 
 from jose import jwt
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.dsl import config_mgr
 from zerorobot.errors import Eco
 from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
@@ -164,7 +164,7 @@ class TaskProxy(Task):
             task, _ = self.service._zrobot_client.api.services.GetTask(
                 task_guid=self.guid, service_guid=self.service.guid)
             if task.result:
-                self._result = j.data.serializer.json.loads(task.result)
+                self._result = j.data.serializers.json.loads(task.result)
         return self._result
 
     @property
@@ -207,3 +207,4 @@ def _task_proxy_from_api(task, service):
         t._eco = Eco.from_dict(task.eco.as_dict())
 
     return t
+

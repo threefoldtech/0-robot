@@ -26,3 +26,4 @@ def GetRobotInfoHandler():
     output['storage_healthy'] = storage.health()
 
     return jsonify(output)
+

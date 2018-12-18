@@ -8,13 +8,11 @@ import os
 import sys
 
 from gevent.pool import Pool
-
-from jumpscale import j
-from zerorobot import service_collection as scol
+from Jumpscale import j
 from zerorobot import git
+from zerorobot import service_collection as scol
 from zerorobot.service_collection import ServiceConflictError
 from zerorobot.template_uid import TemplateUID
-
 
 _templates = {}
 

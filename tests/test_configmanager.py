@@ -4,7 +4,7 @@ import time
 
 import gevent
 
-from jumpscale import j
+from Jumpscale import j
 
 from zerorobot.dsl.config_mgr import ConfigMgr
 
@@ -73,3 +73,4 @@ class TestConfigMgr(unittest.TestCase):
             gls.append(gevent.spawn(test))
 
         gevent.joinall(gls, raise_error=True)
+

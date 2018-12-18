@@ -4,7 +4,7 @@ This module contains a wrapper of the go-raml generated client for ZeroRobot.
 
 from requests.exceptions import HTTPError
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.git.repo import RepoCheckoutError
 from zerorobot.service_collection import (ServiceConflictError,
                                           ServiceNotFoundError, TooManyResults)
@@ -266,3 +266,4 @@ class ZeroRobotManager:
             self._client.god_token_set(token)
         finally:
             node = j.clients.zos.delete('godtoken')
+

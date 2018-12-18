@@ -45,3 +45,4 @@ def AddTaskToListHandler(service_guid):
         return jsonify(code=400, message=str(err)), 400
 
     return jsonify(task_view(task, service)), 201
+

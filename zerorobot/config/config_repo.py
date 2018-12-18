@@ -4,7 +4,7 @@ data_repo module hold the logic of the configuration of the jumpscale configurat
 
 import os
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.git import url as giturl
 
 from .auto_pusher import AutoPusher
@@ -91,3 +91,4 @@ def _is_key_configured():
         return key_path
 
     return None
+

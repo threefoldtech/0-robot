@@ -4,7 +4,7 @@ import unittest
 import uuid
 
 from gevent import pool
-from jumpscale import j
+from Jumpscale import j
 from zerorobot import config
 from zerorobot import service_collection as scol
 from zerorobot.dsl.ZeroRobotManager import (TemplateNotFoundError,
@@ -81,3 +81,4 @@ class TestZRobotClient(unittest.TestCase):
 
         robot = get_client()
         assert len(robot.services.find()) == N
+

@@ -2,7 +2,7 @@ import os
 import tempfile
 import unittest
 
-from jumpscale import j
+from Jumpscale import j
 
 from zerorobot.robot import Robot
 from zerorobot import config
@@ -79,3 +79,4 @@ class TestRobot(unittest.TestCase):
                     repo, branch = giturl.parse_template_repo_url(test['url'])
                     assert repo == test['repo']
                     assert branch == test['branch']
+

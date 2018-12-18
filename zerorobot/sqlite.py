@@ -78,3 +78,4 @@ class SqliteIndex:
 
         self._cursor.execute(stmt, t)
         return [x[0] for x in self._cursor.fetchall()]
+

@@ -1,9 +1,12 @@
-from .base import TaskStorageBase, TaskNotFoundError, TaskConflictError
-from zerorobot.task.utils import _instantiate_task
 import os
 import sqlite3
+
 import msgpack
-from jumpscale import j
+
+from Jumpscale import j
+from zerorobot.task.utils import _instantiate_task
+
+from .base import TaskConflictError, TaskNotFoundError, TaskStorageBase
 
 logger = j.logger.get(__name__)
 
@@ -160,4 +163,4 @@ class TaskStorageSqlite(TaskStorageBase):
         })
 
     def _deserialize_task(self, blob):
-        return msgpack.loads(blob, encoding='utf-8')
+        return msgpack.loads(blob, raw=False)

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import requests
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 
 _JS_CONFIG_KEY = 'zrobot_current'
@@ -51,3 +51,4 @@ def print_service(service):
         name=service.name,
         template=service.template_uid
     ))
+

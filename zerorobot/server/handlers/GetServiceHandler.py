@@ -23,3 +23,4 @@ def GetServiceHandler(service_guid):
             404, {"Content-type": 'application/json'}
 
     return json.dumps(service_view(service)), 200, {"Content-type": 'application/json'}
+

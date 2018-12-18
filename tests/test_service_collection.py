@@ -83,3 +83,4 @@ class TestServiceCollection(unittest.TestCase):
         assert scol.is_service_public(s1.guid) is False
         scol.set_service_public(s1.guid)
         assert scol.is_service_public(s1.guid)
+

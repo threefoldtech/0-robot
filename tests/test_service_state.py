@@ -2,7 +2,7 @@ import os
 import tempfile
 import unittest
 
-from jumpscale import j
+from Jumpscale import j
 from zerorobot.template.state import (BadServiceStateError, ServiceState,
                                       StateCategoryNotExistsError,
                                       StateCheckError)
@@ -94,3 +94,4 @@ class TestServiceState(unittest.TestCase):
         state.set('network', 'tcp-80', 'ok')
         state.delete('noexsits')
         state.delete('network', 'noexists')
+
