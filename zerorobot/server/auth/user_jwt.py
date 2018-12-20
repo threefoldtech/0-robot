@@ -1,5 +1,5 @@
-from functools import wraps
 import os
+from functools import wraps
 
 from jose import jwt
 from Jumpscale import j
@@ -65,6 +65,20 @@ def extract_service_guid(request):
     return services_guids
 
 
+def extract_service_guid_from_secrets(secrets):
+    services_guids = []
+    for token in secrets:
+        try:
+            claims = decode(token)
+            guid = claims.get('service_guid')
+            if guid:
+                services_guids.append(guid)
+        except:
+            continue
+
+    return services_guids
+
+
 def _get_key():
     """return the signing key to create JWT
     the key is the one used by the config manager of Jumpscale
@@ -87,4 +101,3 @@ def _get_key():
 
 class SigningKeyNotFoundError(Exception):
     pass
-

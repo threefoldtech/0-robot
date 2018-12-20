@@ -43,7 +43,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-cov'],
+    tests_require=['pytest', 'pytest-cov', 'pytest-mock'],
     install_requires=[
         'Jumpscale>=v9.5.0',
         'JumpscaleLib>=v9.5.0',
