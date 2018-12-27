@@ -163,7 +163,7 @@ class TestServiceActor(ActorTestBase):
         expected_service = tcol.instantiate_service(Node, 'testnode')
 
         secret = user_jwt.create({'service_guid': expected_service.guid})
-        service = self.client.services.get(expected_service.guid, [secret])
+        service = self.client.services.get(guid=expected_service.guid, secrets=[secret])
         assert service.name == expected_service.name
         assert service.guid == expected_service.guid
         assert service.template == str(expected_service.template_uid)
@@ -171,11 +171,11 @@ class TestServiceActor(ActorTestBase):
 
         # valid guid but no sercret
         with pytest.raises(Exception):  # TODO: catch proper exception
-            self.client.services.get('notexits', [])
+            self.client.services.get(guid='notexits', secrets=[])
 
         # invalid guid
         with pytest.raises(Exception):  # TODO: catch proper exception
-            self.client.services.get('notexits', [secret])
+            self.client.services.get(guid='notexits', secrets=[secret])
 
     def test_service_delete(self):
         self.client.services.delete('notexists', )
@@ -185,10 +185,10 @@ class TestServiceActor(ActorTestBase):
         assert scol.get_by_guid(service.guid)  # ensure it exists
 
         secret = user_jwt.create({'service_guid': service.guid})
-        self.client.services.delete(service.guid, [secret])
+        self.client.services.delete(guid=service.guid, secrets=[secret])
 
         with pytest.raises(scol.ServiceNotFoundError):
-            scol.get_by_guid(service.guid)  # ensure it's been deleted
+            scol.get_by_guid(guid=service.guid)  # ensure it's been deleted
 
     def test_service_actions(self):
         Node = self.load_template('node')
@@ -196,7 +196,7 @@ class TestServiceActor(ActorTestBase):
         assert scol.get_by_guid(service.guid)  # ensure it exists
         secret = user_jwt.create({'service_guid': service.guid})
 
-        actions = self.client.services.actions(service.guid, [secret])
+        actions = self.client.services.actions(guid=service.guid, secrets=[secret])
         assert len(actions) == 10
         schema = j.data.schema.get(url='zrobot.action')
         for action in actions:
@@ -218,6 +218,18 @@ class TestServiceActor(ActorTestBase):
             tasks.append(task_schema.get(capnpbin=item))
 
         assert len(tasks) == 3
+
+    def test_service_task_get(self):
+        Node = self.load_template('node')
+        service = tcol.instantiate_service(Node, 'testnode')
+        assert scol.get_by_guid(service.guid)  # ensure it exists
+        secret = user_jwt.create({'service_guid': service.guid})
+
+        task = service.schedule_action('start')
+
+        result = self.client.services.task_get(guid=service.guid, secrets=[secret], task_guid=task.guid)
+        assert result.action_name == 'start'
+        assert result.state == 'new'
 
     def test_service_task_create(self):
         Node = self.load_template('node')

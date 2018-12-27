@@ -18,7 +18,7 @@ class templates(JSBASE):
         schema = j.data.schema.get(url='zrobot.template')
         output = []
         for template in tcol.list_templates():
-            output.append(schema.get(data=template_view(template)))
+            output.append(schema.get(data=template_view(template))._data)
 
         return output
 
@@ -40,7 +40,7 @@ class templates(JSBASE):
         schema = j.data.schema.get(url='zrobot.template')
         output = []
         for template in added:
-            output.append(schema.get(data=template_view(template)))
+            output.append(schema.get(data=template_view(template))._data)
 
         return output
 

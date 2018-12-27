@@ -63,19 +63,19 @@ class services(JSBASE):
             lambda s: s.guid in allowed_services_guids or scol.is_service_public(s.guid),
             all_services)))
 
-    def get(self, guid, secrets, schema_out):
+    def get(self, guid, secrets, god_token, schema_out):
         """
         ```in
         guid = (guid)
         secrets = (LS)
+        god_token = (S)
         ```
 
         ```out
         !zrobot.service
         ```
         """
-        allowed_services_guids = auth.user_jwt.extract_service_guid_from_secrets(secrets)
-        if guid not in allowed_services_guids:
+        if not can_access_service(guid, secrets, god_token):
             raise RuntimeError("no valid secret for this service")  # TODO: use proper exception
 
         service = scol.get_by_guid(guid)
@@ -110,18 +110,18 @@ class services(JSBASE):
 
         return encode_service(service_created, secret)
 
-    def delete(self, guid, secrets):
+    def delete(self, guid, secrets, god_token):
         """
         ```in
         guid = (guid)
         secrets = (LS)
+        god_token = (S)
         ```
         """
         try:
             service = scol.get_by_guid(guid)
 
-            allowed_services_guids = auth.user_jwt.extract_service_guid_from_secrets(secrets)
-            if guid not in allowed_services_guids:
+            if not can_access_service(guid, secrets, god_token):
                 raise RuntimeError("no valid secret for this service")  # TODO: use proper exception
 
             service.delete()
@@ -129,46 +129,44 @@ class services(JSBASE):
             pass
         return "OK"
 
-    def actions(self, guid, secrets):
+    def actions(self, guid, secrets, god_token):
         """
         ```in
         guid = (guid)
         secrets = (LS)
+        god_token = (S)
         ```
         """
         # FIXME: when gedis support list of schema out
         # ```out
         # (LO)!zrobot.action
         # ```
-        service = scol.get_by_guid(guid)
-
-        allowed_services_guids = auth.user_jwt.extract_service_guid_from_secrets(secrets)
-        if guid not in allowed_services_guids:
+        if not can_access_service(guid, secrets, god_token):
             raise RuntimeError("no valid secret for this service")  # TODO: use proper exception
 
+        service = scol.get_by_guid(guid)
         schema = j.data.schema.get(url='zrobot.action')
         out = []
         for action in get_actions_list(service):
             out.append(schema.get(data=action)._data)
         return out
 
-    def logs(self, guid, secrets, schema_out):
+    def logs(self, guid, secrets, god_token, schema_out):
         """
         ```in
         guid = (guid)
         secrets = (LS)
+        god_token = (S)
         ```
 
         ```out
         !zrobot.log
         ```
         """
-        service = scol.get_by_guid(guid)
-
-        allowed_services_guids = auth.user_jwt.extract_service_guid_from_secrets(secrets)
-        if guid not in allowed_services_guids:
+        if not can_access_service(guid, secrets, god_token):
             raise RuntimeError("no valid secret for this service")  # TODO: use proper exception
 
+        service = scol.get_by_guid(guid)
         logs_obj = schema_out.new()
 
         log_file = os.path.join(j.dirs.LOGDIR, 'zrobot', service.guid)
@@ -176,27 +174,28 @@ class services(JSBASE):
             logs_obj.logs = j.sal.fs.fileGetContents(log_file)
         return logs_obj
 
-    def tasks(self, guid, secrets, all=False):
+    def tasks(self, guid, secrets, god_token, all=False):
         """
         ```in
         guid = (guid)
         secrets = (LS)
+        god_token = (S)
         all = False (B)
         ```
         """
-        allowed_services_guids = auth.user_jwt.extract_service_guid_from_secrets(secrets)
-        if guid not in allowed_services_guids:
+        if not can_access_service(guid, secrets, god_token):
             raise RuntimeError("no valid secret for this service")  # TODO: use proper exception
 
         service = scol.get_by_guid(guid)
         # return only task waiting or all existing task for this service
-        return list(map(lambda t: encode_task(t, service), service.task_list.list_tasks(all=all)))
+        return list(map(lambda t: encode_task(t, service)._data, service.task_list.list_tasks(all=all)))
 
-    def task_create(self, guid, secrets, task, schema_out):
+    def task_create(self, guid, secrets, god_token, task, schema_out):
         """
         ```in
         guid = (guid)
         secrets = (LS)
+        god_token = (S)
         task = (O)!zrobot.task
         ```
 
@@ -204,8 +203,7 @@ class services(JSBASE):
         !zrobot.task
         ```
         """
-        allowed_services_guids = auth.user_jwt.extract_service_guid_from_secrets(secrets)
-        if guid not in allowed_services_guids:
+        if not can_access_service(guid, secrets, god_token):
             raise RuntimeError("no valid secret for this service")  # TODO: use proper exception
 
         service = scol.get_by_guid(guid)
@@ -221,20 +219,20 @@ class services(JSBASE):
 
         return encode_task(task, service)
 
-    def task_get(self, guid, secrets, task_guid, schema_out):
+    def task_get(self, guid, secrets, god_token, task_guid, schema_out):
         """
         ```in
         guid = (guid)
         secrets = (LS)
-        task = (O)!zrobot.task
+        god_token = (S)
+        task_guid = (guid)
         ```
 
         ```out
         !zrobot.task
         ```
         """
-        allowed_services_guids = auth.user_jwt.extract_service_guid_from_secrets(secrets)
-        if guid not in allowed_services_guids:
+        if not can_access_service(guid, secrets, god_token):
             raise RuntimeError("no valid secret for this service")  # TODO: use proper exception
 
         service = scol.get_by_guid(guid)
@@ -272,7 +270,7 @@ def encode_service(service, secret=None):
 def encode_task(task, service):
     encoded = j.data.schema.get(url='zrobot.task').new()
 
-    result = None
+    result = b''
     eco = None
 
     if task.result is not None:
@@ -292,7 +290,7 @@ def encode_task(task, service):
     encoded.duration = task.duration or 0
     encoded.eco = eco
     encoded.result = result
-    return encoded._data
+    return encoded
 
 
 def get_actions_list(obj):
@@ -313,6 +311,11 @@ def get_actions_list(obj):
             actions.append({'name': name})
 
     return actions
+
+
+def can_access_service(guid, secrets, god_token):
+    allowed_services_guids = auth.user_jwt.extract_service_guid_from_secrets(secrets)
+    return auth.god_jwt.verify(god_token) if god_token else guid in allowed_services_guids
 
 
 class ServiceCreateError(Exception):

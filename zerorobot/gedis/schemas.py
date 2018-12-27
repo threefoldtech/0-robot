@@ -54,7 +54,7 @@ state = (S) # is an enum = (new, ok, running, error)
 created = (date)
 duration = (I)
 eco = (O) !zrobot.eco
-result = (S)
+result = (bytes)
 """
 
 SCHEMA_ERROR = """

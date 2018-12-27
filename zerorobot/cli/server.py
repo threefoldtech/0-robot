@@ -1,15 +1,14 @@
-
 from gevent import monkey
-
 # need to patch sockets to make requests async
 monkey.patch_all(subprocess=False)
 
-from Jumpscale import j
-import click
 import logging
-from Jumpscale.core.logging.Handlers import TelegramHandler
-from Jumpscale.core.logging.Handlers import TelegramFormatter
+
+import click
+from Jumpscale import j
+from Jumpscale.core.logging.Handlers import TelegramFormatter, TelegramHandler
 from zerorobot.robot import Robot
+
 
 
 telegram_logger = logging.getLogger('telegram_logger')
@@ -72,10 +71,12 @@ def get_db_config_key():
 @click.option('--user-organization', help='if specified, use this organization to protect the user API endpoint.', required=False)
 @click.option('--mode', help='mode of 0-robot', type=click.Choice(['node']), required=False)
 @click.option('--god', help='enable god mode (use ONLY for development !!)', required=False, default=False, is_flag=True)
+@click.option('--gedis', help='enable gedis server', required=False, default=False, is_flag=True)
 def start(listen, data_repo, template_repo, config_repo, config_key, debug,
           telegram_bot_token, telegram_chat_id,
           auto_push, auto_push_interval,
-          admin_organization, user_organization, mode, god):
+          admin_organization, user_organization, mode, god,
+          gedis):
     """
     start the 0-robot daemon.
     this will start the REST API on address and port specified by --listen and block
@@ -96,7 +97,8 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
             raise RuntimeError("Working in zdb backend mode and don't have a namespace")
 
     if (telegram_bot_token and not telegram_chat_id) or (telegram_chat_id and not telegram_bot_token):
-        raise ValueError("To enable telegram error logging, you need to specify both the --telegram-bot-token and the --telegram-chat-id options")
+        raise ValueError(
+            "To enable telegram error logging, you need to specify both the --telegram-bot-token and the --telegram-chat-id options")
 
     if telegram_bot_token:
         telegram_logger.disabled = False
@@ -124,5 +126,5 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
                 admin_organization=admin_organization,
                 user_organization=user_organization,
                 mode=mode,
-                god=god)
-
+                god=god,
+                enable_gedis=gedis)

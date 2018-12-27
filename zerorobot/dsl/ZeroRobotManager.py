@@ -2,21 +2,22 @@
 This module contains a wrapper of the go-raml generated client for ZeroRobot.
 """
 
+from urllib.parse import urlparse
+
 from requests.exceptions import HTTPError
 
 from Jumpscale import j
 from zerorobot.git.repo import RepoCheckoutError
 from zerorobot.service_collection import (ServiceConflictError,
                                           ServiceNotFoundError, TooManyResults)
-from zerorobot.service_proxy import ServiceProxy
+from zerorobot.service_proxy import ServiceProxy, ServiceProxyGedis
 from zerorobot.template_collection import (TemplateConflictError,
                                            TemplateNotFoundError)
 from zerorobot.template_uid import TemplateUID
-from urllib.parse import urlparse
-
-logger = j.logger.get(__name__)
 
 from . import config_mgr
+
+logger = j.logger.get(__name__)
 
 
 class ServiceCreateError(Exception):
@@ -37,6 +38,185 @@ class ServiceUpgradeError(Exception):
     def __init__(self, msg, original_exception):
         super().__init__(msg + (": %s" % original_exception))
         self.original_exception = original_exception
+
+
+class ServicesMgrGedis:
+    def __init__(self, robot):
+        self._robot = robot
+        self._client = robot._client
+        self._gedis = robot._gedis_client
+        self._schemas = {
+            'service': j.data.schema.get(url='zrobot.service'),
+        }
+
+    def _instantiate(self, data):
+        if hasattr(data, 'secret') and data.secret:
+            self._client = config_mgr.append_secret(self._client.instance, data.secret)
+
+        srv = ServiceProxyGedis(data.name, data.guid, self._client, self._gedis)
+        srv.template_uid = TemplateUID.parse(data.template)
+        if data.data:
+            # TODO:
+            import ipdb
+            ipdb.set_trace()
+            srv._data = data.as_dict()
+        return srv
+
+    def _list_services(self, **kwargs):
+        args = {
+            'secrets': self._client.config.data['secrets_'],
+            'god_token': self._client.config.data['god_token_'],
+        }
+        if kwargs:
+            args.update(kwargs)
+
+        services = list(map(lambda data: self._schemas['service'].get(
+            capnpbin=data), self._gedis.services.list(**args)))
+        return services
+
+    @property
+    def names(self):
+        """
+        Return a dictionnary that contains all the service present on
+        the ZeroRobot
+
+        key is the name of the service
+        value is a ServiceProxy object
+        """
+        results = {}
+        for service in self._list_services():
+            srv = self._instantiate(service)
+            results[srv.name] = srv
+        return results
+
+    @property
+    def guids(self):
+        """
+        Return a dictionnary that contains all the service present on
+        the ZeroRobot
+
+        key is the guid of the service
+        value is a ServiceProxy object
+        """
+        results = {}
+        for service in self._list_services():
+            srv = self._instantiate(service)
+            results[srv.guid] = srv
+        return results
+
+    def find(self, **kwargs):
+        """
+        Find some services based on some filters passed in **kwargs
+        """
+        return [self._instantiate(service) for service in self._list_services(**kwargs)]
+
+    def exists(self, **kwargs):
+        """
+        Test if a service exists and filter results from kwargs.
+        You can filter on:
+        "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
+        """
+        results = self.find(**kwargs)
+        return len(results) > 0
+
+    def get(self, **kwargs):
+        """
+        return a service service based on the filters in kwargs.
+        You can filter on:
+        "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
+        """
+        results = self.find(**kwargs)
+        i = len(results)
+        if i > 1:
+            raise TooManyResults("%d services found" % i)
+        elif i <= 0:
+            raise ServiceNotFoundError("service not found: query was: %s" % str(kwargs))
+        return results[0]
+
+    def create(self, template_uid, service_name=None, data=None, public=False):
+        """
+        Instantiate a service from a template
+
+        :param template_uid: UID of the template to use a base class for the service
+        :type template_uid: str
+        :param service_name: name of the service, needs to be unique within the robot instance, defaults to None
+        :param service_name: str, optional
+        :param data: a dictionnary with the data of the service to create, defaults to None
+        :param data: dict, optional
+        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False
+        :type public: bool, optional
+        :raises ServiceConflictError: raised when a service with same name already exists
+        :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use
+        :raises TemplateNotFoundError: raise when the template specified is not found
+        :raises ServiceCreateError: raise when an error happens during service creation
+        :return: service proxy
+        :rtype: ServiceProxy
+        """
+        req = {
+            "template": str(template_uid),
+            "version": "0.0.1",
+            "public": public,
+        }
+        if service_name:
+            req["name"] = service_name
+        if data:
+            req["data"] = j.data.serializers.msgpack.dumps(data)  # TODO: change once gedis supports dict type
+
+        service_creation = self._schemas['service'].get(data=req)
+        # try:
+        new_service = self._gedis.services.create(service_creation)
+        # TODO: see how to get proper exception from gedis and re-raise appropritate one here
+        # except HTTPError as err:
+        #     jsonerr = err.response.json()
+        #     msg = jsonerr['message']
+        #     code = jsonerr['code']
+        #     if err.response.status_code == 409:
+        #         if code == 409:
+        #             raise ServiceConflictError(msg, None)
+        #         if code == 4090:
+        #             raise TemplateConflictError(msg)
+        #     elif err.response.status_code == 404:
+        #         raise TemplateNotFoundError(msg)
+
+        # e = err.response.json()
+        # logger = j.logger.get('zerorobot')
+        # logger.error('fail to create service: %s' % e['message'])
+        # raise ServiceCreateError(e['message'], err)
+
+        return self._instantiate(new_service)
+
+    def find_or_create(self, template_uid, service_name, data, public=False):
+        """
+        Helper method that first check if a service exists and if not then creates it
+        if the service is found, it is returned
+        if the service is not found, it is created using the data passed then returned
+
+        ::param template_uid: UID of the template to use a base class for the service
+        :type template_uid: str
+        :param service_name: name of the service, needs to be unique within the robot instance, defaults to None
+        :param service_name: str, optional
+        :param data: a dictionnary with the data of the service to create, defaults to None
+        :param data: dict, optional
+        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False
+        :raises ServiceConflictError: raised when a service with same name already exists
+        :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use
+        :raises TemplateNotFoundError: raise when the template specified is not found
+        :raises ServiceCreateError: raise when an error happens during service creation
+        :type public: bool, optional
+        :return: service proxy
+        :rtype: ServiceProxy
+        """
+        # allow to use just the name of the template instead of the full uid
+        if template_uid.find('/') == -1:
+            for t in self._robot.templates.uids.values():
+                if template_uid == t.name:
+                    template_uid = str(t.uid)
+                    break
+
+        try:
+            return self.get(template_uid=template_uid, name=service_name)
+        except ServiceNotFoundError:
+            return self.create(template_uid=template_uid, service_name=service_name, data=data, public=public)
 
 
 class ServicesMgr:
@@ -249,12 +429,81 @@ class TemplatesMgr:
         return {TemplateUID.parse(t.uid): t for t in templates}
 
 
+class TemplatesMgrGedis:
+
+    def __init__(self, robot):
+        self._robot = robot
+        self._client = robot._client
+        self._gedis = robot._gedis_client
+        self._schemas = {
+            'repo': j.data.schema.get(url='zrobot.template_repository'),
+            'template': j.data.schema.get(url='zrobot.template'),
+        }
+
+    def add_repo(self, url, branch='master'):
+        """
+        Add a new template repository
+        """
+        data = self._schemas['repo'].get(data={
+            "url": url,
+            "branch": branch,
+        })
+        results = self._gedis.templates.add(data)
+        templates = []
+        for result in results:
+            templates.append(self._schemas['template'].get(capnpbin=result))
+        return templates
+
+    def checkout_repo(self, url, revision='master'):
+        """
+        Checkout a branch/tag/revision of a template repository
+
+        @param url: url of the template repo
+        @param revision: branch, tag or revision to checkout
+        """
+        data = self._schemas['repo'].get(data={
+            "url": url,
+            "branch": revision,
+        })
+        self._gedis.templates.checkout(data)
+
+    @property
+    def uids(self):
+        """
+        Returns a list of template UID present on the ZeroRobot
+        """
+        results = self._gedis.templates.list()
+        templates = []
+        for result in results:
+            templates.append(self._schemas['template'].get(capnpbin=result))
+        return {TemplateUID.parse(t.uid): t for t in templates}
+
+
 class ZeroRobotManager:
 
     def __init__(self, instance='main'):
         self._client = j.clients.zrobot.get(instance)
-        self.services = ServicesMgr(self)
-        self.templates = TemplatesMgr(self)
+        gedis_client = self._negotiate()
+        if gedis_client:
+            self._gedis_client = gedis_client
+            self.services = ServicesMgrGedis(self)
+            self.templates = TemplatesMgrGedis(self)
+        else:
+            self.services = ServicesMgr(self)
+            self.templates = TemplatesMgr(self)
+
+    def _negotiate(self):
+        from zerorobot import gedis  # load the schemas
+        # first try gedis interface
+        u = urlparse(self._client.config.data['url'])
+
+        ip = u.hostname
+        for port in [u.port, u.port]:
+            try:
+                logger.info("try gedis connection to %s:%s", ip, port)
+                return j.clients.gedis.configure(instance=self._client.instance, host=ip, port=6601, namespace='zrobot', ssl=False, reset=True)
+            except:
+                continue
 
     def _try_god_token(self):
         try:
@@ -266,4 +515,3 @@ class ZeroRobotManager:
             self._client.god_token_set(token)
         finally:
             node = j.clients.zos.delete('godtoken')
-

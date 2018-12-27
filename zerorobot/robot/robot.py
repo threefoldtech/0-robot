@@ -89,6 +89,7 @@ class Robot:
               user_organization=None,
               mode=None,
               god=False,
+              enable_gedis=False,
               **kwargs):
         """
         start the rest web server
@@ -151,8 +152,24 @@ class Robot:
         pool = Pool(None)
         hostport = _split_hostport(listen)
         self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger)
-        self._http.start()
-        self._addr = self._http.address
+
+        def start_http():
+            self._http.start()
+            self._addr = self._http.address
+
+        def start_gedis():
+            from zerorobot import gedis
+            logger.info("start gedis server")
+            server = j.servers.gedis.configure(instance='local', port=6601, host='0.0.0.0', ssl=False, adminsecret='')
+            for filename in ['templates.py', 'robot.py', 'services.py']:
+                actor_path = os.path.join(os.path.dirname(gedis.__file__), filename)
+                server.actor_add(actor_path, namespace='zrobot')
+            server.start()
+
+        gls = []
+        gls.append(gevent.spawn(start_http))
+        if enable_gedis:
+            gls.append(gevent.spawn(start_gedis))
         logger.info("robot running at %s:%s" % hostport)
 
         if block:

@@ -21,6 +21,107 @@ from zerorobot.template.state import ServiceState
 logger = j.logger.get(__name__)
 
 
+class ServiceProxyGedis:
+    def __init__(self, name, guid, http_client, gedis_client):
+        """
+        @param name: name of the service
+        @param guid: guid of the service
+        @param gedis_client: Instance of ZeroRobotClient that talks to the robot on which the
+                              service is actually running
+        """
+        self._http_client = http_client
+        self._gedis_client = gedis_client
+        self.name = name
+        self.guid = guid
+        self.template_uid = None
+        # a proxy service doesn't have direct access to the data of it's remote homologue
+        # cause data are always only accessible  by the service itself and locally
+        self._data = None
+        self.task_list = TaskListProxyGedis(self)
+
+    def __repr__(self):
+        # Provide a nice representation in tools like IPython / js9
+        return "robot://%s/%s?%s" % (self._gedis_client._client.config.instance, self.template_uid, urllib.parse.urlencode(dict(name=self.name, guid=self.guid)))
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def state(self):
+        kwargs = {
+            'secrets': self._http_client.config.data['secrets_'],
+            'god_token': self._http_client.config.data['god_token_'],
+            'guid': self.guid
+        }
+        service = self._gedis_client.services.get(**kwargs)
+        s = ServiceState()
+        for state in service.state:
+            s.set(state.category, state.tag, state.state.value)
+        return s
+
+    @property
+    def actions(self):
+        """
+        list available actions of the services
+        """
+        kwargs = {
+            'secrets': self._http_client.config.data['secrets_'],
+            'god_token': self._http_client.config.data['god_token_'],
+            'guid': self.guid
+        }
+        schema = j.data.schema.get(url='zrobot.action')
+        actions = list(map(lambda x: schema.get(capnpbin=x), self._gedis_client.services.actions(**kwargs)))
+        return sorted([a.name for a in actions])
+
+    @property
+    def logs(self):
+        kwargs = {
+            'secrets': self._http_client.config.data['secrets_'],
+            'god_token': self._http_client.config.data['god_token_'],
+            'guid': self.guid
+        }
+        logs = self._gedis_client.services.logs(**kwargs)
+        return logs.logs
+
+    def schedule_action(self, action, args=None):
+        """
+        Do a call on a remote ZeroRobot to add an action to the task list of
+        the corresponding service
+
+        @param action: action is the name of the action to add to the task list
+        @param args: dictionnary of the argument to pass to the action
+        """
+        task_data = {
+            "action_name": action,
+        }
+        # TODO: uncomment when gedis support dict type
+        # if args:
+        #     task_data["args"] = args
+
+        task_creation = j.data.schema.get(url='zrobot.task').get(data=task_data)
+        kwargs = {
+            'secrets': self._http_client.config.data['secrets_'],
+            'god_token': self._http_client.config.data['god_token_'],
+            'guid': self.guid,
+            'task': task_creation,
+            'guid': self.guid,
+        }
+
+        task = self._gedis_client.services.task_create(**kwargs)
+        return _task_proxy_from_gedis(task, self)
+
+    def delete(self):
+        kwargs = {
+            'secrets': self._http_client.config.data['secrets_'],
+            'god_token': self._http_client.config.data['god_token_'],
+            'guid': self.guid
+        }
+        self._gedis_client.services.delete(**kwargs)
+        # clean up secret from zrobot client
+        config_mgr.remove_secret(self._http_client.instance, self.guid)
+
+
 class ServiceProxy():
     """
     This class is used to provide a local proxy to a remote service for a ZeroRobot.
@@ -109,6 +210,40 @@ class ServiceProxy():
         config_mgr.remove_secret(self._zrobot_client.instance, self.guid)
 
 
+class TaskListProxyGedis:
+    def __init__(self, service_proxy):
+        self._service = service_proxy
+
+    def _list_task(self, all=False):
+        kwargs = {
+            'secrets': self._service._http_client.config.data['secrets_'],
+            'god_token': self._service._http_client.config.data['god_token_'],
+            'guid': self._service.guid,
+            'all': all,
+        }
+        schema = j.data.schema.get(url='zrobot.task')
+        return list(map(lambda x: schema.get(capnpbin=x), self._service._gedis_client.services.tasks(**kwargs)))
+
+    def empty(self):
+        return len(self._list_task()) <= 0
+
+    def list_tasks(self, all=False):
+        tasks = self._list_task(all)
+        return list(map(lambda x: _task_proxy_from_gedis(x, self._service), tasks))
+
+    def get_task_by_guid(self, guid):
+        """
+        return a task from the list by it's guid
+        """
+        kwargs = {
+            'secrets': self._service._http_client.config.data['secrets_'],
+            'god_token': self._service._http_client.config.data['god_token_'],
+            'guid': self._service.guid,
+            'task_guid': guid,
+        }
+        return _task_proxy_from_gedis(self._service._gedis_client.services.task_get(**kwargs), self._service)
+
+
 class TaskListProxy:
 
     def __init__(self, service_proxy):
@@ -135,6 +270,75 @@ class TaskListProxy:
             if err.response.status_code == 404:
                 raise TaskNotFoundError("no task with guid %s found" % guid)
             raise err
+
+
+class TaskProxyGedis(Task):
+    """
+    class that represent a task on a remote service
+
+    the state attribute is an property that do an API call to get the
+    actual state of the task on the remote ZeroRobot
+    """
+
+    def __init__(self, guid, service, action_name, args, created):
+        super().__init__(func=None, args=args)
+        # since this is going to work over network, we increase the
+        # sleep period to not overload the network
+        self._sleep_period = 5
+        self.action_name = action_name
+        self.service = service
+        self.guid = guid
+        self._created = created
+
+    def execute(self):
+        raise RuntimeError("a TaskProxy should never be executed")
+
+    def _get_task(self):
+        kwargs = {
+            'secrets': self.service._http_client.config.data['secrets_'],
+            'god_token': self.service._http_client.config.data['god_token_'],
+            'guid': self.service.guid,
+            'task_guid': self.guid,
+        }
+        return self.service._gedis_client.services.task_get(**kwargs)
+
+    @property
+    def result(self):
+        if self._result is None:
+            task = self._get_task()
+            if task.result:
+                self._result = j.data.serializers.msgpack.loads(task.result)
+        return self._result
+
+    @property
+    def duration(self):
+        if self._duration is None:
+            task = self._get_task()
+            self._duration = task.duration
+        return self._duration
+
+    @property
+    def state(self):
+        task = self._get_task()
+        return task.state
+
+    @state.setter
+    def state(self, value):
+        logger.warning("you can't change the statet of a TaskProxy")
+        return
+
+    @property
+    def eco(self):
+        if self._eco is None:
+            task = self._get_task()
+            if task.eco.trace:
+                self._eco = Eco.from_dict(task.eco._ddict)
+        return self._eco
+
+    def _cancel(self):
+        # TODO:
+        raise NotImplementedError()
+        # self.service._zrobot_client.api.services.CancelTask(task_guid=self.guid, service_guid=self.service.guid)
 
 
 class TaskProxy(Task):
@@ -208,3 +412,12 @@ def _task_proxy_from_api(task, service):
 
     return t
 
+
+def _task_proxy_from_gedis(task, service):
+    t = TaskProxyGedis(task.guid, service, task.action_name, {}, task.created)
+    # t = TaskProxyGedis(task.guid, self, task.action_name, task.args, task.created) #TODO: uncomment when gedis support dict type
+    if task.duration:
+        t._duration = task.duration
+    if task.eco.trace:
+        t._eco = Eco.from_dict(task.eco._ddict)
+    return t
