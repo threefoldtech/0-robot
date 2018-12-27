@@ -29,7 +29,7 @@ source "$DIR/../jumpscale_versions.sh"
 pushd $HOME/code/github/threefoldtech
 
 # cloning source code
-for target in jumpscale_core jumpscale_lib jumpscale_prefab; do
+for target in jumpscale_core jumpscale_lib jumpscale_prefab digital_me; do
     git clone https://github.com/threefoldtech/${target}
     pushd ${target}
     x=${target}_revision
@@ -38,7 +38,7 @@ for target in jumpscale_core jumpscale_lib jumpscale_prefab; do
 done
 
 # install jumpscale
-for target in jumpscale_core jumpscale_lib jumpscale_prefab; do
+for target in jumpscale_core jumpscale_lib jumpscale_prefab digital_me; do
     pushd ${target}
     pip3 install -e .
     popd
