@@ -147,7 +147,7 @@ def start_robot():
     if zdb_url:
         args.extend(['--data-repo', zdb_url])
 
-    template_repo = 'https://github.com/threefoldtech/0-templates#master'
+    template_repo = 'https://github.com/threefoldtech/0-templates#development'
     args.extend(['--template-repo', template_repo])
 
     logger.info('starting node robot: %s', ' '.join(args))
