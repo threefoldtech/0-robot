@@ -9,7 +9,7 @@ python:
   - "3.6"
 
 install:
-  - pip3 install codecov pytest pytest-cov
+  - pip3 install -U codecov pytest>=3.6 pytest-cov
   - ./utils/scripts/jumpscale_install.sh
   - ./utils/scripts/travis_install.sh
 
