@@ -140,18 +140,14 @@ def start_robot():
     if user_org:
         args.extend(['--user-organization', user_org])
 
-    template_repo = 'https://github.com/threefoldtech/0-templates'
-    if 'development' in kernel_args:
-        args.append('--god')
-        template_repo += '#development'
-
-    if 'god' not in args and 'god' in kernel_args:
+    if 'development' in kernel_args or 'god' in kernel_args or 'support' in kernel_args:
         args.append('--god')
 
     zdb_url = read_config_repo_config()
     if zdb_url:
         args.extend(['--data-repo', zdb_url])
 
+    template_repo = 'https://github.com/threefoldtech/0-templates#master'
     args.extend(['--template-repo', template_repo])
 
     logger.info('starting node robot: %s', ' '.join(args))
