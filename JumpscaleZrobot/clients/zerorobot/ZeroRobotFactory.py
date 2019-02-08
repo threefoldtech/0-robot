@@ -51,11 +51,11 @@ class ZeroRobotFactory(JSConfigFactoryBase):
 
 class RobotLoader(collections.MutableMapping):
 
-    def __call__(self, key):
-        return self.get(key)
+    def __call__(self, key, **kwargs):
+        return self.get(key, **kwargs)
 
-    def __getitem__(self, key):
-        return self.get(key)
+    def __getitem__(self, key, **kwargs):
+        return self.get(key, **kwargs)
 
     def __setitem__(self, key, value):
         raise NotImplementedError("you cannot set a robot.")
@@ -72,12 +72,11 @@ class RobotLoader(collections.MutableMapping):
     def __keytransform__(self, key):
         return key
 
-    def get(self, key):
+    def get(self, key, **kwargs):
         if not isinstance(key, str):
             raise TypeError
 
-        if not j.clients.zrobot.exists(key):
-            raise KeyError()
+        j.clients.zrobot.get(key, **kwargs)
 
         return ZeroRobotManager(key)
 
