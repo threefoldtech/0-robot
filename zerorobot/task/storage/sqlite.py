@@ -160,4 +160,4 @@ class TaskStorageSqlite(TaskStorageBase):
         })
 
     def _deserialize_task(self, blob):
-        return msgpack.loads(blob, encoding='utf-8')
+        return msgpack.loads(blob, raw=False)
