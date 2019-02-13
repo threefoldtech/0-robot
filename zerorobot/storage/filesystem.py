@@ -30,12 +30,21 @@ class FileSystemServiceStorage(ServiceStorageBase):
         if not os.path.exists(path):
             os.makedirs(path)
 
-        # location on the filesystem where to store the service
+        service_path = os.path.join(path, 'service.yaml.tmp')
+        state_path = os.path.join(path, 'state.yaml.tmp')
+        data_path = os.path.join(path, 'data.yaml.tmp')
+        task_path = os.path.join(path, 'tasks.yaml.tmp')
+
         serialized_service = _serialize_service(service)
-        j.data.serializer.yaml.dump(os.path.join(path, 'service.yaml'), serialized_service['service'])
-        j.data.serializer.yaml.dump(os.path.join(path, 'state.yaml'), serialized_service['states'])
-        j.data.serializer.yaml.dump(os.path.join(path, 'data.yaml'), serialized_service['data'])
-        j.data.serializer.yaml.dump(os.path.join(path, 'tasks.yaml'), serialized_service['tasks'])
+        j.data.serializer.yaml.dump(service_path, serialized_service['service'])
+        j.data.serializer.yaml.dump(state_path, serialized_service['states'])
+        j.data.serializer.yaml.dump(data_path, serialized_service['data'])
+        j.data.serializer.yaml.dump(task_path, serialized_service['tasks'])
+
+        j.sal.fs.moveFile(service_path, service_path[:-4])
+        j.sal.fs.moveFile(state_path, state_path[:-4])
+        j.sal.fs.moveFile(data_path, data_path[:-4])
+        j.sal.fs.moveFile(task_path, task_path[:-4])
 
     def list(self):
         for service_dir in j.sal.fs.listDirsInDir(self._root, recursive=True):
