@@ -120,8 +120,6 @@ class Robot:
         if not kwargs.get('testing', False):
             monitor(app)
 
-
-
          # configure authentication middleware
         _configure_authentication(admin_organization, user_organization)
 
@@ -161,7 +159,8 @@ class Robot:
                 # wait until stop() is called
                 self._stop_event.wait()
             finally:
-                gevent.Greenlet.spawn(self.stop, timeout=60).join()
+                if self.started:
+                    gevent.Greenlet.spawn(self.stop, timeout=60).join()
 
     def stop(self, timeout=30):
         """
@@ -186,11 +185,15 @@ class Robot:
         self._addr = None
 
         logger.info("waiting for services to stop")
-        for service in scol.list_services():
+        pool = Pool(30)
+
+        def stop_service(service):
             try:
                 service._gracefull_stop(timeout=timeout)
             except Exception as err:
-                logger.warning('exception raised while waiting %s %s (%s) to finish: %s', service.template_uid.name, service.name, service.guid, err)
+                logger.warning('exception raised while waiting %s %s (%s) to finish: %s',
+                               service.template_uid.name, service.name, service.guid, err)
+        pool.map(stop_service, scol.list_services())
 
         # here no more requests are comming in, we can safely save all services
         self._save_services()
