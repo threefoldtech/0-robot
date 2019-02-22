@@ -12,16 +12,36 @@ class ServiceData(dict):
     access to capnp object easy for the service
     """
 
-    def __init__(self, service):
+    def __init__(self, service, *args, **kwargs):
         """
         @param schema_path: path to the
         """
+        super().__init__(*args, **kwargs)
+        self._nacl = j.data.nacl.get()
+        self._type_map = {}
         self._service = service
         path = os.path.join(service.template_dir, 'schema.capnp')
         if os.path.exists(path):
             schema_str = j.sal.fs.fileGetContents(path)
             msg = j.data.capnp.getObj(schema_str)
             self.update(msg.to_dict(verbose=True))
+
+    def __setitem__(self, key, value):
+        self._type_map[key] = type(value)
+        if key[-1] == '_':
+            value = self._nacl.encryptSymmetric(value)
+        return super().__setitem__(key, value)
+
+    def get_decrypted(self, key):
+        value = self[key]
+        value = self._nacl.decryptSymmetric(value)
+        if self._type_map[key] == str:
+            value = value.decode()
+        return value
+
+    def set_encrypted(self, key, value):
+        self._type_map[key] = type(value)
+        return super().__setitem__(key, self._nacl.encryptSymmetric(value))
 
     def update_secure(self, data):
         """

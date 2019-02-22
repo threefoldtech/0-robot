@@ -138,7 +138,8 @@ class TestGodMode(unittest.TestCase):
             j.clients.zrobot.get('test2', {'url': 'http://localhost:6600'})
             cl2 = ZeroRobotManager('test2')
 
-            assert len(cl2.services.guids) == 0, "trying to list all the services without god mode disabled should not return all the existing services"
+            assert len(
+                cl2.services.guids) == 0, "trying to list all the services without god mode disabled should not return all the existing services"
             j.clients.zrobot.delete('test2')
 
     def test_list_services_god_enable_no_token(self):
@@ -149,7 +150,8 @@ class TestGodMode(unittest.TestCase):
             j.clients.zrobot.get('test2', {'url': 'http://localhost:6600'})
             cl2 = ZeroRobotManager('test2')
 
-            assert len(cl2.services.guids) == 0, "trying to list all the services without god token should not return all the existing services"
+            assert len(
+                cl2.services.guids) == 0, "trying to list all the services without god token should not return all the existing services"
             j.clients.zrobot.delete('test2')
 
     def test_list_services_god_disable_token_valid(self):
@@ -177,8 +179,19 @@ class TestGodMode(unittest.TestCase):
             cl2 = ZeroRobotManager('test2')
             cl2._client.god_token_set(god_token)
 
-            assert len(cl2.services.guids) == 1, "trying to list all the services without god mode enabled and god token should not return all the existing services"
+            assert len(
+                cl2.services.guids) == 1, "trying to list all the services without god mode enabled and god token should not return all the existing services"
             service = cl2.services.find()[0]
             assert service.data is not None, "with god mode and god token any the client should be able to read the data of any service"
 
             j.clients.zrobot.delete('test2')
+
+    def test_service_data(self):
+        god_token = god_jwt.create()
+        with RobotContext(god=True) as cl:
+            cl._client.god_token_set(god_token)
+            _, service = self.create_proxy(cl)
+            service.data.set_encrypted('ip', '192.168.0.1')
+            proxy = cl.services.names[service.name]
+            assert proxy.data['data']['ip']
+            assert proxy.data['data']['ip'] != '192.168.0.1'

@@ -95,7 +95,8 @@ class TestServiceTemplate(unittest.TestCase):
             self.assertTrue(k in service_info, "%s should be present in service.yaml" % k)
 
         srv.delete()
-        self.assertFalse(os.path.exists(os.path.dirname(srv_dir)), "directory of the saved service not should exists anymore")
+        self.assertFalse(os.path.exists(os.path.dirname(srv_dir)),
+                         "directory of the saved service not should exists anymore")
 
         log_file_pattern = os.path.join(j.dirs.LOGDIR, 'zrobot', srv.guid) + '*'
         log_files = glob.glob(log_file_pattern)
@@ -113,7 +114,8 @@ class TestServiceTemplate(unittest.TestCase):
 
         loaded = scol.load(Node, _serialize_service(srv))
         self.assertEqual(srv.name, loaded.name, "name of the loaded service should be %s" % srv.name)
-        self.assertEqual(srv.template_name, loaded.template_name, "template_name of the loaded service should be %s" % srv.template_name)
+        self.assertEqual(srv.template_name, loaded.template_name,
+                         "template_name of the loaded service should be %s" % srv.template_name)
         self.assertEqual(srv.guid, loaded.guid, "guid of the loaded service should be %s" % srv.guid)
         self.assertEqual(srv.version, loaded.version, "version of the loaded service should be %s" % srv.version)
         self.assertIsNotNone(srv.data, "loaded service data should not be None")
@@ -188,7 +190,8 @@ class TestServiceTemplate(unittest.TestCase):
         task = srv.data.update_secure(data={'ip': '127.0.0.1'})
         task.wait()
         self.assertEqual(task.action_name, 'update_data')
-        self.assertEqual(srv.data['ip'], '127.0.0.1', 'if the template overwrite update_data, the data should be updated')
+        self.assertEqual(srv.data['ip'], '127.0.0.1',
+                         'if the template overwrite update_data, the data should be updated')
 
     def test_recurring(self):
         tmpl = self.load_template('recurring')
@@ -211,3 +214,10 @@ class TestServiceTemplate(unittest.TestCase):
             assert ss[1] == 'cleanup2'
         finally:
             j.sal.fs.remove(check_file)
+
+    def test_data_protected(self):
+        Tmpl = self.load_template('cleanup')
+        srv = tcol.instantiate_service(Tmpl)
+        # should raise if we try to overwrite the data property
+        with pytest.raises(RuntimeError):
+            srv.data = {}

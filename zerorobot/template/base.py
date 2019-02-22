@@ -148,9 +148,9 @@ class TemplateBase:
 
         self.api = ZeroRobotAPI()
 
-        self.data = ServiceData(self)
+        self._data = ServiceData(self)
         if data:
-            self.data.update(data)
+            self._data.update(data)
         self.state = ServiceState()
         self.task_list = TaskList(self)
 
@@ -161,6 +161,14 @@ class TemplateBase:
         self.gl_mgr.add('executor', gevent.Greenlet(self._run))
 
         self.logger = _configure_logger(self)
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        raise RuntimeError("cannot assign to 'data' property")
 
     def validate(self):
         """
