@@ -1,5 +1,7 @@
 import json
 
+from jumpscale import j
+
 from zerorobot import service_collection as scol
 from zerorobot import config
 
@@ -15,7 +17,11 @@ def service_view(service):
         "public": scol.is_service_public(service.guid)
     }
     if config.god:
-        s['data'] = service.data
+        s['data'] = {}
+        for k, v in service.data.items():
+            if isinstance(v, bytes):
+                v = j.data.serializer.base64.dumps(v)
+            s['data'][k] = v
     return s
 
 
