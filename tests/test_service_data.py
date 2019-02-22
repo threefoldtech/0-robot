@@ -32,3 +32,14 @@ def test_data_encryption(service):
     data.set_encrypted('foo3', 'bar')
     assert data['foo3'] != 'bar'
     assert data.get_decrypted('foo3') == 'bar'
+
+
+def test_data_update(service):
+    data = ServiceData(service)
+    data.update({'foo': 'bar'})
+    assert 'foo' in data._type_map
+    assert data == {'foo': 'bar'}
+
+    data.update({'foo_': 'bar'})
+    data['foo_'] != 'bar'
+    data.get_decrypted('foo_') == 'bar'
