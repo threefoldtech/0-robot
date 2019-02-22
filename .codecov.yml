@@ -11,3 +11,4 @@ coverage:
     - zerorobot/server/services_api.py
     - zerorobot/server/robot_api.py
     - Jumpscale9Zrobot/clients/zerorobot/client/.*
+    - tests/.*
