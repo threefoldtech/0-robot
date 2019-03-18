@@ -87,9 +87,11 @@ def load(template, service_detail):
     guid = service_detail['service']['guid']
     try:
         if template_uid > template.template_uid:
-            raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (guid, template.template_uid, service_detail['service']['template']))
+            raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (
+                guid, template.template_uid, service_detail['service']['template']))
     except ValueError:  # is the two template are not the same, ValueError is raised
-        raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (guid, template.template_uid, service_detail['service']['template']))
+        raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (
+            guid, template.template_uid, service_detail['service']['template']))
 
     service = template(name=service_detail['service']['name'], guid=guid, data=service_detail['data'])
     service._public = service_detail['service'].get('public', False)
@@ -130,6 +132,14 @@ def upgrade(service, new_template, force=False):
     new_service.state = service.state
     # new_service.task_list = service.task_list
     add(new_service)
+
+    try:
+        new_service.validate()
+    except Exception as err:
+        service.gl_mgr.stop('executor')
+        logger.error("fail to validate service %s: %s" % (new_service.guid, str(err)))
+        logger.error(
+            "this service is not going to process its task queue. Upgrade the service again to make the 'validate' action to pass")
 
     new_service.save()
     return new_service
