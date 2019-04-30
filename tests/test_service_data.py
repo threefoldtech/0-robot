@@ -22,24 +22,15 @@ def test_create_data(service):
 def test_data_encryption(service):
     data = ServiceData(service)
     data['foo'] = 'bar'
-    data['foo_'] = 'bar'
-    data['foo2_'] = b'bar'
     assert data['foo'] == 'bar'
-    assert data['foo_'] != 'bar'
-    assert data['foo2_'] != b'bar'
-    assert data.get_decrypted('foo_') == 'bar'
+    data.set_encrypted('foo_', 'bar')
+    data.set_encrypted('foo2_', b'bar')
+    assert data.get_decrypted('foo_').decode() == 'bar'
     assert data.get_decrypted('foo2_') == b'bar'
     data.set_encrypted('foo3', 'bar')
     assert data['foo3'] != 'bar'
-    assert data.get_decrypted('foo3') == 'bar'
+    assert data.get_decrypted('foo3').decode() == 'bar'
 
-
-def test_data_update(service):
-    data = ServiceData(service)
-    data.update({'foo': 'bar'})
-    assert 'foo' in data._type_map
-    assert data == {'foo': 'bar'}
-
-    data.update({'foo_': 'bar'})
-    data['foo_'] != 'bar'
-    data.get_decrypted('foo_') == 'bar'
+    # ensure trying decrypt clear data raises
+    with pytest.raises(Exception):
+        data.get_decrypted("foo")

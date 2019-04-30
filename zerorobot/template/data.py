@@ -1,4 +1,3 @@
-
 from collections import Mapping
 import os
 
@@ -19,7 +18,6 @@ class ServiceData(dict):
         """
         super().__init__(*args, **kwargs)
         self._nacl = j.data.nacl.get()
-        self._type_map = {}
         self._service = service
         path = os.path.join(service.template_dir, 'schema.capnp')
         if os.path.exists(path):
@@ -27,30 +25,21 @@ class ServiceData(dict):
             msg = j.data.capnp.getObj(schema_str)
             self.update(msg.to_dict(verbose=True))
 
-    def __setitem__(self, key, value):
-        self._type_map[key] = type(value)
-        if key[-1] == '_':
-            value = self._nacl.encryptSymmetric(value).hex()
-        return super().__setitem__(key, value)
-
-    def update(self, other=None, **kwargs):
-        if other is not None:
-            for k, v in other.items() if isinstance(other, Mapping) else other:
-                self[k] = v
-        for k, v in kwargs.items():
-            self[k] = v
 
     def get_decrypted(self, key):
         value = self[key]
-        value = self._nacl.decryptSymmetric(
-            self._nacl.hex_to_bin(value))
-        if self._type_map[key] == str:
-            value = value.decode()
+        value = self._nacl.decryptSymmetric(self._nacl.hex_to_bin(value))
         return value
 
     def set_encrypted(self, key, value):
-        self._type_map[key] = type(value)
         return super().__setitem__(key, self._nacl.encryptSymmetric(value).hex())
+
+    def is_encrypted(self, value):
+        try:
+            self._nacl.decryptSymmetric(self._nacl.hex_to_bin(value))
+            return True
+        except:
+            return False
 
     def update_secure(self, data):
         """
