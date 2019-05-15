@@ -22,27 +22,12 @@ from zerorobot import service_collection as scol
 from zerorobot import storage, webhooks
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.prometheus.robot import task_latency
-from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
-                            Task, TaskList)
+from zerorobot.task import PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR, Task, TaskList
 from zerorobot.task.utils import wait_all
 from zerorobot.template.data import ServiceData
 from zerorobot.template.decorator import timeout
 from zerorobot.template.state import ServiceState
-
-
-class BadActionArgumentError(Exception):
-    """
-    Error return when the argument pass when trying to schedule an action
-    doesn't match with the method signature
-    """
-    pass
-
-
-class ActionNotFoundError(Exception):
-    """
-    Error raised when trying to schedule an action that doesn't exist
-    """
-    pass
+from zerorobot.template.exceptions import ActionNotFoundError, BadActionArgumentError
 
 
 class GreenletsMgr:
@@ -105,9 +90,9 @@ class GreenletsMgr:
             self.wait_all(timeout)
 
     def stop_recurring(self, wait=False, timeout=None):
-        logger = j.logger.get('zerorobot')
+        logger = j.logger.get("zerorobot")
         for key, gl in self.gls.items():
-            if key.startswith('recurring_'):
+            if key.startswith("recurring_"):
                 logger.info("kill %s" % key)
                 gl.kill(block=wait, timeout=timeout)
 
@@ -143,7 +128,7 @@ class TemplateBase:
             self.template_uid.repo,
             self.template_uid.name,
             self.name,
-            self.guid
+            self.guid,
         )
 
         self.api = ZeroRobotAPI()
@@ -158,7 +143,7 @@ class TemplateBase:
 
         # start the greenlets of this service
         self.gl_mgr = GreenletsMgr()
-        self.gl_mgr.add('executor', gevent.Greenlet(self._run))
+        self.gl_mgr.add("executor", gevent.Greenlet(self._run))
 
         self.logger = _configure_logger(self)
 
@@ -213,11 +198,12 @@ class TemplateBase:
                     task.execute()
                     # we save the service state after each actions
                     # we don't save after a save action, since we just already did it
-                    if task.action_name != 'save':
+                    if task.action_name != "save":
                         self.save()
                 finally:
-                    task_latency.labels(action_name=task.action_name, template_uid=str(
-                        self.template_uid)).observe(task.duration)
+                    task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(
+                        task.duration
+                    )
                     # notify the task list that this task is done
                     self.task_list.done(task)
                     if task.state == TASK_STATE_ERROR and task.eco:
@@ -268,7 +254,8 @@ class TemplateBase:
             diff = args_keys.difference(signature_keys)
             if diff and not kwargs_enable:
                 raise BadActionArgumentError(
-                    'arguments "%s" are not present in the signature of the action' % ','.join(diff))
+                    'arguments "%s" are not present in the signature of the action' % ",".join(diff)
+                )
 
         task = Task(method, args)
         self.task_list.put(task, priority=priority)
@@ -306,7 +293,7 @@ class TemplateBase:
 
         # stop all recurring action and processing of task list
         self.gl_mgr.stop_recurring(wait=False)
-        main_gl = self.gl_mgr.get('executor')
+        main_gl = self.gl_mgr.get("executor")
 
         # if the main loop is busy with a task, wait timeout
         # then kill
@@ -349,7 +336,7 @@ class TemplateBase:
 
         # close ressources of logging handlers
         for h in self.logger.handlers:
-            if hasattr(h, 'close'):
+            if hasattr(h, "close"):
                 h.close()
 
         # remove from persistant storage
@@ -357,8 +344,8 @@ class TemplateBase:
 
         # remove logs from disk
         # TODO: write logs into storage interface
-        log_file = os.path.join(j.dirs.LOGDIR, 'zrobot', self.guid)
-        for f in glob.glob(log_file+'*'):
+        log_file = os.path.join(j.dirs.LOGDIR, "zrobot", self.guid)
+        for f in glob.glob(log_file + "*"):
             os.remove(f)
 
         # remove from memory
@@ -433,22 +420,24 @@ def _recurring_action(service, action, period, priority=PRIORITY_NORMAL):
             break
 
 
-_LOGGER_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)d - %(levelname)s - %(message)s'
+_LOGGER_FORMAT = "%(asctime)s - %(pathname)s:%(lineno)d - %(levelname)s - %(message)s"
 
 
 def _configure_logger(service):
-    log_dir = os.path.join(j.dirs.LOGDIR, 'zrobot')
+    log_dir = os.path.join(j.dirs.LOGDIR, "zrobot")
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    l = logging.getLogger('%s-%s (%s)' % (service.name, service.guid, service.template_uid.name))
+    l = logging.getLogger("%s-%s (%s)" % (service.name, service.guid, service.template_uid.name))
     l.parent.handlers = []
-    rfh = RotatingFileHandler(os.path.join(log_dir, service.guid),
-                              mode='a',
-                              maxBytes=512 * 1024,  # 512k
-                              backupCount=1,  # 2 * 512k = 1Mib of logs max per service
-                              encoding=None,
-                              delay=True)
+    rfh = RotatingFileHandler(
+        os.path.join(log_dir, service.guid),
+        mode="a",
+        maxBytes=512 * 1024,  # 512k
+        backupCount=1,  # 2 * 512k = 1Mib of logs max per service
+        encoding=None,
+        delay=True,
+    )
     rfh.setLevel(logging.DEBUG)
     rfh.setFormatter(logging.Formatter(_LOGGER_FORMAT))
     l.addHandler(rfh)
