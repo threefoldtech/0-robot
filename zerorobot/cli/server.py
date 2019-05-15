@@ -108,15 +108,15 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
 
     robot = Robot()
 
-    for url in template_repo:
-        robot.add_template_repo(url)
-
-    robot.set_data_repo(data_repo)
-
     config_repo = config_repo or get_db_config_repo()
     config_key = config_key or get_db_config_key()
 
     robot.set_config_repo(config_repo, config_key)
+
+    robot.set_data_repo(data_repo)
+
+    for url in template_repo:
+        robot.add_template_repo(url)
 
     robot.start(listen=listen,
                 auto_push=auto_push,
