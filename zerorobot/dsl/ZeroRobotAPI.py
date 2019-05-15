@@ -15,7 +15,6 @@ from . import config_mgr
 
 
 class ServicesMgr:
-
     def __init__(self):
         pass
 
@@ -124,11 +123,10 @@ class ServicesMgr:
 
 
 class TemplatesMgr:
-
     def __init__(self):
         pass
 
-    def add_repo(self, url, branch='master'):
+    def add_repo(self, url, branch="master"):
         """
         Add a new template repository
 
@@ -136,7 +134,7 @@ class TemplatesMgr:
         """
         return tcol.add_repo(url=url, branch=branch)
 
-    def checkout_repo(self, url, revision='master'):
+    def checkout_repo(self, url, revision="master"):
         """
         Checkout a branch/tag/revision of a template repository
 
@@ -155,10 +153,37 @@ class TemplatesMgr:
         return tcol._templates
 
 
+logger = j.logger.get("zerorobot")
+# create the zos client to the local node using the unix socket
+j.clients.zos.get(
+    "local",
+    {
+        "db": 0,
+        "host": "127.0.0.1",
+        "password_": "",
+        "port": 6379,
+        "ssl": True,
+        "timeout": 120,
+        "unixsocket": "/tmp/redis.sock",
+    },
+)
+
+
 class ZeroRobotAPI:
-    # TODO: find better name
+    # this _node_sal is shared between all
+    # instance of this class, this present for all services
+    # to use
+    _node_sal = j.clients.zos.get("local")
 
     def __init__(self):
         self.services = ServicesMgr()
         self.templates = TemplatesMgr()
         self.robots = config_mgr
+
+    # expose the _node_sal trought a property so we can inject some logs for debugging
+    @property
+    def node_sal(self):
+        logger.debug("in use connection %d", len(self._node_sal.client._redis.connection_pool._in_use_connections))
+        logger.debug("available %d", len(self._node_sal.client._redis.connection_pool._available_connections))
+        logger.debug("created %d", self._node_sal.client._redis.connection_pool._created_connections)
+        return self._node_sal
