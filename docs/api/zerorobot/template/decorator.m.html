@@ -1046,6 +1046,7 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.template.decorator.profile">profile</a></li>
     <li class="mono"><a href="#zerorobot.template.decorator.retry">retry</a></li>
+    <li class="mono"><a href="#zerorobot.template.decorator.throttle">throttle</a></li>
     <li class="mono"><a href="#zerorobot.template.decorator.timeout">timeout</a></li>
   </ul>
 
@@ -1074,6 +1075,7 @@ table {
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 <span class="kn">import</span> <span class="nn">gevent</span>
+<span class="kn">from</span> <span class="nn">timeit</span> <span class="kn">import</span> <span class="n">default_timer</span>
 
 <span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 
@@ -1140,6 +1142,38 @@ table {
     <span class="k">return</span> <span class="n">deco_timout</span>
 
 
+<span class="k">def</span> <span class="nf">throttle</span><span class="p">(</span><span class="n">calls_per_sec</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decorates a Greenlet function for throttling.&quot;&quot;&quot;</span>
+    <span class="n">interval</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">calls_per_sec</span> <span class="k">if</span> <span class="n">calls_per_sec</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">decorate</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">blocked</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span>  <span class="c1"># has to be a list to not get localized inside the while loop</span>
+        <span class="c1"># otherwise, UnboundLocalError: local variable &#39;blocked&#39; referenced before assignment</span>
+        <span class="n">last_time</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ditto</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>  <span class="c1"># propagates docstring</span>
+        <span class="k">def</span> <span class="nf">throttled_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="c1"># give other greenlets a chance to run, otherwise we</span>
+                <span class="c1"># might get stuck while working thread is sleeping and the block is ON</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">blocked</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">blocked</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="c1"># check if actually might need to pause</span>
+                    <span class="k">if</span> <span class="n">calls_per_sec</span><span class="p">:</span>
+                        <span class="n">last</span><span class="p">,</span> <span class="n">current</span> <span class="o">=</span> <span class="n">last_time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">default_timer</span><span class="p">()</span>
+                        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">current</span> <span class="o">-</span> <span class="n">last</span>
+                        <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="n">interval</span><span class="p">:</span>
+                            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;throttleing :sleep </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">interval</span><span class="o">-</span><span class="n">elapsed</span><span class="p">))</span>
+                            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span> <span class="o">-</span> <span class="n">elapsed</span><span class="p">)</span>
+                        <span class="n">last_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_timer</span><span class="p">()</span>
+                    <span class="n">blocked</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">throttled_func</span>
+
+    <span class="k">return</span> <span class="n">decorate</span>
+
+
 <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Enable python cProfile for the decorated function.</span>
@@ -1151,6 +1185,7 @@ table {
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">TemplateBase</span>
+
     <span class="k">def</span> <span class="nf">deco_profile</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -1224,6 +1259,7 @@ table {
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">TemplateBase</span>
+
     <span class="k">def</span> <span class="nf">deco_profile</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
 
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -1313,6 +1349,56 @@ table {
         <span class="k">return</span> <span class="n">f_retry</span>  <span class="c1"># true decorator</span>
 
     <span class="k">return</span> <span class="n">deco_retry</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.template.decorator.throttle">
+    <p>def <span class="ident">throttle</span>(</p><p>calls_per_sec=0)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Decorates a Greenlet function for throttling.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.decorator.throttle', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.decorator.throttle" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">throttle</span><span class="p">(</span><span class="n">calls_per_sec</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decorates a Greenlet function for throttling.&quot;&quot;&quot;</span>
+    <span class="n">interval</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">calls_per_sec</span> <span class="k">if</span> <span class="n">calls_per_sec</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">decorate</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">blocked</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span>  <span class="c1"># has to be a list to not get localized inside the while loop</span>
+        <span class="c1"># otherwise, UnboundLocalError: local variable &#39;blocked&#39; referenced before assignment</span>
+        <span class="n">last_time</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ditto</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>  <span class="c1"># propagates docstring</span>
+        <span class="k">def</span> <span class="nf">throttled_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="c1"># give other greenlets a chance to run, otherwise we</span>
+                <span class="c1"># might get stuck while working thread is sleeping and the block is ON</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">blocked</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">blocked</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="c1"># check if actually might need to pause</span>
+                    <span class="k">if</span> <span class="n">calls_per_sec</span><span class="p">:</span>
+                        <span class="n">last</span><span class="p">,</span> <span class="n">current</span> <span class="o">=</span> <span class="n">last_time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">default_timer</span><span class="p">()</span>
+                        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">current</span> <span class="o">-</span> <span class="n">last</span>
+                        <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="n">interval</span><span class="p">:</span>
+                            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;throttleing :sleep </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">interval</span><span class="o">-</span><span class="n">elapsed</span><span class="p">))</span>
+                            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span> <span class="o">-</span> <span class="n">elapsed</span><span class="p">)</span>
+                        <span class="n">last_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_timer</span><span class="p">()</span>
+                    <span class="n">blocked</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">throttled_func</span>
+
+    <span class="k">return</span> <span class="n">decorate</span>
 </pre></div>
 
   </div>

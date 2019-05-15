@@ -1103,10 +1103,10 @@ table {
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
 
-<span class="kn">import</span> <span class="nn">gevent</span>
 <span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">from</span> <span class="nn">gevent.lock</span> <span class="kn">import</span> <span class="n">Semaphore</span>
 
+<span class="kn">import</span> <span class="nn">gevent</span>
+<span class="kn">from</span> <span class="nn">gevent.lock</span> <span class="kn">import</span> <span class="n">Semaphore</span>
 <span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
 <span class="kn">from</span> <span class="nn">zerorobot.errors</span> <span class="kn">import</span> <span class="n">ExpectedError</span><span class="p">,</span> <span class="n">eco_get</span>
@@ -1137,6 +1137,7 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="c1"># used when action raises an exception</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1165,9 +1166,10 @@ table {
         <span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_OK</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
@@ -1179,6 +1181,7 @@ table {
                 <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_send_eco_webhooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 
     <span class="nd">@property</span>
@@ -1215,6 +1218,8 @@ table {
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">gevent</span><span class="o">.</span><span class="n">with_timeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="n">wait</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Timeout</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cancel</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
                 <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">wait</span><span class="p">()</span>
@@ -1227,6 +1232,11 @@ table {
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">exception</span><span class="o">=</span><span class="n">gevent</span><span class="o">.</span><span class="n">Timeout</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">_created</span>
@@ -1268,7 +1278,7 @@ table {
 
 
 <span class="k">def</span> <span class="nf">_send_eco_webhooks</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">return</span>
 
     <span class="n">webhooks</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">webhooks</span>
@@ -1371,6 +1381,7 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="c1"># used when action raises an exception</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1399,9 +1410,10 @@ table {
         <span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_OK</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
@@ -1413,6 +1425,7 @@ table {
                 <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_send_eco_webhooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 
     <span class="nd">@property</span>
@@ -1449,6 +1462,8 @@ table {
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">gevent</span><span class="o">.</span><span class="n">with_timeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="n">wait</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Timeout</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cancel</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
                 <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">wait</span><span class="p">()</span>
@@ -1461,6 +1476,11 @@ table {
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">exception</span><span class="o">=</span><span class="n">gevent</span><span class="o">.</span><span class="n">Timeout</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">_created</span>
@@ -1543,6 +1563,7 @@ table {
     <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="c1"># used when action raises an exception</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">TASK_STATE_NEW</span>
@@ -1571,9 +1592,10 @@ table {
     <span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_OK</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
@@ -1585,6 +1607,7 @@ table {
             <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_send_eco_webhooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_execute_greenlet</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 </pre></div>
 
@@ -1628,6 +1651,8 @@ raises TimeoutError</p>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">with_timeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="n">wait</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Timeout</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cancel</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
             <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">wait</span><span class="p">()</span>

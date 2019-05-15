@@ -4,7 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
     <title>zerorobot.dsl.ZeroRobotManager API documentation</title>
-    <meta name="description" content="This module contains a wrapper of the go-raml generated client for ZeroRobot." />
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1118,11 +1118,12 @@ table {
 
   <header id="section-intro">
   <h1 class="title"><span class="name">zerorobot.dsl.ZeroRobotManager</span> module</h1>
-  <p>This module contains a wrapper of the go-raml generated client for ZeroRobot.</p>
+  
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotManager" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">config_mgr</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module contains a wrapper of the go-raml generated client for ZeroRobot.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1139,8 +1140,6 @@ table {
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">config_mgr</span>
 
 
 <span class="k">class</span> <span class="nc">ServiceCreateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1383,7 +1382,7 @@ table {
     <span class="k">def</span> <span class="nf">_try_god_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">u</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
-            <span class="n">node</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;godtoken&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">hostname</span><span class="p">})</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;godtoken&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="s1">&#39;password_&#39;</span><span class="p">:</span> <span class="s1">&#39;eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJhenAiOiJUU05GRzJ5Q01zWVRGalktazJMNm5CaGozdnozIiwiZXhwIjoxNTQ4OTI5NTYyLCJpc3MiOiJpdHN5b3VvbmxpbmUiLCJyZWZyZXNoX3Rva2VuIjoiQVdTMWQ5aF90RURKeVhMSVpuczhXWHloOVd1ViIsInNjb3BlIjpbInVzZXI6bWVtYmVyb2Y6dGhyZWVmb2xkLnN5c2FkbWluIl0sInVzZXJuYW1lIjoiemFpYm9uIn0.Uc0vRQE1AYYoANwQ_5n5JBaE29fbKpwwyFkBnTTMYFVEU5r9oWwPOnkXYo3OHn3iTddzjJKQRZfYOAfJ6g7-HVHDNV4IpwXDznVzbfQFpXVbat8Sy--iordQOaprYiYP&#39;</span><span class="p">})</span>
             <span class="n">zcont</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
             <span class="n">resp</span> <span class="o">=</span> <span class="n">zcont</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;zrobot godtoken get&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
             <span class="n">token</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -2230,7 +2229,7 @@ value is a ServiceProxy object</p></div>
     <span class="k">def</span> <span class="nf">_try_god_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">u</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
-            <span class="n">node</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;godtoken&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">hostname</span><span class="p">})</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;godtoken&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="s1">&#39;password_&#39;</span><span class="p">:</span> <span class="s1">&#39;eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJhenAiOiJUU05GRzJ5Q01zWVRGalktazJMNm5CaGozdnozIiwiZXhwIjoxNTQ4OTI5NTYyLCJpc3MiOiJpdHN5b3VvbmxpbmUiLCJyZWZyZXNoX3Rva2VuIjoiQVdTMWQ5aF90RURKeVhMSVpuczhXWHloOVd1ViIsInNjb3BlIjpbInVzZXI6bWVtYmVyb2Y6dGhyZWVmb2xkLnN5c2FkbWluIl0sInVzZXJuYW1lIjoiemFpYm9uIn0.Uc0vRQE1AYYoANwQ_5n5JBaE29fbKpwwyFkBnTTMYFVEU5r9oWwPOnkXYo3OHn3iTddzjJKQRZfYOAfJ6g7-HVHDNV4IpwXDznVzbfQFpXVbat8Sy--iordQOaprYiYP&#39;</span><span class="p">})</span>
             <span class="n">zcont</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
             <span class="n">resp</span> <span class="o">=</span> <span class="n">zcont</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;zrobot godtoken get&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
             <span class="n">token</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>

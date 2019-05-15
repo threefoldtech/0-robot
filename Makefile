@@ -16,7 +16,7 @@ generate-client:
 	go-raml client --language python --dir JumpscaleZrobot/clients/zerorobot/client --ramlfile api_spec/main.raml --kind requests --python-unmarshall-response
 
 generate-apidoc:
-	if ! pip show pdoc > /dev/null; then pip install pdoc; fi
+	if ! pip3 show pdoc > /dev/null; then pip3 install pdoc; fi
 	rm -r docs/api
 	pdoc --html  --html-dir docs/api --all-submodules --overwrite zerorobot
 

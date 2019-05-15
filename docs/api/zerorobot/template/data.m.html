@@ -1057,8 +1057,11 @@ table {
           
   <ul>
     <li class="mono"><a href="#zerorobot.template.data.ServiceData.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.template.data.ServiceData.get_decrypted">get_decrypted</a></li>
     <li class="mono"><a href="#zerorobot.template.data.ServiceData.load">load</a></li>
     <li class="mono"><a href="#zerorobot.template.data.ServiceData.save">save</a></li>
+    <li class="mono"><a href="#zerorobot.template.data.ServiceData.set_encrypted">set_encrypted</a></li>
+    <li class="mono"><a href="#zerorobot.template.data.ServiceData.update">update</a></li>
     <li class="mono"><a href="#zerorobot.template.data.ServiceData.update_secure">update_secure</a></li>
   </ul>
 
@@ -1082,7 +1085,8 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.data" class="source">
-    <div class="codehilite"><pre><span></span><span class="n">mport</span> <span class="n">os</span>
+    <div class="codehilite"><pre><span></span><span class="n">rom</span> <span class="n">collections</span> <span class="kn">import</span> <span class="nn">Mapping</span>
+<span class="n">mport</span> <span class="n">os</span>
 <span class="n">rom</span> <span class="n">jumpscale</span> <span class="kn">import</span> <span class="nn">j</span>
 <span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">task</span> <span class="kn">import</span> <span class="nn">PRIORITY_SYSTEM</span>
 <span class="n">lass</span> <span class="n">ServiceData</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
@@ -1090,16 +1094,40 @@ table {
 <span class="sd">   Small wrapper around dict object to make</span>
 <span class="sd">   access to capnp object easy for the service</span>
 <span class="sd">   &quot;&quot;&quot;</span>
-   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       @param schema_path: path to the</span>
 <span class="sd">       &quot;&quot;&quot;</span>
+       <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">nacl</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span> <span class="o">=</span> <span class="p">{}</span>
        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
            <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
            <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+   <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+       <span class="k">if</span> <span class="n">key</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span>
+           <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">encryptSymmetric</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+       <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+   <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+       <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+           <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="k">else</span> <span class="n">other</span><span class="p">:</span>
+               <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+       <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+           <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+   <span class="k">def</span> <span class="nf">get_decrypted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+       <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+       <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">decryptSymmetric</span><span class="p">(</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">hex_to_bin</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+           <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+       <span class="k">return</span> <span class="n">value</span>
+   <span class="k">def</span> <span class="nf">set_encrypted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+       <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">encryptSymmetric</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">())</span>
    <span class="k">def</span> <span class="nf">update_secure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       @param data: dict of data to be merge with current one</span>
@@ -1161,16 +1189,44 @@ access to capnp object easy for the service</p></div>
 <span class="sd">    access to capnp object easy for the service</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        @param schema_path: path to the</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">nacl</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">encryptSymmetric</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="k">else</span> <span class="n">other</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="k">def</span> <span class="nf">get_decrypted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">decryptSymmetric</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">hex_to_bin</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">set_encrypted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">encryptSymmetric</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">update_secure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1222,7 +1278,7 @@ access to capnp object easy for the service</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.template.data.ServiceData.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, service)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, service, *args, **kwargs)</p>
     </div>
     
 
@@ -1232,16 +1288,45 @@ access to capnp object easy for the service</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data.ServiceData.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.data.ServiceData.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    @param schema_path: path to the</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">nacl</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s1">&#39;schema.capnp&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
         <span class="n">schema_str</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">capnp</span><span class="o">.</span><span class="n">getObj</span><span class="p">(</span><span class="n">schema_str</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.data.ServiceData.get_decrypted">
+    <p>def <span class="ident">get_decrypted</span>(</p><p>self, key)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data.ServiceData.get_decrypted', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.data.ServiceData.get_decrypted" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_decrypted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">decryptSymmetric</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">hex_to_bin</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">value</span>
 </pre></div>
 
   </div>
@@ -1296,6 +1381,57 @@ access to capnp object easy for the service</p></div>
 <span class="sd">    @param path: file path where to save the data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.data.ServiceData.set_encrypted">
+    <p>def <span class="ident">set_encrypted</span>(</p><p>self, key, value)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data.ServiceData.set_encrypted', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.data.ServiceData.set_encrypted" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_encrypted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_type_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nacl</span><span class="o">.</span><span class="n">encryptSymmetric</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">())</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.template.data.ServiceData.update">
+    <p>def <span class="ident">update</span>(</p><p>self, other=None, **kwargs)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>D.update([E, ]**F) -&gt; None.  Update D from dict/iterable E and F.
+If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+In either case, this is followed by: for k in F:  D[k] = F[k]</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.data.ServiceData.update', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.data.ServiceData.update" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="k">else</span> <span class="n">other</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 </pre></div>
 
   </div>

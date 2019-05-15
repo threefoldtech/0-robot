@@ -1040,6 +1040,13 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.logger">logger</a></li>
+  </ul>
+
+    </li>
 
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
@@ -1115,7 +1122,6 @@ table {
 
 
 <span class="k">class</span> <span class="nc">ServicesMgr</span><span class="p">:</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
@@ -1224,11 +1230,10 @@ table {
 
 
 <span class="k">class</span> <span class="nc">TemplatesMgr</span><span class="p">:</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s2">&quot;master&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a new template repository</span>
 
@@ -1236,7 +1241,7 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s2">&quot;master&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checkout a branch/tag/revision of a template repository</span>
 
@@ -1255,13 +1260,40 @@ table {
         <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">_templates</span>
 
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;zerorobot&quot;</span><span class="p">)</span>
+<span class="c1"># create the zos client to the local node using the unix socket</span>
+<span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+    <span class="s2">&quot;local&quot;</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;db&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;password_&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="mi">6379</span><span class="p">,</span>
+        <span class="s2">&quot;ssl&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+        <span class="s2">&quot;unixsocket&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/redis.sock&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+
 <span class="k">class</span> <span class="nc">ZeroRobotAPI</span><span class="p">:</span>
-    <span class="c1"># TODO: find better name</span>
+    <span class="c1"># this _node_sal is shared between all</span>
+    <span class="c1"># instance of this class, this present for all services</span>
+    <span class="c1"># to use</span>
+    <span class="n">_node_sal</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="o">=</span> <span class="n">TemplatesMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">robots</span> <span class="o">=</span> <span class="n">config_mgr</span>
+
+    <span class="c1"># expose the _node_sal trought a property so we can inject some logs for debugging</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">node_sal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;in use connection </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_sal</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">connection_pool</span><span class="o">.</span><span class="n">_in_use_connections</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;available </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_sal</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">connection_pool</span><span class="o">.</span><span class="n">_available_connections</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;created </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_sal</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">connection_pool</span><span class="o">.</span><span class="n">_created_connections</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_sal</span>
 </pre></div>
 
   </div>
@@ -1269,6 +1301,15 @@ table {
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.dsl.ZeroRobotAPI.logger" class="name">var <span class="ident">logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1281,7 +1322,6 @@ table {
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ServicesMgr</span><span class="p">:</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
@@ -1663,11 +1703,10 @@ value is a Service</p></div>
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.TemplatesMgr', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.TemplatesMgr" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TemplatesMgr</span><span class="p">:</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s2">&quot;master&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a new template repository</span>
 
@@ -1675,7 +1714,7 @@ value is a Service</p></div>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s2">&quot;master&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checkout a branch/tag/revision of a template repository</span>
 
@@ -1741,7 +1780,7 @@ value is a Service</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.TemplatesMgr.add_repo', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.TemplatesMgr.add_repo" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s2">&quot;master&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a new template repository</span>
 <span class="sd">    returns the templates that were added from this repository</span>
@@ -1769,7 +1808,7 @@ value is a Service</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.TemplatesMgr.checkout_repo', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.TemplatesMgr.checkout_repo" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s2">&quot;master&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checkout a branch/tag/revision of a template repository</span>
 <span class="sd">    @param url: url of the template repo</span>
@@ -1808,12 +1847,23 @@ values are the templates objects</p></div>
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ZeroRobotAPI</span><span class="p">:</span>
-    <span class="c1"># TODO: find better name</span>
+    <span class="c1"># this _node_sal is shared between all</span>
+    <span class="c1"># instance of this class, this present for all services</span>
+    <span class="c1"># to use</span>
+    <span class="n">_node_sal</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">ServicesMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">templates</span> <span class="o">=</span> <span class="n">TemplatesMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">robots</span> <span class="o">=</span> <span class="n">config_mgr</span>
+
+    <span class="c1"># expose the _node_sal trought a property so we can inject some logs for debugging</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">node_sal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;in use connection </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_sal</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">connection_pool</span><span class="o">.</span><span class="n">_in_use_connections</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;available </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_sal</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">connection_pool</span><span class="o">.</span><span class="n">_available_connections</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;created </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_sal</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">_redis</span><span class="o">.</span><span class="n">connection_pool</span><span class="o">.</span><span class="n">_created_connections</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_sal</span>
 </pre></div>
 
   </div>
@@ -1852,6 +1902,16 @@ values are the templates objects</p></div>
   </div>
   
           <h3>Instance variables</h3>
+            <div class="item">
+            <p id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.node_sal" class="name">var <span class="ident">node_sal</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
             <div class="item">
             <p id="zerorobot.dsl.ZeroRobotAPI.ZeroRobotAPI.robots" class="name">var <span class="ident">robots</span></p>
             

@@ -1199,8 +1199,6 @@ table {
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
-
-
          <span class="c1"># configure authentication middleware</span>
         <span class="n">_configure_authentication</span><span class="p">(</span><span class="n">admin_organization</span><span class="p">,</span> <span class="n">user_organization</span><span class="p">)</span>
 
@@ -1240,7 +1238,8 @@ table {
                 <span class="c1"># wait until stop() is called</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
             <span class="k">finally</span><span class="p">:</span>
-                <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                    <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1265,11 +1264,15 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;waiting for services to stop&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">stop_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">service</span><span class="o">.</span><span class="n">_gracefull_stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;exception raised while waiting </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">) to finish: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;exception raised while waiting </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">) to finish: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+                               <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">stop_service</span><span class="p">,</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">())</span>
 
         <span class="c1"># here no more requests are comming in, we can safely save all services</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
@@ -1288,14 +1291,6 @@ table {
 
 
 <span class="k">def</span> <span class="nf">_create_node_service</span><span class="p">():</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="p">{</span>
-        <span class="s1">&#39;db&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s1">&#39;host&#39;</span><span class="p">:</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;password_&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="mi">6379</span><span class="p">,</span>
-        <span class="s1">&#39;ssl&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-        <span class="s1">&#39;timeout&#39;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
-        <span class="s1">&#39;unixsocket&#39;</span><span class="p">:</span> <span class="s1">&#39;/tmp/redis.sock&#39;</span><span class="p">})</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
     <span class="n">service_found</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_host</span><span class="o">=</span><span class="s1">&#39;github.com&#39;</span><span class="p">,</span> <span class="n">template_account</span><span class="o">=</span><span class="s1">&#39;threefoldtech&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s1">&#39;node&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">service_found</span><span class="p">:</span>
@@ -1489,8 +1484,6 @@ It is responsible to:
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
-
-
          <span class="c1"># configure authentication middleware</span>
         <span class="n">_configure_authentication</span><span class="p">(</span><span class="n">admin_organization</span><span class="p">,</span> <span class="n">user_organization</span><span class="p">)</span>
 
@@ -1530,7 +1523,8 @@ It is responsible to:
                 <span class="c1"># wait until stop() is called</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
             <span class="k">finally</span><span class="p">:</span>
-                <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                    <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1555,11 +1549,15 @@ It is responsible to:
         <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;waiting for services to stop&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">stop_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">service</span><span class="o">.</span><span class="n">_gracefull_stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;exception raised while waiting </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">) to finish: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;exception raised while waiting </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">) to finish: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+                               <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">stop_service</span><span class="p">,</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">())</span>
 
         <span class="c1"># here no more requests are comming in, we can safely save all services</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
@@ -1791,7 +1789,8 @@ load the services from the local git repository</p></div>
             <span class="c1"># wait until stop() is called</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1839,11 +1838,14 @@ load the services from the local git repository</p></div>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_addr</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;waiting for services to stop&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">stop_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">service</span><span class="o">.</span><span class="n">_gracefull_stop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;exception raised while waiting </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">) to finish: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;exception raised while waiting </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">) to finish: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+                           <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">stop_service</span><span class="p">,</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">())</span>
     <span class="c1"># here no more requests are comming in, we can safely save all services</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
     <span class="c1"># notify we can exist the process</span>
